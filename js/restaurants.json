@@ -1,0 +1,117 @@
+[
+   {
+      "restaurantName": "Brick Pizza",
+      "address": "39 Market Pl, Norwich NR2 1ND",
+      "telephone": "01603620661", 
+      "website": "https://www.brick.pizza/",
+      "lat": 52.62840,
+      "long": 1.29283,
+      "ratings": [
+         {
+            "stars": 1,
+            "comment": "Amazing pizza. Brick pizza is the real deal. If you want an authentic wood oven pizza then this is the place. Quality ingredients used for a great taste. Staff are great, very friendly and interact well with each other and the customers. Music is good too.."
+         },
+          {
+            "stars": 2,
+            "comment": "Delicious food. Definitely comming back! :)"
+         },
+          {
+            "stars": 1,
+            "comment": "Delicious food. Definitely comming back! :)"
+         }
+   
+      ]
+   },
+   {
+      "restaurantName": "Roger Hickman's Restaurant",
+      "address": "79 Upper St Giles St, Norwich NR2 1AB",
+      "telephone": "01603633522",
+      "website": "rogerhickmansrestaurant.com",
+      "lat": 52.62944,
+      "long": 1.28597,
+      "ratings":[
+         {
+            "stars": 5,
+            "comment": "Very good food and service. Not for the fussy eaters! Tucked away in a nice part of Norwich too. Highly recommend the tiramisu!"
+         },
+         {
+            "stars": 4,
+            "comment": "Lunch was very tasty, lunch is reasonably priced with 2 courses for 21.00 and 3 for 26.00. Interesting menu, small yet rich and filling."
+         },
+           {
+            "stars": 5,
+            "comment": "Very professional staff and the food was nice so no complains."
+         },
+         {
+            "stars": 5,
+            "comment": "Delicious food. Definitely comming back! :)"
+         },
+          {
+            "stars": 5,
+            "comment": "Delicious food. Definitely comming back! :)"
+         }
+      ]
+   },
+   {
+      "restaurantName": "Woolf & Social",
+      "address": "21-23 Nelson St, Norwich NR2 4DW",
+      "telephone": "01603443658",
+      "website": "https://www.woolfandsocial.co.uk/",
+      "lat": 52.63597,
+      "long": 1.27529,
+      "ratings":[
+         
+      ]
+   },
+   {
+      "restaurantName": "Zaks Mousehold",
+      "address": "Gurney Rd, Mousehold Heath, Norwich NR1 4HW",
+      "telephone": "01603 427016",
+      "website": "https://www.zaks.uk.com/",
+      "lat": 52.641850,
+      "long": 1.315970,
+      "ratings":[
+         {
+            "stars": 2,
+            "comment": "Great food, portions are very large! Service is good and lovely led light 80s decorated American dinner. Suitable for birthdays or the date out"
+         },
+         {
+            "stars": 1,
+            "comment": "Not usually one for leaving reviews but just had the worst meal at this place. Undercooked cheap fries and a burger that horrible. Definitely not how it used to be :("
+         },
+         {
+            "stars": 5,
+            "comment": "Great atmosphere, great food. Still love it now even as a vegetarian as there are loads of choices but I do miss the proper burgers! Definitely one of my favourite restaurants"
+         },
+         {  "stars": 2,
+            "comment": "Nice food and the service was lovely, my only criticism is that the burgers aren't what they used to be."
+         }
+      ]
+   },
+   {
+      "restaurantName": "Benedicts",
+      "address": "9 St Benedicts St, Norwich NR2 4PE",
+      "telephone": "01603926080",
+      "website": "https://www.restaurantbenedicts.com/",
+      "lat": 52.63085,
+      "long": 1.29106,
+      "ratings":[
+         {
+            "stars": 4,
+            "comment": "This place is unbeatable if you want a high quality dining experience in Norwich. There is a reason it's been number one on TripAdvisor for years. The staff are amazing and the chefs are first class."
+         },
+         {
+            "stars": 3,
+            "comment": "from the rave reviews I was expecting something rather more... the gnocchi was tasteless (with an odd watery green sauce) , the main was not very hot and the waiting staff rather intrusive (interrupting mid sentence and trying to get us to take desert menu moment we had finished our mains! did they want us to leave?) ... it was OK but not fantastic and expensive. also, coffee was extra on an already expensive menu which was a little disappointing...."
+         },
+         {
+            "stars": 4,
+            "comment": "from the rave reviews I was expecting something rather more... the gnocchi was tasteless (with an odd watery green sauce) , the main was not very hot and the waiting staff rather intrusive (interrupting mid sentence and trying to get us to take desert menu moment we had finished our mains! did they want us to leave?) ... it was OK but not fantastic and expensive. also, coffee was extra on an already expensive menu which was a little disappointing...."
+         },
+          {
+            "stars": 3,
+            "comment": "Delicious food. Definitely comming back! :)"
+         }
+      ]
+   }
+]
