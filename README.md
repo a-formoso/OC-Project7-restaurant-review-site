@@ -24,7 +24,7 @@
 July 2019
 
 
-### See full application here :point_right: [https://alexandreformoso.github.io/OC-Project7-restaurant-review-site/](https://alexandreformoso.github.io/OC-Project7-restaurant-review-site/)
+### See full application :point_right: [https://alexandreformoso.github.io/OC-Project7-restaurant-review-site/](https://alexandreformoso.github.io/OC-Project7-restaurant-review-site/)
 
 ![game printscreen](/images/app-preview.png)
 
