@@ -77,28 +77,40 @@ let avg;
 let avg_mrkr = [];
 let mrkr_icons = [];
 let mrkr_locations = [];
-let iw_hoover_popup = [];
+let iw_popup = [];
 let rest_dtls_collection = [];
-let rest_Index;
+let rest_index;
 let allCompany_reviews = [];
 
-function showReviews() {
-  console.log("Hello, Sam!");
+let marker;
 
+function showReviews(rest_index) {
   document.querySelector('#bottomSection').style.display = 'block';
-  //load restaurant information
-  for (let i = 0; i < mrkr_locations.length; i++) {  
-    console.log("i = " + i);
-    document.querySelector('#rest-brief').innerHTML = rest_dtls_collection[i];
-    console.log(rest_dtls_collection[i]);
-    //load Street View
-    let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
-      position: mrkr_locations[i],
-      pov: {heading: 165, pitch: 0},
-      zoom: 14
-    });
-    // //load customer reviews
-  }
+
+  //restaurant details
+  document.querySelector('#rest-brief').innerHTML = rest_dtls_collection[rest_index];
+  //Street View panorama
+  let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
+    position: mrkr_locations[rest_index],
+    pov: {heading: 165, pitch: 0},
+    zoom: 14
+  });
+  
+  let li_elem_id = '#' + rest_index;
+  $(this).click(function(e) {
+    //if clicked elem is a <a> tag, then select corresponding li elem on the side of the page
+    if ($(e.target).is( ":contains('See reviews')" )) {
+      console.log("It's an anchor tag!!");
+      elems = document.querySelectorAll('.selection.selected');
+      for (let i = 0; i < elems.length; i++) { //remove all pre-existing active classes
+        elems[i].classList.remove('selected');
+        elems[i].style.backgroundColor = '#fff'; //restore white background (#D9FEA2)
+      }
+      $(li_elem_id).addClass('selected');
+      let selected = document.querySelector('.selected');
+      selected.style.backgroundColor = '#D9FEA2';
+    }
+  });
 }
 
 /** if user's browser supports Geolocation
@@ -170,6 +182,7 @@ getUserLocation = function (position) {
         /** Finding avarage of restaurants' reviews 
         *****************************************************/
         for (let i = 0; i < restaurants.length; i++) {
+
           let lat = restaurants[i].lat;
           let lng = restaurants[i].long;
           ratings = restaurants[i].ratings;
@@ -177,7 +190,7 @@ getUserLocation = function (position) {
           restaurant = restaurants[i].restaurantName;
           telephone = restaurants[i].telephone;
           address = restaurants[i].address;
-          rest_Index = i;
+          rest_index = i;
           
           let values = []; //stores starred rating values
           let sum = 0;
@@ -306,8 +319,8 @@ getUserLocation = function (position) {
         /** Data to be loaded on the page and on the map 
         *****************************************************/ 
         let liItem =`
-          <li class="selection" data-marker-id="${rest_Index}" data-marker-title="${restaurant}">
-            <a href="#rest-details">
+          <li id="${rest_index}" class="selection" onClick="showReviews(${rest_index});" data-marker-id="${rest_index}" data-marker-title="${restaurant}">
+            <a class="liDirectChild" href="#bottomSection">
               <div class="restaurant-pic-wrapper"><img src="../images/food.png"/></div>
               <div class="restaurant-brief-wrapper">
                 <h5>${restaurant}</h5>
@@ -347,7 +360,7 @@ getUserLocation = function (position) {
        
           //(hover) infoWindow content String 
           let popup = `
-            <div class="popup_cttWrapper" data-marker-id="${rest_Index}" style="width: 220px;">
+            <div class="popup_cttWrapper" style="width: 220px;">
               <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
               <div>
                 <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
@@ -362,7 +375,7 @@ getUserLocation = function (position) {
               </div>
               <div style="display: flex; justify-content: center; padding: 4px 0;">
                 <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 12px 0;">
-                  <a href="#rest-details" style="color: #E7711B;" onClick="showReviews();"><i class="fa fa-md fa-angle-double-right fa-1x"></i> See reviews</a>
+                  <a href="#bottomSection" style="color: #E7711B;" onClick="showReviews(${rest_index});"><i class="fa fa-md fa-angle-double-right fa-1x"></i> See reviews</a>
                 </p>
               </div>
             </div>`;
@@ -372,64 +385,36 @@ getUserLocation = function (position) {
           console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
           mrkr_locations.push({lat, lng});
           li_elems += liItem;
-          iw_hoover_popup.push(popup);
+          iw_popup.push(popup);
           rest_dtls_collection.push(rest_dtls);
           allCompany_reviews.push(reviews);
 
         } //end of outer (main) for loop
-        
+    
 
         //placing new markers on the map
         for (let i = 0; i < mrkr_locations.length; i++) {  
-          let marker = new google.maps.Marker({
+          marker = new google.maps.Marker({
             //position: new google.maps.LatLng(mrkr_locations[i][i], mrkr_locations[i][i]),
             position: mrkr_locations[i],
             map: myMap,
             icon: mrkr_icons[i], 
-            title: 'click to zoom in'
+            title: 'click for details'
           });
 
           //adding mouse event handlers for each marker
-          marker.addListener('mouseover', function() {
-            // myMap.setZoom(13);
+          /*marker.addListener('mouseover', function() {
+            myMap.setZoom(13);
             infoWindow.setPosition(mrkr_locations[i]);
-            infoWindow.setContent(iw_hoover_popup[i]); 
+            infoWindow.setContent(iw_popup[i]); 
             infoWindow.open(myMap, marker);
-          });
+          });*/
 
           marker.addListener('click', function(e) {
-            myMap.setCenter(marker.getPosition());
-
-            document.querySelector('#bottomSection').style.display = 'block';
-            //load restaurant information
-            document.querySelector('#rest-brief').innerHTML = rest_dtls_collection[i];
-            //load Street View
-            let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
-              position: mrkr_locations[i],
-              pov: {heading: 165, pitch: 0},
-              zoom: 14
-            });
-            // //load customer reviews
-            // console.log(allCompany_reviews);
-            // for (let x = 0; x < allCompany_reviews.length; x++) {
-            //   let companyReviews = allCompany_reviews[x];
-            //   for ( let y = 0; y < companyReviews.length; y++) {
-            //     document.getElementById('rest-reviews').innerHTML = companyReviews[y];
-            // }  
-            // }
-
-            //remove a specified element when knowing its parent node
-            // let parent = $(e.target).closest('#rest_name');
-            // console.log(parent);
-            // let child = parent.find('.nested_p');
-            // console.log(child);
-            // child.hide();
-
-            // let marker_ID = $(e.target).data("markerid");
-            // console.log(marker_ID);
-            // if(e.target && e.target.id == marker_ID){
-            //   console.log("We have a match!");
-            // }
+            // myMap.setCenter(marker.getPosition());
+            infoWindow.setPosition(mrkr_locations[i]);
+            infoWindow.setContent(iw_popup[i]); 
+            infoWindow.open(myMap, marker);
           });
           
         } //.for
@@ -437,9 +422,12 @@ getUserLocation = function (position) {
         //listing restaurants on the side of the page
         document.querySelector('.restaurant-list').innerHTML = li_elems;
         
-
         //click handler for li items
-        $('li.selection').click( function(e) {
+        $('li.selection').click({param1: rest_index}, cool_function); //it's picking up the last value of rest_index
+
+        function cool_function(e) {
+          // google.maps.event.trigger(mrkr_locations[i], 'click');
+          console.log("---->>> " + e.data.param1);
           elems = document.querySelectorAll('.selection.selected');
           //remove all pre-existing active classes
           for (let i = 0; i < elems.length; i++) {
@@ -456,15 +444,13 @@ getUserLocation = function (position) {
           //   }
           // }
 
-          //add the active class to clicked <li>
+          // add the active class to clicked <li>
           $(this).addClass('selected');
           let selected = document.querySelector('.selected');
           selected.style.backgroundColor = '#D9FEA2';
           e.preventDefault();
-        });
-
+        };
         
-       
       } //end of inner if statement
       else if (xhr.status === 404) {
             console.log('404: File not found');
