@@ -5,11 +5,6 @@ const user_geoLct = document.getElementById("ui-lct");
 let myMap, infoWindow;
 let script = document.createElement('script');
 const user  = '../images/user.png';
-// const $5star = '../images/5star-marker.png';
-// const $4star = '../images/4star-marker.png';
-// const $3star = '../images/3star-marker.png';
-// const $2star = '../images/2star-marker.png';
-// const $1star = '../images/1star-marker.png';
 let errorDisplay = document.getElementById('error-display');
 let error_msg =`
   <div id="error-card">
@@ -23,8 +18,6 @@ let error_msg =`
   </div>`;
 
 
-
-
 /*===========================================================================================================
 *  INFORMATION TO REACH API
 ===========================================================================================================*/
@@ -33,13 +26,9 @@ const apiKey = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCe_PRvM5yLjmgB
 const jsonPath = 'js/restaurants.json';
 
 
-
-
 /*===========================================================================================================
 *  CALLBACK FUNCTIONS
 ===========================================================================================================*/
-
-
 
 /** Handling location errors
 *****************************************************/
@@ -56,15 +45,10 @@ const options = {
 }
 
 
-
-
 /*===========================================================================================================
 *  INITIALISING GOOGLE MAPS
 ===========================================================================================================*/
-
 function initMap() {
-  // document.querySelector('#error_Display').style.display = 'none';
-  
   /** Geolocation API
   *****************************************************/
   //if user's browser does not support Navigator.geolocation object
@@ -72,15 +56,50 @@ function initMap() {
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
-    // paragraph.textContent = 'Locating…';
     document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
     document.querySelector('#footer').style.display = 'none';
     //getCurrentLocation gets the current location of the device
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options); //navigator.geolocation.getCurrentPosition(success[, error[, [options]])
   }
-} //initMap()
+} 
 
+let restaurants; //parsed JSON
+
+let li_elems = ""; 
+let ratings;
+let website;
+let restaurant;
+let telephone;
+let address;
+let rtngAvg;
+let avg;
+let avg_mrkr = [];
+let mrkr_icons = [];
+let mrkr_locations = [];
+let iw_hoover_popup = [];
+let rest_dtls_collection = [];
+let rest_Index;
+let allCompany_reviews = [];
+
+function showReviews() {
+  console.log("Hello, Sam!");
+
+  document.querySelector('#bottomSection').style.display = 'block';
+  //load restaurant information
+  for (let i = 0; i < mrkr_locations.length; i++) {  
+    console.log("i = " + i);
+    document.querySelector('#rest-brief').innerHTML = rest_dtls_collection[i];
+    console.log(rest_dtls_collection[i]);
+    //load Street View
+    let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
+      position: mrkr_locations[i],
+      pov: {heading: 165, pitch: 0},
+      zoom: 14
+    });
+    // //load customer reviews
+  }
+}
 
 /** if user's browser supports Geolocation
 *****************************************************/
@@ -136,35 +155,20 @@ getUserLocation = function (position) {
 
   /** AJAX Request - Importing JSON data into map
   *****************************************************/
+
   const xhr = new XMLHttpRequest();
   // AJAX Request
   //return Promise((resolve, reject) => {
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
-        let restaurants = JSON.parse(xhr.responseText); 
+        restaurants = JSON.parse(xhr.responseText); 
         // resolve(data);
         // console.log('response data\'s typeof: ' + typeof restaurants); //object
         console.log("Parsed JSON: ",   restaurants); //prints array of objects
 
         /** Finding avarage of restaurants' reviews 
         *****************************************************/
-        let list_Items = ""; 
-        let ratings;
-        let website;
-        let restaurant;
-        let telephone;
-        let address;
-        let rtngAvg;
-        let avg;
-        let avg_mrkr = [];
-        let mrkr_icons_arr = [];
-        let mrkr_locations = [];
-        let iw_hoover_popup = [];
-        let rest_dtls_collection = [];
-        let rest_Index;
-        let allCompany_reviews = [];
-
         for (let i = 0; i < restaurants.length; i++) {
           let lat = restaurants[i].lat;
           let lng = restaurants[i].long;
@@ -181,7 +185,7 @@ getUserLocation = function (position) {
           let reviews = [];
 
           for (let j = 0; j < ratings.length; j++) {
-            let rate = ratings[j].stars; //takes noInteiro
+            let rate = ratings[j].stars; //takes int
             values.push(rate);
             sum += rate;
             numbOfReviews ++; 
@@ -217,25 +221,25 @@ getUserLocation = function (position) {
             avg_mrkr[i] = noReviews;
             avg = noReviews.toFixed(1);
             console.log("avg_mrkr (for map markers) assumes ---> " + avg_mrkr[i]);
-            console.log("avg (for listing elems) assumes ---> " + avg);
+            console.log("avg (for li elems) assumes ---> " + avg);
           }
 
           /** computing average for star ratings
           *****************************************************/
           function getXstars(avg) { //4.4
-            let noInteiro = Math.floor(avg); //4
-            console.log("(avg)noInteiro: " + noInteiro);
+            let int = Math.floor(avg); //4
+            console.log("(avg)int: " + int);
             decimal = (avg % 1).toFixed(1); //eg: 0.4
             console.log("(avg)decimal: " + decimal);
 
-            let marker_Rtng = noInteiro;
+            let marker_Rtng = int;
 
-             //if no reviews found (or NaN was trown) - minimum "noInteiro" can hold is 1 regardless if only one 1star review found ("avg" would still avarage 1)
+             //if no reviews found (or NaN was trown) - minimum "int" can hold is 1 regardless if only one 1star review found ("avg" would still avarage 1)
             let allStars = '<img src="../images/fStar-user-rate.png"/>';
             let counter = 0;
-            if (noInteiro >= 1) {
+            if (int >= 1) {
               console.log("pass - reviews found");
-              for (let i = 1; i < noInteiro; i++) {
+              for (let i = 1; i < int; i++) {
                 allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole stars
                 counter++;
               }
@@ -283,11 +287,6 @@ getUserLocation = function (position) {
           //variable to hold ratings for stars being printed on the page
           rtngs_xxxxx = getXstars(avg); //avg is 0.0 when no reviews found 
 
-          //infoWindow content - <a> link event handler *********************************************************************************************************************
-          function myFunction() {
-            console.log("RESTAURANT NAME: " + restaurant);
-          }
-
         /** Getting distance in miles using Geometry library
         *****************************************************/
         const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
@@ -303,6 +302,7 @@ getUserLocation = function (position) {
         const distance_miles = getDistanceInMiles(user_point, restaurant_point);  
         console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" ); //round distant to 1 decimal
 
+        
         /** Data to be loaded on the page and on the map 
         *****************************************************/ 
         let liItem =`
@@ -347,7 +347,7 @@ getUserLocation = function (position) {
        
           //(hover) infoWindow content String 
           let popup = `
-            <div class="popup_cttWrapper" data-marker-id="${rest_Index}">
+            <div class="popup_cttWrapper" data-marker-id="${rest_Index}" style="width: 220px;">
               <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
               <div>
                 <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
@@ -355,7 +355,8 @@ getUserLocation = function (position) {
                   <span style="margin-left: 3px;">${rtngs_xxxxx}</span><span id="noRev" style="margin-left: 3px;">(${numbOfReviews} reviews)</span>
                 </p>
                 <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${restaurant}">${restaurant}</h5>
-                <p style="margin: 0 0 4px;">${address}</p>
+                
+                <p style=" width: 200px; display: flex; margin: 0 0 4px;">${address}</p>
                 <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
                 <p style="margin: 0 0 4px; text-decoration: underline;"><a href="${website}">${website}</a></p> 
               </div>
@@ -367,14 +368,13 @@ getUserLocation = function (position) {
             </div>`;
 
           //making objects available outside the for loop
-          mrkr_icons_arr.push("../images/" + avg_mrkr[i] + "star-marker.png"); //updated value of avg_mrkr (after getXstars() is executed)
+          mrkr_icons.push("../images/" + avg_mrkr[i] + "star-marker.png"); //updated value of avg_mrkr (after getXstars() is executed)
           console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
           mrkr_locations.push({lat, lng});
-          list_Items += liItem;
+          li_elems += liItem;
           iw_hoover_popup.push(popup);
           rest_dtls_collection.push(rest_dtls);
           allCompany_reviews.push(reviews);
-
 
         } //end of outer (main) for loop
         
@@ -382,10 +382,10 @@ getUserLocation = function (position) {
         //placing new markers on the map
         for (let i = 0; i < mrkr_locations.length; i++) {  
           let marker = new google.maps.Marker({
-            // position: new google.maps.LatLng(mrkr_locations[i][i], mrkr_locations[i][i]),
+            //position: new google.maps.LatLng(mrkr_locations[i][i], mrkr_locations[i][i]),
             position: mrkr_locations[i],
             map: myMap,
-            icon: mrkr_icons_arr[i], 
+            icon: mrkr_icons[i], 
             title: 'click to zoom in'
           });
 
@@ -435,11 +435,10 @@ getUserLocation = function (position) {
         } //.for
  
         //listing restaurants on the side of the page
-        document.querySelector('.restaurant-list').innerHTML = list_Items;
-        // addrestaurantList();
-        console.log(rest_dtls_collection);
+        document.querySelector('.restaurant-list').innerHTML = li_elems;
+        
 
-
+        //click handler for li items
         $('li.selection').click( function(e) {
           elems = document.querySelectorAll('.selection.selected');
           //remove all pre-existing active classes
