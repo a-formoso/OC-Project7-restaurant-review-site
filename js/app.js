@@ -6,12 +6,18 @@ let myMap, infoWindow;
 let script = document.createElement('script');
 const user  = '../images/user.png';
 let errorDisplay = document.getElementById('error-display');
+let welcome_msg = `
+  <div id="welcome-card">
+    <div id="welcome-msg-wrapper">
+      <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Location-based Experience</h4>
+      <h6 style="color: #B3B1AF;"><strong>Food Place</strong> uses location to find restaurants around you.</h6>
+    </div>
+  </div>`;
 let error_msg =`
   <div id="error-card">
     <div id="msg-wrapper">
       <div class="logo-wrapper"> <img src="../images/no-location-marker.png" alt="satellite"/> </div>
       <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">Enable your location</h4>
-      <h6><strong>Food World</strong> uses location to find restaurants around you.</h6>
       <h6>To enable location, please refresh your browser and respond to the prompt.</h6>
       <h6>Alternatively, see <a style="text-decoration: underline;" target="_blank" href="https://www.google.com/search?rlz=1C1CHBD_en-GBGB755GB755&ei=y4EJXZO3K9GEhbIPjNS80AU&q=how+to+enable+geolocation+&oq=how+to+enable+geolocation+&gs_l=psy-ab.3..0l10.16403.27912..28314...4.0..0.106.1961.29j1......0....1..gws-wiz.....6..0i71j35i39j0i67j0i131i67j0i131j0i10i67j0i20i263.IB3pk3dkMoY">how to enable Geolocation</a></h6> 
     </div>
@@ -33,6 +39,9 @@ const jsonPath = 'js/restaurants.json';
 /** Handling location errors
 *****************************************************/
 handleErrors = function () {
+  document.querySelector('#main-content').style.display = 'none';
+  // document.querySelector('#footer').style.display = 'none';
+
   const msg_wrapper = document.getElementById('error_Display');
   console.log("Unable to retrieve your location");
   document.getElementById('error_display').innerHTML = error_msg;
@@ -59,6 +68,8 @@ function initMap() {
     document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
     document.querySelector('#footer').style.display = 'none';
+
+    document.getElementById('map').innerHTML = welcome_msg;
     //getCurrentLocation gets the current location of the device
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options); //navigator.geolocation.getCurrentPosition(success[, error[, [options]])
   }
@@ -77,41 +88,54 @@ let avg;
 let avg_mrkr = [];
 let mrkr_icons = [];
 let mrkr_locations = [];
-let iw_popup = [];
+let iw_popus = [];
 let rest_dtls_collection = [];
 let rest_index;
 let allCompany_reviews = [];
 
-let marker;
+let markers = [];
 
 function showReviews(rest_index) {
+  //make bottom section visible
   document.querySelector('#bottomSection').style.display = 'block';
-
-  //restaurant details
+  //show restaurant details
   document.querySelector('#rest-brief').innerHTML = rest_dtls_collection[rest_index];
-  //Street View panorama
+  //show Street View panorama
   let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
     position: mrkr_locations[rest_index],
     pov: {heading: 165, pitch: 0},
     zoom: 14
   });
-  
+  //show restaurant reviews
+  let rvwsList = '<ul>';
+  for (let i = 0; i < allCompany_reviews[rest_index].length; i++) {
+    rvwsList += '<li>' + allCompany_reviews[rest_index][i] + '</li>'
+  }
+  rvwsList += '</ul>';
+  document.querySelector('#rest-reviews').innerHTML = rvwsList; 
+
+  //target list element on the side of the page
   let li_elem_id = '#' + rest_index;
   $(this).click(function(e) {
-    //if clicked elem is a <a> tag, then select corresponding li elem on the side of the page
-    if ($(e.target).is( ":contains('See reviews')" )) {
-      console.log("It's an anchor tag!!");
-      elems = document.querySelectorAll('.selection.selected');
-      for (let i = 0; i < elems.length; i++) { //remove all pre-existing active classes
-        elems[i].classList.remove('selected');
-        elems[i].style.backgroundColor = '#fff'; //restore white background (#D9FEA2)
-      }
-      $(li_elem_id).addClass('selected');
-      let selected = document.querySelector('.selected');
-      selected.style.backgroundColor = '#D9FEA2';
+    //remove all pre-existing active classes
+    elems = document.querySelectorAll('.selection.selected');
+    for (let i = 0; i < elems.length; i++) { 
+      elems[i].classList.remove('selected');
+      elems[i].style.backgroundColor = '#fff'; //restore white background (#D9FEA2)
     }
+    //add styles to correspondent <li>
+    $(li_elem_id).addClass('selected');
+    let selected = document.querySelector('.selected');
+    selected.style.backgroundColor = '#D9FEA2';
   });
-}
+} //.showReviews
+
+function showPopup(rest_index) {
+  //Trigger a click event on each marker when the corresponding marker link is clicked
+  console.log(markers[rest_index]);
+  google.maps.event.trigger(markers[rest_index], 'click');
+};
+
 
 /** if user's browser supports Geolocation
 *****************************************************/
@@ -202,19 +226,27 @@ getUserLocation = function (position) {
             values.push(rate);
             sum += rate;
             numbOfReviews ++; 
-            let rvw = `
-              <div class="review_item">
-                <div class="review-item-top">
-                  <p style="font-size: 18px;">Username ${j+1}</p>
-                  <p style="margin-left: 3px; font-size: 18px;">[score: ${rate.toFixed(1)}]</p>
-                </div>
-                <div class="review-item-body">
-                  <p style="margin: 0; padding: 0;">${ratings[j].comment}</p>
-                </div>
-              </div>`;
-            // reviews = reviews + rvw;
+            let comment = ratings[j].comment;
+            let rvw;
+            // console.log("TYPEOF COMMENT IS ---->> " + typeof comment);
+            if (comment) { //if (typeof comment === 'string' || myVar instanceof String)
+              rvw =`
+                <div class="review_item">
+                  <div class="review-item-top" style="font-size: 18px; font-weight: 600; ">
+                    <p>User ${j+1}</p>
+                    <p style="float: right;"><span style="margin-left: 6px;">${getXstars(rate)}</span></p>
+                  </div>
+                  <div class="review-item-body">
+                    <p>${comment}</p>
+                  </div>
+                </div>`;
+              // reviews += rvw;
+            } else {
+              console.log("No Reviews Found!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+              comment = 'No Reviews Found';
+              rvw ='No Reviews Found';
+            }
             reviews.push(rvw);
-
           }
           //calculating rating avarages
           rtngAvg = sum / values.length; //holds a value with a decimal point, eg: 1.3333333333333333
@@ -319,8 +351,8 @@ getUserLocation = function (position) {
         /** Data to be loaded on the page and on the map 
         *****************************************************/ 
         let liItem =`
-          <li id="${rest_index}" class="selection" onClick="showReviews(${rest_index});" data-marker-id="${rest_index}" data-marker-title="${restaurant}">
-            <a class="liDirectChild" href="#bottomSection">
+          <li id="${rest_index}" class="selection">
+            <a onClick="showPopup(${rest_index});" href="#header" class="liDirectChild marker-link" data-marker-id="${rest_index}" data-marker-title="${restaurant}">
               <div class="restaurant-pic-wrapper"><img src="../images/food.png"/></div>
               <div class="restaurant-brief-wrapper">
                 <h5>${restaurant}</h5>
@@ -351,9 +383,11 @@ getUserLocation = function (position) {
                   <span id="noRev" style="font-size: 15px; padding-top: 5px; margin-left: 3px;">(${numbOfReviews} reviews)</span>
                 </p>
                 <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px;">${address}</p>
-                <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
+                <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${telephone}</a> </p>
                 <p id="bt-align-x" style="font-size: 18px; padding: 18px 0; margin: 0 0 4px;">
-                  <a id="site-btn" href="${website}" target="_blank" style="text-decoration: none;">visit restaurant site</a>
+                  <a id="site-btn" href="${website}" target="_blank" style="text-decoration: none;">
+                    <img src="../images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
+                  </a>
                 </p>
               </div> 
             </div>`;
@@ -368,14 +402,12 @@ getUserLocation = function (position) {
                   <span style="margin-left: 3px;">${rtngs_xxxxx}</span><span id="noRev" style="margin-left: 3px;">(${numbOfReviews} reviews)</span>
                 </p>
                 <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${restaurant}">${restaurant}</h5>
-                
                 <p style=" width: 200px; display: flex; margin: 0 0 4px;">${address}</p>
                 <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
-                <p style="margin: 0 0 4px; text-decoration: underline;"><a href="${website}">${website}</a></p> 
               </div>
               <div style="display: flex; justify-content: center; padding: 4px 0;">
-                <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 12px 0;">
-                  <a href="#bottomSection" style="color: #E7711B;" onClick="showReviews(${rest_index});"><i class="fa fa-md fa-angle-double-right fa-1x"></i> See reviews</a>
+                <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0">
+                  <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rest_index});">See reviews</a>
                 </p>
               </div>
             </div>`;
@@ -385,16 +417,23 @@ getUserLocation = function (position) {
           console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
           mrkr_locations.push({lat, lng});
           li_elems += liItem;
-          iw_popup.push(popup);
+          iw_popus.push(popup);
           rest_dtls_collection.push(rest_dtls);
           allCompany_reviews.push(reviews);
 
         } //end of outer (main) for loop
-    
+        
+
+        //listing restaurants on the side of the page
+        document.querySelector('.restaurant-list').innerHTML = li_elems;
 
         //placing new markers on the map
         for (let i = 0; i < mrkr_locations.length; i++) {  
-          marker = new google.maps.Marker({
+          //listing restaurants on the side of the page
+          // document.querySelector('.restaurant-list').innerHTML = li_elems[i];
+          // document.querySelector('.restaurant-list').append(li_elems[i]);
+
+          let marker = new google.maps.Marker({
             //position: new google.maps.LatLng(mrkr_locations[i][i], mrkr_locations[i][i]),
             position: mrkr_locations[i],
             map: myMap,
@@ -406,51 +445,35 @@ getUserLocation = function (position) {
           /*marker.addListener('mouseover', function() {
             myMap.setZoom(13);
             infoWindow.setPosition(mrkr_locations[i]);
-            infoWindow.setContent(iw_popup[i]); 
+            infoWindow.setContent(iw_popus[i]); 
             infoWindow.open(myMap, marker);
           });*/
 
           marker.addListener('click', function(e) {
             // myMap.setCenter(marker.getPosition());
             infoWindow.setPosition(mrkr_locations[i]);
-            infoWindow.setContent(iw_popup[i]); 
+            infoWindow.setContent(iw_popus[i]); 
             infoWindow.open(myMap, marker);
           });
           
+          markers.push(marker);
         } //.for
- 
-        //listing restaurants on the side of the page
-        document.querySelector('.restaurant-list').innerHTML = li_elems;
-        
-        //click handler for li items
-        $('li.selection').click({param1: rest_index}, cool_function); //it's picking up the last value of rest_index
-
-        function cool_function(e) {
-          // google.maps.event.trigger(mrkr_locations[i], 'click');
-          console.log("---->>> " + e.data.param1);
-          elems = document.querySelectorAll('.selection.selected');
+  
+        //adding styles to selected <li> elements 
+        $('.restaurant-list li').click(function(e) {
+          let elems = document.querySelectorAll('.selection.selected');
           //remove all pre-existing active classes
           for (let i = 0; i < elems.length; i++) {
             elems[i].classList.remove('selected');
             elems[i].style.backgroundColor = '#fff'; //remove '#D9FEA2' (green) background
           }
-
-          //load customer reviews
-          // console.log(allCompany_reviews);
-          // for (let x = 0; x < allCompany_reviews.length; x++) {
-          //     let companyReviews = allCompany_reviews[x];
-          //     for ( let y = 0; y < companyReviews.length; y++) {
-          //       document.getElementById('rest-reviews').innerHTML = companyReviews[y];
-          //   }
-          // }
-
-          // add the active class to clicked <li>
+          //add the active class to clicked <li>
           $(this).addClass('selected');
           let selected = document.querySelector('.selected');
           selected.style.backgroundColor = '#D9FEA2';
           e.preventDefault();
-        };
-        
+        });
+  
       } //end of inner if statement
       else if (xhr.status === 404) {
             console.log('404: File not found');

@@ -13,7 +13,7 @@ html, body {
 }
 
 /*WELCOME CARD*/
-#error-card {
+#error-card, #welcome-card {
   top: 0;
   left: 0;
   position: absolute;
@@ -28,20 +28,18 @@ html, body {
   align-items: center;
   justify-content: center;
 }
-#msg-wrapper {
+#msg-wrapper, #welcome-msg-wrapper {
   display: flex; 
   flex-direction: column; 
   align-items: center;
   padding: 30px;
 }
-#msg-wrapper h2 { 
+#msg-wrapper h4 { 
   font-weight: 600;
   margin: 30px 0 15px 0;
   /*color: #337AB7;*/
 }
-#msg-wrapper h6 { 
-  margin: 10px 0;
-}
+
 .logo-wrapper {
   width: 130px; 
   height: 130px; 
@@ -60,10 +58,11 @@ html, body {
   height: 100%;
   vertical-align: middle;
 }
-#error-card h6 {
+#error-card h6, #welcome-card h6 {
   letter-spacing: 1px;
   word-spacing: 1px;
   color: #454545;
+  margin: 0 0 15px;
 }
 #lct_btn {
   font-weight: 600;
@@ -219,6 +218,20 @@ div#map {
   margin: 0 0 1px 0;
   padding: 0;
 }
+/*info window content*/
+.see-reviews-btn {
+  background-color: #D9FEA2;
+  padding: 8px 14px;
+  border-radius: 2px;
+  color: #E7711B;
+  font-weight: 600;
+  /*text-transform: uppercase;*/
+}
+.see-reviews-btn:hover {
+  text-decoration: none;
+  color: #D26719;
+}
+
 div#restaurants-wrapper { 
   text-align: left;
   padding: 0;
@@ -346,20 +359,20 @@ div.restaurant-brief-wrapper p {
   background-color: #201D19;
   border-top: 5px solid #F9D094;
 }
-.rest-info-wrapper, .rest_reviewsWapper {
+.rest-info-wrapper {
   padding: 10px;
   background-color: #fff;
 }
 .rest-info {
   padding: 0px;
   margin: 0;
-  /*border: 1px solid orange;*/
 }
 #rest-brief-wrapper, #street-view-wrapper, #rest-reviews-wrapper {
-  padding: 10px;
+  padding: 20px 20px 0;
 }
-.rest_reviewsWapper {
-  margin: 10px 0 0;
+
+#rest-reviews-wrapper {
+  background-color: #F6F6F6;
 }
 #street-view-wrapper {
   height: 400px;
@@ -371,32 +384,42 @@ div.restaurant-brief-wrapper p {
 /*reviews*/
 #rest-reviews {
   background-color: #F6F6F6;
-  padding: 20px;
   display: flex;
   justify-content: center;
-
+}
+#rest-reviews ul {
+  padding: 0;
+  margin-bottom: 0;
+}
+#rest-reviews li {
+  list-style-type: none;
 }
 .review_item {
+  display: block;
   background-color: white;
   padding: 10px;
-  margin: 10px;
-  width: 90%;
+  margin: 15px 5%;
   border: none;
+  border-radius: 2px;
+  box-shadow: 0px 0px 5px 3px rgba(0, 0, 0, 0.1);
+  list-style-type: none;
 }
 .review-item-top {
-  background-color: #F6F6F6;
-  border: 2px solid orange;
+  /*background-color: #F6F6F6;*/
+  /*border: 2px solid orange;*/
 }
 .review-item-top p {
   display: inline-block;
+  margin-left: 0px;
 }
 
 .review-item-body {
-  border: 1px solid orange;
-  padding: 5px;
+  /*border: 1px solid orange;*/
+  /*padding: 5px;*/
 }
 .review-item-body p {
-  border: 1px solid green;
+  margin: 0; 
+  padding: 2px 0 0; 
 }
 
 /*FOOTER*/
