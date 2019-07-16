@@ -12,6 +12,9 @@
     <link type="text/css"  rel="stylesheet" href="css/main.css">
     <!-- Font Awesome social icons -->
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Promise based HTTP client for the browser and node.js -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -47,10 +50,10 @@
           </div> -->
           <div class="ui-src-wrapper">
             <label for="ui-query"><i class="fa fa-lg fa-search fa-1x src-icon"></i></label>
-            <input type="search" name="find" id="ui-query" placeholder="City or restaurant name"/>
+            <input type="search" name="find" id="ui-query" placeholder="City or Restaurant name"/>
           </div>
           <div class="ui-btn-wrapper">
-            <input id="ui-btn" type="submit" name="submit" value="Search"/>
+            <input id="ui-btn" type="button" value="Search" onclick="codeAddress()"/>
           </div>
         </div>
       </div> <!--/.row -->

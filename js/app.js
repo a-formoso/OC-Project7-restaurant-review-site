@@ -2,9 +2,11 @@
 *  SOME Map AND DOM ELEMENTS
 ===========================================================================================================*/
 const user_geoLct = document.getElementById("ui-lct");
-let myMap, infoWindow;
+let myMap, iw_restDtls;
+let mapOptions;
 let script = document.createElement('script');
-const user  = '../images/user.png';
+const user_mrkrIcon  = '../images/user.png';
+let user_marker;
 let errorDisplay = document.getElementById('error-display');
 let welcome_msg = `
   <div id="welcome-card">
@@ -22,13 +24,111 @@ let error_msg =`
       <h6>Alternatively, see <a style="text-decoration: underline;" target="_blank" href="https://www.google.com/search?rlz=1C1CHBD_en-GBGB755GB755&ei=y4EJXZO3K9GEhbIPjNS80AU&q=how+to+enable+geolocation+&oq=how+to+enable+geolocation+&gs_l=psy-ab.3..0l10.16403.27912..28314...4.0..0.106.1961.29j1......0....1..gws-wiz.....6..0i71j35i39j0i67j0i131i67j0i131j0i10i67j0i20i263.IB3pk3dkMoY">how to enable Geolocation</a></h6> 
     </div>
   </div>`;
+const myMapStyles = [
+  {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
+  {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
+  {elementType: 'labels.text.fill', stylers: [{color: '#746855'}]},
+  {
+    featureType: 'administrative.locality',
+    elementType: 'labels.text.fill',
+    stylers: [{color: '#d59563'}]
+  },
+  {
+    featureType: 'poi',
+    elementType: 'labels.text.fill',
+    stylers: [{color: '#d59563'}]
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'geometry',
+    stylers: [{color: '#263c3f'}]
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'labels.text.fill',
+    stylers: [{color: '#6b9a76'}]
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry',
+    stylers: [{color: '#38414e'}]
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry.stroke',
+    stylers: [{color: '#212a37'}]
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.text.fill',
+    stylers: [{color: '#9ca5b3'}]
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry',
+    stylers: [{color: '#746855'}]
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'geometry.stroke',
+    stylers: [{color: '#1f2835'}]
+  },
+  {
+    featureType: 'road.highway',
+    elementType: 'labels.text.fill',
+    stylers: [{color: '#f3d19c'}]
+  },
+  {
+    featureType: 'transit',
+    elementType: 'geometry',
+    stylers: [{color: '#2f3948'}]
+  },
+  {
+    featureType: 'transit.station',
+    elementType: 'labels.text.fill',
+    stylers: [{color: '#d59563'}]
+  },
+  {
+    featureType: 'water',
+    elementType: 'geometry',
+    stylers: [{color: '#17263c'}]
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.fill',
+    stylers: [{color: '#515c6d'}]
+  },
+  {
+    featureType: 'water',
+    elementType: 'labels.text.stroke',
+    stylers: [{color: '#17263c'}]
+  }
+];
+const searchBox = document.getElementById('ui-query');
+let restaurants; //parsed JSON
+let li_elems = ""; 
+let ratings;
+let website;
+let restaurant;
+let telephone;
+let address;
+let rtngAvg;
+let avg;
+let avg_mrkr = [];
+let mrkr_icons = [];
+let mrkr_locations = [];
+let iw_popus = [];
+let rest_dtls_collection = [];
+let rest_index;
+let allCompany_reviews = [];
+let markers = [];
 
 
 /*===========================================================================================================
 *  INFORMATION TO REACH API
 ===========================================================================================================*/
 const url = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
-const apiKey = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCe_PRvM5yLjmgBr6tuRH5-Dv4PmhuGVvg&callback=initMap';
+let apiKey = 'AIzaSyCe_PRvM5yLjmgBr6tuRH5-Dv4PmhuGVvg';
 const jsonPath = 'js/restaurants.json';
 
 
@@ -49,52 +149,12 @@ handleErrors = function () {
 
 /** Improving device location accuracy
 *****************************************************/
-const options = {
+let options = {
   enableHighAccuracy: true //for best possible location results
 }
 
-
-/*===========================================================================================================
-*  INITIALISING GOOGLE MAPS
-===========================================================================================================*/
-function initMap() {
-  /** Geolocation API
-  *****************************************************/
-  //if user's browser does not support Navigator.geolocation object
-  if (!navigator.geolocation) {
-    console.log("Geolocation is not supported by your browser");
-    alert('Geolocation is not supported by your browser');
-  } else {
-    document.querySelector('#rattings-wrapper').style.display = 'none';
-    document.querySelector('#bottomSection').style.display = 'none';
-    document.querySelector('#footer').style.display = 'none';
-
-    document.getElementById('map').innerHTML = welcome_msg;
-    //getCurrentLocation gets the current location of the device
-    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options); //navigator.geolocation.getCurrentPosition(success[, error[, [options]])
-  }
-} 
-
-let restaurants; //parsed JSON
-
-let li_elems = ""; 
-let ratings;
-let website;
-let restaurant;
-let telephone;
-let address;
-let rtngAvg;
-let avg;
-let avg_mrkr = [];
-let mrkr_icons = [];
-let mrkr_locations = [];
-let iw_popus = [];
-let rest_dtls_collection = [];
-let rest_index;
-let allCompany_reviews = [];
-
-let markers = [];
-
+/** Showing Restaurant reviews
+*****************************************************/
 function showReviews(rest_index) {
   //make bottom section visible
   document.querySelector('#bottomSection').style.display = 'block';
@@ -103,8 +163,13 @@ function showReviews(rest_index) {
   //show Street View panorama
   let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
     position: mrkr_locations[rest_index],
-    pov: {heading: 165, pitch: 0},
-    zoom: 14
+    pov: {heading: 270, pitch: 10},
+    motionTracking: false,
+    fullscreenControl: false,
+    linksControl: false,
+    panControl: false,
+    // enableCloseButton: true,
+    zoom: 0
   });
   //show restaurant reviews
   let rvwsList = '<ul>';
@@ -136,6 +201,90 @@ function showPopup(rest_index) {
   google.maps.event.trigger(markers[rest_index], 'click');
 };
 
+/** Searches with Geocoding
+*****************************************************/
+function codeAddress() {
+  let geocoder = new google.maps.Geocoder();
+  // geocoder.geocode({ 'address': wordQuery}, function(results, status) {
+  //   if (status == 'OK') {
+  //     myMap.setCenter(results[0].geometry.location);
+  //     user_marker.setPosition(results[0].geometry.location);
+  //   } else {
+  //     alert('Geocode was not successful for the following reason: ' + status);
+  //   }
+  // });
+  
+  const url = 'https://maps.googleapis.com/maps/api/geocode/json?';
+  const queryParam1 = 'address=';
+  const wordQuery = searchBox.value;  
+  console.log(wordQuery);
+  const queryParam2 = '&key=';
+  //const endpoint = `${url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
+  const endpoint = `${url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
+  //Making an AJAX Request
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === /*4*/ XMLHttpRequest.DONE) {
+      if (xhr.status === 200 || xhr.status === 201) {
+
+        let data = JSON.parse(xhr.responseText); //xhr.response;
+        console.log(data);
+        console.log(data.results[0].place_id);
+        // console.log(xhr.results); //undefined
+        myMap.setCenter(data.results[0].geometry.location);
+        user_marker.setPosition(data.results[0].geometry.location);  
+      } //end of inner if statement
+      else if (xhr.status === 404) {
+        console.log('404: File not found');
+      } 
+      else if (xhr.status === 500) {
+        console.log('500: Server had a problem');
+      } 
+    }
+    else {
+      console.log('Geocode was not successful for the following reason: ' + xhr.statusText);
+    }
+  } //end of onreadystatechange
+  xhr.open('GET', endpoint);
+  xhr.send();
+
+  //Promise based HTTP client 
+  // axios.get(url, {
+  //   params: {
+  //     address: wordQuery,
+  //     key: apiKey
+  //   }
+  // })
+  // .then(function(response) {
+  //   console.log(response);
+  // })
+  // .catch(function(error) {
+  //   console.log(error);
+  // });
+  
+}
+
+
+/*===========================================================================================================
+*  INITIALISING GOOGLE MAPS
+===========================================================================================================*/
+function initMap() {
+  /** Geolocation API
+  *****************************************************/
+  //if user's browser does not support Navigator.geolocation object
+  if (!navigator.geolocation) {
+    console.log("Geolocation is not supported by your browser");
+    alert('Geolocation is not supported by your browser');
+  } else {
+    document.querySelector('#rattings-wrapper').style.display = 'none';
+    document.querySelector('#bottomSection').style.display = 'none';
+    document.querySelector('#footer').style.display = 'none';
+
+    document.getElementById('map').innerHTML = welcome_msg;
+    //getCurrentLocation gets the current location of the device
+    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options); //navigator.geolocation.getCurrentPosition(success[, error[, [options]])
+  }
+} 
 
 /** if user's browser supports Geolocation
 *****************************************************/
@@ -145,17 +294,18 @@ getUserLocation = function (position) {
   document.querySelector('#footer').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'none';
 
-  const lat = position.coords.latitude;
-  const lng = position.coords.longitude;
+  let lat = position.coords.latitude;
+  let lng = position.coords.longitude;
   // console.log(`Current Latitude is ${lat} and your longitude is ${lng}`);
   console.log("To get the location used for this project, please use LAT (52.6431335), and LNG (1.3342981999999999)");
   let pos = { lat: lat, lng: lng };
   
-  infoWindow = new google.maps.InfoWindow;
+  iw_restDtls = new google.maps.InfoWindow;
   //map built-in controls
-  const mapOptions = {
+  mapOptions = {
     center: new google.maps.LatLng(lat, lng),
     zoom: 12,
+    styles: myMapStyles,
     panControl: true,
     scaleControl: false,
     mapTypeControl: true,
@@ -175,19 +325,77 @@ getUserLocation = function (position) {
     },
     streetViewControl: false
   }
-  //creatin the map
+  //creating the map
   myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
   //creating user location marker
-  let user_marker = new google.maps.Marker({ 
+  user_marker = new google.maps.Marker({ 
     position: pos, 
     map: myMap, 
-    icon: user, 
+    icon: user_mrkrIcon, 
     draggable: true,
     animation: google.maps.Animation.BOUNCE 
   });
   setTimeout(function () {
     user_marker.setAnimation(null)
   }, 3000);
+
+
+  /** Adding new restaurant by clicking on the map
+  *****************************************************/
+  google.maps.event.addListener(myMap, 'rightclick', function(event) {
+    addRestaurant(event.latLng);
+  });
+
+  function addRestaurant(location) {
+    //add new restaurant marker
+    let rest_marker = new google.maps.Marker({
+      position: location, 
+      map: myMap,
+      icon: '../images/new-marker.png', 
+      title: 'click for details'
+    });
+    //get new restaurant's coordinates
+    const lat = location.lat();
+    const lng = location.lng();
+    let rest_coordinates = {lat, lng};
+
+    //info window content string
+    let contentString = `
+      <div class="popup_cttWrapper" style="width: 220px; display: flex; justify-content: center; align-items: center;">
+        <div style="width: 210px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00;">Add New Restaurant</h5>
+          <input type="text" name="newRestName" id="ui-newRest-name" placeholder="Restaurant name"/>
+          <input type="text" name="newRestAddress" id="ui-newRest-address" placeholder="Restaurant address"/>
+          <input type="url" name="newRestWebsite" id="ui-newRest-website" placeholder="Restaurant website"/>
+          <input type="tel" name="newRestTelephone" id="ui-newRest-telephone" placeholder="Restaurant telephone"/>
+          <button style="font-seize: 18px; padding: 6px; width: 95%; border: none; border-radius: 2px; color: #444; background-color: #D9FEA2;">Add Restaurant</button>
+        </div>
+      </div>`;
+    
+    //take new restaurant details
+    let iw_addRestForm;
+    rest_marker.addListener('click', function(/*e*/) {
+      iw_addRestForm = new google.maps.InfoWindow({
+        // content: '<b>MARKER COORDINATES</b><br> <b>Latitude: </b>' + lat + '<br><b>Longitude: </b>' + lng,
+        // position: e.latLng
+        position: rest_coordinates,
+        content: contentString
+      });
+      iw_addRestForm.open(myMap, rest_marker);
+
+    //close popup when mouseout
+    // rest_marker.addListener('mouseout', function() {
+    //   iw_addRestForm.close();
+    // });
+        
+      /*
+      yMap.setZoom(13); 
+      iw_addRestForm.setPosition(rest_coordinates);
+      iw_addRestForm.setContent(iw_popus[i]); //change values inside parethesis -----------------------------------------------------------!!!!!!!!!
+      iw_addRestForm.open(myMap, rest_marker);
+      */
+    });
+  }
 
   /** AJAX Request - Importing JSON data into map
   *****************************************************/
@@ -392,7 +600,7 @@ getUserLocation = function (position) {
               </div> 
             </div>`;
        
-          //(hover) infoWindow content String 
+          //(hover) iw_restDtls content String 
           let popup = `
             <div class="popup_cttWrapper" style="width: 220px;">
               <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
@@ -444,16 +652,16 @@ getUserLocation = function (position) {
           //adding mouse event handlers for each marker
           /*marker.addListener('mouseover', function() {
             myMap.setZoom(13);
-            infoWindow.setPosition(mrkr_locations[i]);
-            infoWindow.setContent(iw_popus[i]); 
-            infoWindow.open(myMap, marker);
+            iw_restDtls.setPosition(mrkr_locations[i]);
+            iw_restDtls.setContent(iw_popus[i]); 
+            iw_restDtls.open(myMap, marker);
           });*/
 
           marker.addListener('click', function(e) {
             // myMap.setCenter(marker.getPosition());
-            infoWindow.setPosition(mrkr_locations[i]);
-            infoWindow.setContent(iw_popus[i]); 
-            infoWindow.open(myMap, marker);
+            iw_restDtls.setPosition(mrkr_locations[i]);
+            iw_restDtls.setContent(iw_popus[i]); 
+            iw_restDtls.open(myMap, marker);
           });
           
           markers.push(marker);
