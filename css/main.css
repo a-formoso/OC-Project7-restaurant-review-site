@@ -149,6 +149,7 @@ div.ui-src-wrapper {
   border-radius: 4px;
   /*width: 300px;*/
   /*border: 1px solid green;*/
+  position: relative;
 }
 input#ui-query {
   padding: 2px 2px 2px 38px;
@@ -158,12 +159,14 @@ input#ui-query {
   border-radius: 2px;
   height: 40px;
   font-size: 15px;
+  /*background: url(../images/search-icon.png) no-repeat;*/
+  background-color: #fff;
 }
 div.ui-src-wrapper label {
   position: absolute;
 }
-i.src-icon {
-  margin: 3px 0 3px 14px; /*t, r, b, l*/
+div.ui-src-wrapper i.src-icon {
+  margin: 3px 0 3px 14px; 
   width: 18px;
   height: 18px;
   color: #636363;
@@ -182,11 +185,10 @@ input#ui-btn {
   letter-spacing: 2px;
   color: #2E2A24;
   background-color: #F9D094;
+  opacity: 0.8;
 }
 i.lct-icon:hover, input#ui-btn:hover {
-  background-color: #2E2A24; transparent;
-  color: #F9D094;
-  border: 2px solid #F9D094;
+  opacity: 1;
 }
 
 
@@ -223,10 +225,12 @@ div#map {
   color: #E7711B;
   font-weight: 600;
   /*text-transform: uppercase;*/
+  opacity: 0.8;
 }
 .see-reviews-btn:hover {
   text-decoration: none;
   color: #D26719;
+  opacity: 1;
 }
 /*New restaurant styles*/
 #ui-newRest-name, #ui-newRest-address, #ui-newRest-website, #ui-newRest-telephone, button {
@@ -235,23 +239,10 @@ div#map {
   margin: 4px;
   color: #524A65;
 }
-/*#ui-newRest-address {
-  background: url(../images/near-me-icon.png) no-repeat;
-  padding-left: 30px;
-  border: 1px solid #A9A9A9;
-}*/
-/*div#restaurants-wrapper { 
-  text-align: left;
-  padding: 0;
-  background-color: #F6F6F6;
-}*/
 div#rattings-wrapper {
   display: block;
   background-color: #D9D8D7;
   margin: 0 0 30px;
-  /*display: flex;
-  justify-content: center; X axis 
-  align-items: center; /* Y axis */
   text-align: center;
   padding: 10px 0;
   color: #636363;
@@ -274,7 +265,6 @@ select {
 div.restaurants-list-wrapper {
   display: flex;
   margin: 0 auto;
-  /*padding: 10px;*/
 }
 ul.restaurant-list {
   width: 100%;
@@ -284,13 +274,6 @@ ul.restaurant-list {
   overflow: auto; 
   margin-bottom: 0px;
 }
-/*ul.restaurant-list li {
-  list-style-type: none;
-  width: 100%;
-  display: flex;
-  background-color: #fff;
-  padding: 0;
-}*/
 .restaurant-list li:last-child {
   margin-bottom: 0px;
 }
@@ -301,24 +284,14 @@ ul.restaurant-list li:hover  {
   /*background-color: #D9FEA2;*/ /*did not work*/
   border-right: 3px solid #91CA00;
 }
-
 .restaurant-list li a {
-  /*display: flex;*/
   text-decoration: none;
-  /*width: 100%;*/
 }
-/*div.restaurant-pic-wrapper {
-  margin: 0;
-  padding: 0 5px 0 0;
-  width: 120px;
-  height: 80px;
-}*/
 div.restaurant-pic-wrapper img {
   width: 100%;
   height: 100%;
 }
 div.restaurant-brief-wrapper {
-  /*height: 70px;*/
   padding: 6px 10px;
   letter-spacing: 0.5px;
 }
@@ -374,13 +347,28 @@ div.restaurant-brief-wrapper p {
 .rest-info {
   padding: 0px;
   margin: 0;
+  width: 100%;
 }
-#rest-brief-wrapper, #street-view-wrapper, #rest-reviews-wrapper {
+#rest-brief-wrapper, #street-view-wrapper {
   padding: 20px 20px 0;
 }
 
 #rest-reviews-wrapper {
   background-color: #F6F6F6;
+  padding: 20px 30px 0;
+}
+button.open-button {
+  width: 100%;
+  height: 100%;
+  padding: 2px 10px;
+  margin: 0;
+  border: none;
+  background-color: #F9D094;
+  color: #2E2A24;
+  font-weight: 600;
+}
+#rest-reviews-inner-wrapper {
+  display: flex;
 }
 #street-view-wrapper {
   height: 400px;
@@ -390,40 +378,94 @@ div.restaurant-brief-wrapper p {
   width: 100%;
 }
 /*reviews*/
+#side-nav {
+  display: flex;
+  justify-content: center;
+}
+.form-wrapper {
+  /*border: 1px solid red;*/
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 25px;
+  box-shadow: 0px 0px 5px 3px rgba(0, 0, 0, 0.1);
+
+}
+form #full-name, form label, form #score, form textarea {
+  padding: 4px;
+  margin: 0 0 10px;
+  border-radius: 2px;
+  color: #666;
+}
+form #full-name, form textarea {
+  width: 100%;
+  border: 1px solid #d3d3d3;
+}
+form label {
+  margin-right: 3px;
+  color: #636363;
+}
+form input#close-btn {
+  /*border: 1px solid #d3d3d3;*/
+  border: none;
+  padding: 6px 10px;
+  border-radius: 2px;
+  width: 30%;
+  margin-right: 20%;
+  color: #444;
+  background-color: #FACACA;
+}
+form input#add-review-btn {
+  /*border: 1px solid #2E2A24;*/
+  /*border: 1px solid #d3d3d3;*/
+  padding: 6px 10px;
+  border-radius: 2px;
+  width: 50%;
+  border: none;
+  color: #444;
+  background-color: #D9FEA2;
+}
+form input#close-btn, form input#add-review-btn {
+  opacity: 0.8;
+}
+form input#close-btn:hover, form input#add-review-btn:hover {
+  opacity: 1;
+}
 #rest-reviews {
   background-color: #F6F6F6;
   display: flex;
   justify-content: center;
+  align-items: center;
+  padding: 0;
 }
 #rest-reviews ul {
   padding: 0;
   margin-bottom: 0;
+  
 }
 #rest-reviews li {
   list-style-type: none;
 }
-.review_item {
+.review_item { /*dynamically creted*/
   display: block;
   background-color: white;
   padding: 10px;
-  margin: 15px 5%;
+  margin: 15px;
   border: none;
   border-radius: 2px;
   box-shadow: 0px 0px 5px 3px rgba(0, 0, 0, 0.1);
   list-style-type: none;
 }
-.review-item-top {
-  /*background-color: #F6F6F6;*/
-  /*border: 2px solid orange;*/
-}
 .review-item-top p {
   display: inline-block;
   margin-left: 0px;
-}
-
-.review-item-body {
-  /*border: 1px solid orange;*/
-  /*padding: 5px;*/
 }
 .review-item-body p {
   margin: 0; 
@@ -457,9 +499,10 @@ div.restaurant-brief-wrapper p {
   border-radius: 4px;
   border: none;
   color: #444;
+  opacity: 0.8;
 }
 #site-btn:hover {
-  color: #2E2A24;
+  opacity: 1;
 }
 .bt-align-x {
   text-align: left;
@@ -507,6 +550,10 @@ div.restaurant-brief-wrapper p {
 }
 
 @media (max-width: 767px) { 
+  #rest-reviews-inner-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
    #restaurants-wrapper {
     margin: 0;
     padding: 0;
@@ -555,7 +602,7 @@ div.restaurant-brief-wrapper p {
   }
   div#restaurants-wrapper { 
   text-align: left;
-    padding: 0 10px 0;
+    padding: 0 0 0 10px;
     background-color: #F6F6F6;
   }
  

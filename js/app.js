@@ -122,12 +122,38 @@ let rest_dtls_collection = [];
 let rest_index;
 let allCompany_reviews = [];
 let markers = [];
-
+let addReview_form = `
+    <div class="container form-wrapper" id="formPopup">
+      <form>
+        <div class="row">
+          <input type="text" id="full-name" name="full-name" placeholder="Your name">
+        </div>
+        <div class="row score-wrapper">
+          <label for="score">Score</label>
+          <select id="score" name="score">
+            <option value="one">1</option>
+            <option value="two">2</option>
+            <option value="three">3</option>
+            <option value="four">4</option>
+            <option value="five">5</option>
+          </select>
+        </div>
+        <div class="row">
+          <textarea id="user-review" name="user-review" placeholder="Share your experience" style="height:200px"></textarea>
+        </div>
+        <div class="row">
+          <input id="close-btn" type="submit" value="Close" onclick="closeForm()"/>
+          <input  id="add-review-btn" type="submit" value="Add Review"/>
+        </div>
+      </form>
+    </div>`;
+document.getElementById("side-nav").style.display = "none";
 
 /*===========================================================================================================
 *  INFORMATION TO REACH API
 ===========================================================================================================*/
-const url = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
+// const url = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
+let geocoding_url = 'https://maps.googleapis.com/maps/api/geocode/json?';
 let apiKey = 'AIzaSyCe_PRvM5yLjmgBr6tuRH5-Dv4PmhuGVvg';
 const jsonPath = 'js/restaurants.json';
 
@@ -214,19 +240,17 @@ function codeAddress() {
   //   }
   // });
   
-  const url = 'https://maps.googleapis.com/maps/api/geocode/json?';
   const queryParam1 = 'address=';
   const wordQuery = searchBox.value;  
   console.log(wordQuery);
   const queryParam2 = '&key=';
-  //const endpoint = `${url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
-  const endpoint = `${url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
+  //const endpoint = `${geocoding_url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
+  const endpoint = `${geocoding_url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
   //Making an AJAX Request
   const xhr = new XMLHttpRequest();
   xhr.onreadystatechange = () => {
     if (xhr.readyState === /*4*/ XMLHttpRequest.DONE) {
       if (xhr.status === 200 || xhr.status === 201) {
-
         let data = JSON.parse(xhr.responseText); //xhr.response;
         console.log(data);
         console.log(data.results[0].place_id);
@@ -246,22 +270,24 @@ function codeAddress() {
     }
   } //end of onreadystatechange
   xhr.open('GET', endpoint);
-  xhr.send();
+  xhr.send(); 
+}
 
-  //Promise based HTTP client 
-  // axios.get(url, {
-  //   params: {
-  //     address: wordQuery,
-  //     key: apiKey
-  //   }
-  // })
-  // .then(function(response) {
-  //   console.log(response);
-  // })
-  // .catch(function(error) {
-  //   console.log(error);
-  // });
-  
+//Add Review Form
+function openForm() {
+  //add attributes to elem 1
+  // $('#side-nav').addClass('col-xs-12 col-md-4');
+  // $("side-nav").appendChild(addReview_form);
+  document.getElementById("side-nav").style.display = "block";
+
+  //add attributes to elem 2
+  $('#rest-reviews').addClass('col-xs-12 col-md-8');
+  // $('#div1').attr('class', 'newClass')
+}
+
+function closeForm() {
+  document.getElementById("side-nav").style.display = "none";
+  $('#rest-reviews').addClass('col-xs-12 col-md-12');
 }
 
 
@@ -343,12 +369,12 @@ getUserLocation = function (position) {
   /** Adding new restaurant by clicking on the map
   *****************************************************/
   google.maps.event.addListener(myMap, 'rightclick', function(event) {
-    addRestaurant(event.latLng);
+    newRestaurantForm(event.latLng);
   });
 
-  function addRestaurant(location) {
+  function newRestaurantForm(location) {
     //add new restaurant marker
-    let rest_marker = new google.maps.Marker({
+    let new_rest_marker = new google.maps.Marker({
       position: location, 
       map: myMap,
       icon: '../images/new-marker.png', 
@@ -358,42 +384,85 @@ getUserLocation = function (position) {
     const lat = location.lat();
     const lng = location.lng();
     let rest_coordinates = {lat, lng};
-
-    //info window content string
-    let contentString = `
-      <div class="popup_cttWrapper" style="width: 220px; display: flex; justify-content: center; align-items: center;">
-        <div style="width: 210px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-          <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00;">Add New Restaurant</h5>
-          <input type="text" name="newRestName" id="ui-newRest-name" placeholder="Restaurant name"/>
-          <input type="text" name="newRestAddress" id="ui-newRest-address" placeholder="Restaurant address"/>
-          <input type="url" name="newRestWebsite" id="ui-newRest-website" placeholder="Restaurant website"/>
-          <input type="tel" name="newRestTelephone" id="ui-newRest-telephone" placeholder="Restaurant telephone"/>
-          <button style="font-seize: 18px; padding: 6px; width: 95%; border: none; border-radius: 2px; color: #444; background-color: #D9FEA2;">Add Restaurant</button>
-        </div>
-      </div>`;
+    let nRest_address;
     
+  
     //take new restaurant details
-    let iw_addRestForm;
-    rest_marker.addListener('click', function(/*e*/) {
-      iw_addRestForm = new google.maps.InfoWindow({
-        // content: '<b>MARKER COORDINATES</b><br> <b>Latitude: </b>' + lat + '<br><b>Longitude: </b>' + lng,
-        // position: e.latLng
-        position: rest_coordinates,
-        content: contentString
-      });
-      iw_addRestForm.open(myMap, rest_marker);
+    let iw_newRestaurant;
+    new_rest_marker.addListener('click', function(/*e*/) {
+      //Reverse geocoding request
+      let geocoder = new google.maps.Geocoder();
+      let location = `${geocoding_url}$latlng=${rest_coordinates}&key=${apiKey}`;
+      // let latlngStr = rest_coordinates.toString().split('/');
+      // let latlng = {lat: parseFloat(rest_coordinates.lat), lng: parseFloat(rest_coordinates.lng)};
+      console.log("AYOOOO_________coordinates translation = " + rest_coordinates.lat + ", " + rest_coordinates.lng);
 
-    //close popup when mouseout
-    // rest_marker.addListener('mouseout', function() {
-    //   iw_addRestForm.close();
-    // });
-        
-      /*
-      yMap.setZoom(13); 
-      iw_addRestForm.setPosition(rest_coordinates);
-      iw_addRestForm.setContent(iw_popus[i]); //change values inside parethesis -----------------------------------------------------------!!!!!!!!!
-      iw_addRestForm.open(myMap, rest_marker);
-      */
+      //Making an AJAX Request
+      geocoder.geocode({'location': rest_coordinates}, function(results, status) {
+        if (status === 'OK') {
+          console.log(results);
+
+          if (results[0]) {
+            myMap.setZoom(11);
+            myMap.setCenter(rest_coordinates);
+            new_rest_marker.setPosition(rest_coordinates);  
+            nRest_address = results[0].formatted_address;
+            console.log(nRest_address);
+            //open infowindow/new restaurant form
+            //info window content string
+            let newRestForm = `
+              <div class="popup_cttWrapper" style="width: 220px; display: flex; justify-content: center; align-items: center;">
+                <div style="width: 210px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                  <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00;">Add New Restaurant</h5>
+                  <input type="text" name="newRestName" id="ui-newRest-name" placeholder="Restaurant name"/>
+                  <input type="text" name="newRestAddress" id="ui-newRest-address" placeholder="Restaurant address" value="${nRest_address}"/>
+                  <input type="url" name="newRestWebsite" id="ui-newRest-website" placeholder="Restaurant website"/>
+                  <input type="tel" name="newRestTelephone" id="ui-newRest-telephone" placeholder="Restaurant telephone"/>
+                  <button onClick="addNewRestaurant();" style="font-seize: 18px; padding: 6px; width: 95%; border: none; border-radius: 2px; color: #444; background-color: #D9FEA2;">Add Restaurant</button>
+                </div>
+              </div>`;
+            iw_newRestaurant = new google.maps.InfoWindow({
+              position: rest_coordinates,
+              content: newRestForm
+            });
+            iw_newRestaurant.open(myMap, new_rest_marker);
+
+            //button.addNewRestaurant()
+            function addNewRestaurant() {
+              let popup = `
+                <div class="popup_cttWrapper" style="width: 220px;">
+                  <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
+                  <div>
+                    <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
+                      <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${avg}</span> 
+                      <span style="margin-left: 3px;">${rtngs_xxxxx}</span><span id="noRev" style="margin-left: 3px;">(${numbOfReviews} reviews)</span>
+                    </p>
+                    <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${restaurant}">${restaurant}</h5>
+                    <p style=" width: 200px; display: flex; margin: 0 0 4px;">${address}</p>
+                    <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
+                  </div>
+                  <div style="display: flex; justify-content: center; padding: 4px 0;">
+                    <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0">
+                      <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rest_index});">See reviews</a>
+                    </p>
+                  </div>
+                </div>`;
+              //close form upon click to "Add restaurant"
+              // new_rest_marker.addListener('_____', function() {
+                iw_newRestaurant.close();
+              // });
+              iw_newRestaurant.setContent(popup);
+            }
+            
+          } else {
+            window.alert('No results found');
+          }
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+      });
+
+    
     });
   }
 
@@ -719,6 +788,8 @@ getUserLocation = function (position) {
 
 /** AJAX Request - Importing JSON data into map
 *****************************************************/
+/*
+
 function getJSON(url, callback) {
   // AJAX Request
   //return Promise((resolve, reject) => {
@@ -748,8 +819,12 @@ function getJSON(url, callback) {
 } //getJSON(url)
 
 
+*/
+
 /** Displaying data by user selection 
 *****************************************************/
+/*
+
 function getSelect(data) {
   const selectElm = document.getElementById('rating-list').value;
   console.log("selectElm = " + selectElm);
@@ -769,3 +844,4 @@ function getSelect(data) {
  
   // }
 
+*/
