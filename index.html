@@ -14,6 +14,8 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- Promise based HTTP client for the browser and node.js -->
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- SweetAlert -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -102,38 +104,14 @@
                 <a href="#header" title="go up" style="display: flex;"><img src="images/up-icon.png" style="width: 100%; height: 100%;"/></a>
               </div>
               <div style="float: right; display: flex; font-size: 14px; border: 1px solid #2E2A24; margin: 0 10px 2px 0; height: 38px;">
-                <button class="open-button" onclick="openForm()">Leave Review</button>
+                <button id="leave-review" class="open-button">Leave Review</button>
               </div>
             </h3>
             <div id="rest-reviews-inner-wrapper">
-              <!-- <div id="side-nav"></div> -->
-              <div id="side-nav" class="col-xs-12 col-md-4">
-                <div class="container form-wrapper" id="formPopup">
-                  <form>
-                    <div class="row">
-                      <input type="text" id="full-name" name="full-name" placeholder="Your name">
-                    </div>
-                    <div class="row score-wrapper">
-                      <label for="score">Score</label>
-                      <select id="score" name="score">
-                        <option value="one">1</option>
-                        <option value="two">2</option>
-                        <option value="three">3</option>
-                        <option value="four">4</option>
-                        <option value="five">5</option>
-                      </select>
-                    </div>
-                    <div class="row">
-                      <textarea id="user-review" name="user-review" placeholder="Share your experience" style="height:200px"></textarea>
-                    </div>
-                    <div class="row">
-                      <input id="close-btn" type="submit" value="Close" onclick="closeForm()"/>
-                      <input  id="add-review-btn" type="submit" value="Add Review"/>
-                    </div>
-                  </form>
-                </div> 
-              </div>
-              <div id="rest-reviews">Reviews section</div> 
+              <!-- Modal box -->
+              <div id="review_dialog-box"></div>
+              <!-- Restaurant Reviews follow below -->
+              <div id="rest-reviews">Click "Leave Review" to add new review</div> 
             </div> <br>
           </div>
         </div>

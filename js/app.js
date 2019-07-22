@@ -1,3 +1,6 @@
+//ECMAScript 5 Strict Mode
+"use strict";
+
 /*===========================================================================================================
 *  SOME Map AND DOM ELEMENTS
 ===========================================================================================================*/
@@ -122,32 +125,35 @@ let rest_dtls_collection = [];
 let rest_index;
 let allCompany_reviews = [];
 let markers = [];
-let addReview_form = `
-    <div class="container form-wrapper" id="formPopup">
-      <form>
-        <div class="row">
-          <input type="text" id="full-name" name="full-name" placeholder="Your name">
-        </div>
-        <div class="row score-wrapper">
-          <label for="score">Score</label>
-          <select id="score" name="score">
-            <option value="one">1</option>
-            <option value="two">2</option>
-            <option value="three">3</option>
-            <option value="four">4</option>
-            <option value="five">5</option>
-          </select>
-        </div>
-        <div class="row">
-          <textarea id="user-review" name="user-review" placeholder="Share your experience" style="height:200px"></textarea>
-        </div>
-        <div class="row">
-          <input id="close-btn" type="submit" value="Close" onclick="closeForm()"/>
-          <input  id="add-review-btn" type="submit" value="Add Review"/>
-        </div>
-      </form>
-    </div>`;
-document.getElementById("side-nav").style.display = "none";
+let modal = `
+ <div class="container form-wrapper" id="modalWrapper">
+    <form class="modal-content">
+      <div class="row">
+        <h5 style="margin: 15px 14px 25px; padding: 0;">Add a review</h5>
+      </div>
+      <div class="row">
+        <input type="text" id="full-name" name="full-name" placeholder="Your name">
+      </div>
+      <div class="row score-wrapper">
+        <label for="score">Score</label>
+        <select id="score" name="score">
+          <option value="one">1</option>
+          <option value="two">2</option>
+          <option value="three">3</option>
+          <option value="four">4</option>
+          <option value="five">5</option>
+        </select>
+      </div>
+      <div class="row">
+        <textarea id="user-review" name="user-review" placeholder="Share your experience" style="height:120px;"></textarea>
+      </div>
+      <div class="row" style="display: flex; justify-content: flex-end;">
+        <input id="close-review-btn" type="submit" onClick="close_ReviewForm();" value="Close" />
+        <input  id="add-review-btn" type="submit" value="Add Review"/>
+      </div>
+    </form>
+  </div> `;
+
 
 /*===========================================================================================================
 *  INFORMATION TO REACH API
@@ -164,7 +170,7 @@ const jsonPath = 'js/restaurants.json';
 
 /** Handling location errors
 *****************************************************/
-handleErrors = function () {
+let handleErrors = function () {
   document.querySelector('#main-content').style.display = 'none';
   // document.querySelector('#footer').style.display = 'none';
 
@@ -231,15 +237,6 @@ function showPopup(rest_index) {
 *****************************************************/
 function codeAddress() {
   let geocoder = new google.maps.Geocoder();
-  // geocoder.geocode({ 'address': wordQuery}, function(results, status) {
-  //   if (status == 'OK') {
-  //     myMap.setCenter(results[0].geometry.location);
-  //     user_marker.setPosition(results[0].geometry.location);
-  //   } else {
-  //     alert('Geocode was not successful for the following reason: ' + status);
-  //   }
-  // });
-  
   const queryParam1 = 'address=';
   const wordQuery = searchBox.value;  
   console.log(wordQuery);
@@ -273,22 +270,114 @@ function codeAddress() {
   xhr.send(); 
 }
 
-//Add Review Form
-function openForm() {
-  //add attributes to elem 1
-  // $('#side-nav').addClass('col-xs-12 col-md-4');
-  // $("side-nav").appendChild(addReview_form);
-  document.getElementById("side-nav").style.display = "block";
-
-  //add attributes to elem 2
-  $('#rest-reviews').addClass('col-xs-12 col-md-8');
-  // $('#div1').attr('class', 'newClass')
+const modalBtn = document.getElementById('leave-review');
+let close_ReviewBtn = document.getElementById('close-review-btn');
+//Open Review Form
+modalBtn.addEventListener('click', function() {
+  document.getElementById('review_dialog-box').innerHTML = modal;
+});
+//Close review form
+function close_ReviewForm() {
+  let modal = document.getElementById('close-review-btn').closest('#modalWrapper');
+  modal.style.display = "none";
 }
 
-function closeForm() {
-  document.getElementById("side-nav").style.display = "none";
-  $('#rest-reviews').addClass('col-xs-12 col-md-12');
-}
+//New Restaurant Popup
+function restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, rest_index) {
+  return `
+    <div class="popup_cttWrapper" style="width: 220px;">
+      <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
+      <div>
+        <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
+          <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${avg}</span> 
+          <span style="margin-left: 3px;">${rtngs_xxxxx}</span><span id="noRev" style="margin-left: 3px;">(${numbOfReviews} reviews)</span>
+        </p>
+        <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${restaurant}">${restaurant}</h5>
+        <p style=" width: 200px; display: flex; margin: 0 0 4px;">${address}</p>
+        <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
+      </div>
+      <div style="display: flex; justify-content: center; padding: 0px;">
+        <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0px">
+          <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rest_index});">See reviews</a>
+        </p>
+      </div>
+    </div>`;
+};
+
+/** computing average for star ratings
+*****************************************************/
+function getXstars(avg, avg_mrkr) { //4.4
+  let int = Math.floor(avg); //4
+  console.log("(avg)int: " + int);
+  let decimal = (avg % 1).toFixed(1); //eg: 0.4
+  console.log("(avg)decimal: " + decimal);
+
+  let marker_Rtng = int;
+
+   //if no reviews found (or NaN was trown) - minimum "int" can hold is 1 regardless if only one 1star review found ("avg" would still avarage 1)
+  let allStars = '<img src="../images/fStar-user-rate.png"/>';
+  let counter = 0;
+  if (int >= 1) {
+    console.log("pass - reviews found");
+    for (let i = 1; i < int; i++) {
+      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole stars
+      counter++;
+    }
+    if (decimal >= 0.8) {
+      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole star
+      counter++;
+      //marker rating rounded by 1 when decimal of an average >= 0.8
+      marker_Rtng++; 
+    }
+    if (decimal > 0.3 && decimal <= 0.7) {
+      allStars = allStars + '<img src="../images/hStar-user-rate.png"/>'; //half star
+      counter++;
+    }
+    if (decimal <= 0.3) {
+      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star
+      counter++;
+    }
+    //for the map markers - assigning value for variable avg_mrkr (outside the function)
+    avg_mrkr = [marker_Rtng];
+    console.log("-- 'avg_mrkr' inside getXstars() = " + avg_mrkr);
+    //counter after all stars have been added based on their averaged rating
+    // console.log(counter);
+    if (counter < 5) {
+      //add empty star(s) to make it 5 total
+      let starsRemaining = 5-counter;
+      // console.log(starsRemaining); 
+      for (let i = 1; i < starsRemaining; i++) {
+        allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star(s)  
+      }
+      return allStars;
+    }
+    return allStars;
+  }
+  else {
+    console.log("fail - no reviews found");
+    allStars = '<img src="../images/noStar-user-rate.png"/>'; //empty star
+    for (let i = 1; i < 5; i++) {
+      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty stars
+    }
+    return allStars;
+  }   
+}; //end of getXstars()
+
+//create restaurant review funtion
+function newRestReview(userName, score, comment) {
+  return `
+  <div class="review_item">
+    <div class="review-item-top" style="font-size: 18px; font-weight: 600; ">
+      <p>${userName}</p>
+      <p style="float: right;"><span style="margin-left: 6px;">${getXstars(score)}</span></p>
+    </div>
+    <div class="review-item-body">
+      <p>${comment}</p>
+    </div>
+  </div>`;
+};
+
+
 
 
 /*===========================================================================================================
@@ -314,7 +403,7 @@ function initMap() {
 
 /** if user's browser supports Geolocation
 *****************************************************/
-getUserLocation = function (position) {
+let getUserLocation = function (position) {
   document.querySelector('#rattings-wrapper').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'block';
   document.querySelector('#footer').style.display = 'block';
@@ -386,10 +475,12 @@ getUserLocation = function (position) {
     let rest_coordinates = {lat, lng};
     let nRest_address;
     
-  
+    //add new marker position to "mrkr_locations" array
+    mrkr_locations.push({lat, lng});
+
     //take new restaurant details
     let iw_newRestaurant;
-    new_rest_marker.addListener('click', function(/*e*/) {
+    new_rest_marker.addListener('click', function() {
       //Reverse geocoding request
       let geocoder = new google.maps.Geocoder();
       let location = `${geocoding_url}$latlng=${rest_coordinates}&key=${apiKey}`;
@@ -401,57 +492,153 @@ getUserLocation = function (position) {
       geocoder.geocode({'location': rest_coordinates}, function(results, status) {
         if (status === 'OK') {
           console.log(results);
-
+          
           if (results[0]) {
             myMap.setZoom(11);
             myMap.setCenter(rest_coordinates);
             new_rest_marker.setPosition(rest_coordinates);  
             nRest_address = results[0].formatted_address;
             console.log(nRest_address);
+            
             //open infowindow/new restaurant form
-            //info window content string
-            let newRestForm = `
-              <div class="popup_cttWrapper" style="width: 220px; display: flex; justify-content: center; align-items: center;">
-                <div style="width: 210px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                  <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00;">Add New Restaurant</h5>
-                  <input type="text" name="newRestName" id="ui-newRest-name" placeholder="Restaurant name"/>
-                  <input type="text" name="newRestAddress" id="ui-newRest-address" placeholder="Restaurant address" value="${nRest_address}"/>
-                  <input type="url" name="newRestWebsite" id="ui-newRest-website" placeholder="Restaurant website"/>
-                  <input type="tel" name="newRestTelephone" id="ui-newRest-telephone" placeholder="Restaurant telephone"/>
-                  <button onClick="addNewRestaurant();" style="font-seize: 18px; padding: 6px; width: 95%; border: none; border-radius: 2px; color: #444; background-color: #D9FEA2;">Add Restaurant</button>
-                </div>
-              </div>`;
+            let newRest_form = document.createElement('div');
+            newRest_form.setAttribute('class', 'nr_popup_wrapper');
+
+            let nr_inner_div = document.createElement('div'); //--------------------------------------------------------
+            nr_inner_div.setAttribute('class', 'nr_inner_wrapper');
+            // nr_container.appendChild(nr_inner_div);
+
+            //h5 (Heading)
+            let nr_heading = document.createElement('h5');
+            nr_heading.setAttribute('class', 'nr_heading');
+            nr_heading.textContent = 'Add New Restaurant';
+            nr_inner_div.appendChild(nr_heading);
+          
+            //input (Restaurant Name)
+            let nr_restName = document.createElement('input');
+            nr_restName.setAttribute('type', 'text');
+            nr_restName.setAttribute('name', 'newRestName');
+            nr_restName.setAttribute('id', 'ui-newRest-name');
+            nr_restName.setAttribute('placeholder', 'Restaurant name');
+            nr_inner_div.appendChild(nr_restName);
+
+            //select options list (Restaurant Address) <input type="text"  placeholder="Restaurant address" value="${nRest_address}"/>
+            let select = document.createElement('select'); //'<select name="rating-list" id="rating-list" onchange="getSelect()"></select>';
+            select.setAttribute('name', 'ui-newRest-address');
+            select.setAttribute('id', 'ui-newRest-address');
+            // $(select).attr("value", "ui-newRest-address");
+            //select options (all returned addresses)
+            let options = [];
+            for (let i = 0; i < results.length; i++) {
+              let rest_address = results[i].formatted_address;
+              options.push(rest_address);
+              let opt = options[i];
+              let options_elem = document.createElement("option");
+              options_elem.textContent = opt;
+              options_elem.value = [i];
+              select.appendChild(options_elem);
+            }
+            console.log(select);
+            nr_inner_div.appendChild(select);
+
+            //input (Restaurant Telephone)
+            let nr_restTel = document.createElement('input');
+            nr_restTel.setAttribute('type', 'tel');
+            nr_restTel.setAttribute('name', 'newRestTelephone');
+            nr_restTel.setAttribute('id', 'ui-newRest-telephone');
+            nr_restTel.setAttribute('placeholder', 'Restaurant telephone');
+            nr_inner_div.appendChild(nr_restTel);
+
+            //input (Restaurant Website)
+            let nr_restSite = document.createElement('input');
+            nr_restSite.setAttribute('type', 'url');
+            nr_restSite.setAttribute('name', 'newRestWebsite');
+            nr_restSite.setAttribute('id', 'ui-newRest-website');
+            nr_restSite.setAttribute('placeholder', 'Restaurant website');
+            nr_inner_div.appendChild(nr_restSite);
+
+            //button (Add Restaurant button)
+            let nr_restBtn = document.createElement('button');
+            nr_restBtn.setAttribute('class', 'nr_btn');
+            // nr_restBtn.setAttribute('onClick', 'addNewRestaurant();');
+            nr_restBtn.onclick = addNewRestaurant;
+            nr_restBtn.textContent = 'Add Restaurant';
+            // nr_restBtn.value = 'Add Restaurant';
+            nr_inner_div.appendChild(nr_restBtn);
+
+            //container div houses inner div
+            newRest_form.appendChild(nr_inner_div);
+
             iw_newRestaurant = new google.maps.InfoWindow({
               position: rest_coordinates,
-              content: newRestForm
+              content: newRest_form
             });
             iw_newRestaurant.open(myMap, new_rest_marker);
 
-            //button.addNewRestaurant()
             function addNewRestaurant() {
-              let popup = `
-                <div class="popup_cttWrapper" style="width: 220px;">
-                  <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
-                  <div>
-                    <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
-                      <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${avg}</span> 
-                      <span style="margin-left: 3px;">${rtngs_xxxxx}</span><span id="noRev" style="margin-left: 3px;">(${numbOfReviews} reviews)</span>
-                    </p>
-                    <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${restaurant}">${restaurant}</h5>
-                    <p style=" width: 200px; display: flex; margin: 0 0 4px;">${address}</p>
-                    <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
-                  </div>
-                  <div style="display: flex; justify-content: center; padding: 4px 0;">
-                    <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0">
-                      <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rest_index});">See reviews</a>
-                    </p>
-                  </div>
-                </div>`;
-              //close form upon click to "Add restaurant"
-              // new_rest_marker.addListener('_____', function() {
-                iw_newRestaurant.close();
-              // });
-              iw_newRestaurant.setContent(popup);
+              //get user input data
+              let restName, selRestAddress, restTelephone, restWebsite, nOptions;
+              restName = document.getElementById('ui-newRest-name').value;
+              selRestAddress = document.getElementById('ui-newRest-address');
+              let selRestAddressOption = selRestAddress.options[selRestAddress.selectedIndex].text; //.value returns the index
+              console.log(selRestAddressOption);
+              
+              // let selOption = restAddress.options[restAddress.selectedIndex];
+              restTelephone = document.getElementById('ui-newRest-telephone').value;
+              restWebsite = document.getElementById('ui-newRest-website').value;
+
+              // console.log(selOption);
+              let newRestaurant = {
+                restaurantName: restName,
+                address: selRestAddressOption,
+                telephone: restTelephone,
+                website: restWebsite,
+                lat: lat,
+                long: lng,
+                ratings: []
+              }
+              restaurants.push(newRestaurant);
+
+              console.log(restaurants);
+              //close new restaurant form
+              // iw_newRestaurant.close();
+              const rest_index = restaurants.length - 1;
+              let avg = NaN;
+              /** if no reviews found
+              *****************************************************/
+              if (isNaN(avg_mrkr[rest_index]) || isNaN(avg)) { //JavaScript for Web Developers > Data Types > NaN
+                let noReviews = 0;
+                avg_mrkr[rest_index] = noReviews;
+                avg = noReviews.toFixed(1);
+                console.log("avg_mrkr (for map markers) assumes ---> " + avg_mrkr[rest_index]);
+                console.log("avg (for li elems) assumes ---> " + avg);
+              }
+              let rtngs_xxxxx = getXstars(avg, avg_mrkr[rest_index]);
+              let numbOfReviews = 0;
+              //open new restaurant's newly created popup
+              const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restName, selRestAddressOption, restTelephone, rest_index);
+              
+              //bring new popup
+              // iw_newRestaurant.setContent(popup);
+              
+              //add new marker for the newly added restaurant
+              let new_rest_marker = new google.maps.Marker({
+                position: rest_coordinates, 
+                map: myMap,
+                icon: '../images/0star-marker.png', 
+                title: 'click for details'
+              });
+              //newly added restaurant marker's click event handler
+              new_rest_marker.addListener('click', function() {
+                iw_newRestaurant.setPosition(mrkr_locations[rest_index]);
+                iw_newRestaurant.setContent(popup); // iw_restDtls.setContent(iw_popus[i]); 
+                iw_newRestaurant.open(myMap, new_rest_marker);
+              });
+              //Update "markers" array
+              markers.push(new_rest_marker);
+
+              //trigger "click" event on newly added restaurant's marker
+              showPopup(rest_index);
             }
             
           } else {
@@ -468,7 +655,6 @@ getUserLocation = function (position) {
 
   /** AJAX Request - Importing JSON data into map
   *****************************************************/
-
   const xhr = new XMLHttpRequest();
   // AJAX Request
   //return Promise((resolve, reject) => {
@@ -505,23 +691,24 @@ getUserLocation = function (position) {
             numbOfReviews ++; 
             let comment = ratings[j].comment;
             let rvw;
+            let userName = `User${j+1}`;
             // console.log("TYPEOF COMMENT IS ---->> " + typeof comment);
             if (comment) { //if (typeof comment === 'string' || myVar instanceof String)
               rvw =`
                 <div class="review_item">
                   <div class="review-item-top" style="font-size: 18px; font-weight: 600; ">
-                    <p>User ${j+1}</p>
+                    <p>${userName}</p>
                     <p style="float: right;"><span style="margin-left: 6px;">${getXstars(rate)}</span></p>
                   </div>
                   <div class="review-item-body">
                     <p>${comment}</p>
                   </div>
                 </div>`;
-              // reviews += rvw;
             } else {
               console.log("No Reviews Found!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
               comment = 'No Reviews Found';
               rvw ='No Reviews Found';
+              reviews.push(rvw);
             }
             reviews.push(rvw);
           }
@@ -546,68 +733,11 @@ getUserLocation = function (position) {
             console.log("avg (for li elems) assumes ---> " + avg);
           }
 
-          /** computing average for star ratings
-          *****************************************************/
-          function getXstars(avg) { //4.4
-            let int = Math.floor(avg); //4
-            console.log("(avg)int: " + int);
-            decimal = (avg % 1).toFixed(1); //eg: 0.4
-            console.log("(avg)decimal: " + decimal);
-
-            let marker_Rtng = int;
-
-             //if no reviews found (or NaN was trown) - minimum "int" can hold is 1 regardless if only one 1star review found ("avg" would still avarage 1)
-            let allStars = '<img src="../images/fStar-user-rate.png"/>';
-            let counter = 0;
-            if (int >= 1) {
-              console.log("pass - reviews found");
-              for (let i = 1; i < int; i++) {
-                allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole stars
-                counter++;
-              }
-              if (decimal >= 0.8) {
-                allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole star
-                counter++;
-                //marker rating rounded by 1 when decimal of an average >= 0.8
-                marker_Rtng++; 
-              }
-              if (decimal > 0.3 && decimal <= 0.7) {
-                allStars = allStars + '<img src="../images/hStar-user-rate.png"/>'; //half star
-                counter++;
-              }
-              if (decimal <= 0.3) {
-                allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star
-                counter++;
-              }
-              //for the map markers - assigning value for variable avg_mrkr (outside the function)
-              avg_mrkr[i] = [marker_Rtng];
-              console.log("-- 'avg_mrkr' inside getXstars() = " + avg_mrkr[i]);
-              //counter after all stars have been added based on their averaged rating
-              // console.log(counter);
-              if (counter < 5) {
-                //add empty star(s) to make it 5 total
-                let starsRemaining = 5-counter;
-                // console.log(starsRemaining); 
-                for (let i = 1; i < starsRemaining; i++) {
-                  allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star(s)  
-                }
-                return allStars;
-              }
-              return allStars;
-            }
-            else {
-              console.log("fail - no reviews found");
-              allStars = '<img src="../images/noStar-user-rate.png"/>'; //empty star
-              for (let i = 1; i < 5; i++) {
-                allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty stars
-              }
-              return allStars;
-            }   
-          }; //end of getXstars()
+          //call rtngs_xxxxx
 
           console.log("-----RESTAURANT[" + [i] + "] avg = " + avg);        
           //variable to hold ratings for stars being printed on the page
-          rtngs_xxxxx = getXstars(avg); //avg is 0.0 when no reviews found 
+          const rtngs_xxxxx = getXstars(avg); //avg is 0.0 when no reviews found 
 
         /** Getting distance in miles using Geometry library
         *****************************************************/
@@ -655,13 +785,13 @@ getUserLocation = function (position) {
               <div style="width: 100%;">
                 <h3 style="margin: 0 0 4px; padding: 4px 0; font-weight: 600; color: #2E2A24;">${restaurant}</h3>
                 <p style="margin: 0 0 4px; padding: 0 0 4px; display: flex;">
-                  <span style="font-size: 18px; font-weight: 600; color: #E7711B; margin-left: 0px; padding-top: 4px;">${avg}</span> 
+                  <span style="font-size: 15px; font-weight: 600; color: #E7711B; margin-left: 0px; padding-top: 4px;">${avg}</span> 
                   <span style="font-size: 20px; margin-left: 3px;">${rtngs_xxxxx}</span>
                   <span id="noRev" style="font-size: 15px; padding-top: 5px; margin-left: 3px;">(${numbOfReviews} reviews)</span>
                 </p>
-                <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px;">${address}</p>
-                <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${telephone}</a> </p>
-                <p id="bt-align-x" style="font-size: 18px; padding: 18px 0; margin: 0 0 4px;">
+                <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px;">${address}</p>
+                <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${telephone}</a> </p>
+                <p id="bt-align-x" style="font-size: 15px; padding: 18px 0; margin: 0 0 4px;">
                   <a id="site-btn" href="${website}" target="_blank" style="text-decoration: none;">
                     <img src="../images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
                   </a>
@@ -669,25 +799,8 @@ getUserLocation = function (position) {
               </div> 
             </div>`;
        
-          //(hover) iw_restDtls content String 
-          let popup = `
-            <div class="popup_cttWrapper" style="width: 220px;">
-              <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
-              <div>
-                <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
-                  <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${avg}</span> 
-                  <span style="margin-left: 3px;">${rtngs_xxxxx}</span><span id="noRev" style="margin-left: 3px;">(${numbOfReviews} reviews)</span>
-                </p>
-                <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${restaurant}">${restaurant}</h5>
-                <p style=" width: 200px; display: flex; margin: 0 0 4px;">${address}</p>
-                <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
-              </div>
-              <div style="display: flex; justify-content: center; padding: 4px 0;">
-                <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0">
-                  <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rest_index});">See reviews</a>
-                </p>
-              </div>
-            </div>`;
+          //show restaurant details in popup
+          const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, i);
 
           //making objects available outside the for loop
           mrkr_icons.push("../images/" + avg_mrkr[i] + "star-marker.png"); //updated value of avg_mrkr (after getXstars() is executed)
