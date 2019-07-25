@@ -21,7 +21,7 @@ let welcome_msg = `
 let error_msg =`
   <div id="error-card">
     <div id="msg-wrapper">
-      <div class="logo-wrapper"> <img src="../images/no-location-marker.png" alt="satellite"/> </div>
+      <div class="logo-wrapper"> <img src="../images/no-location-marker.png" alt="user location"/> </div>
       <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">Enable your location</h4>
       <h6>To enable location, please refresh your browser and respond to the prompt.</h6>
       <h6>Alternatively, see <a style="text-decoration: underline;" target="_blank" href="https://www.google.com/search?rlz=1C1CHBD_en-GBGB755GB755&ei=y4EJXZO3K9GEhbIPjNS80AU&q=how+to+enable+geolocation+&oq=how+to+enable+geolocation+&gs_l=psy-ab.3..0l10.16403.27912..28314...4.0..0.106.1961.29j1......0....1..gws-wiz.....6..0i71j35i39j0i67j0i131i67j0i131j0i10i67j0i20i263.IB3pk3dkMoY">how to enable Geolocation</a></h6> 
@@ -109,22 +109,19 @@ const myMapStyles = [
 ];
 const searchBox = document.getElementById('ui-query');
 let restaurants; //parsed JSON
-let li_elems = ""; 
-let ratings;
-let website;
-let restaurant;
-let telephone;
-let address;
-let rtngAvg;
+let markers = [];
+let iw_popups = [];
+let _rest_liItems = ""; 
+let _rest_svDetails = [];
+let _rest_reviews = [];
+
 let avg;
+let rtngAvg;
 let avg_mrkr = [];
 let mrkr_icons = [];
 let mrkr_locations = [];
-let iw_popus = [];
-let rest_dtls_collection = [];
 let rest_index;
-let allCompany_reviews = [];
-let markers = [];
+
 let modal = `
  <div class="container form-wrapper" id="modalWrapper">
     <form class="modal-content">
@@ -153,6 +150,7 @@ let modal = `
       </div>
     </form>
   </div> `;
+let distance_miles;
 
 
 /*===========================================================================================================
@@ -188,10 +186,9 @@ let options = {
 /** Showing Restaurant reviews
 *****************************************************/
 function showReviews(rest_index) {
-  //make bottom section visible
   document.querySelector('#bottomSection').style.display = 'block';
-  //show restaurant details
-  document.querySelector('#rest-brief').innerHTML = rest_dtls_collection[rest_index];
+  //show restaurant info and Street View 
+  document.querySelector('#rest-brief').innerHTML = _rest_svDetails[rest_index];
   //show Street View panorama
   let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
     position: mrkr_locations[rest_index],
@@ -205,17 +202,26 @@ function showReviews(rest_index) {
   });
   //show restaurant reviews
   let rvwsList = '<ul>';
-  for (let i = 0; i < allCompany_reviews[rest_index].length; i++) {
-    rvwsList += '<li>' + allCompany_reviews[rest_index][i] + '</li>'
+  // console.log(_rest_reviews[rest_index]);
+  // console.log(_rest_reviews[rest_index].length);
+  if (_rest_reviews[rest_index].length == 0) {
+    rvwsList += '<li>' + 'No reviews found' + '</li>'
   }
+  else {
+    for (let i = 0; i < _rest_reviews[rest_index].length; i++) {
+      rvwsList += '<li>' + _rest_reviews[rest_index][i] + '</li>'
+    }
+  } 
   rvwsList += '</ul>';
   document.querySelector('#rest-reviews').innerHTML = rvwsList; 
-
+  //pass restaurant identidier to "Add review" button
+  let btn_addReview = document.getElementById('leave-review');
+  btn_addReview.setAttribute('onClick', `addReview(${rest_index});`);
   //target list element on the side of the page
   let li_elem_id = '#' + rest_index;
   $(this).click(function(e) {
     //remove all pre-existing active classes
-    elems = document.querySelectorAll('.selection.selected');
+    let elems = document.querySelectorAll('.selection.selected');
     for (let i = 0; i < elems.length; i++) { 
       elems[i].classList.remove('selected');
       elems[i].style.backgroundColor = '#fff'; //restore white background (#D9FEA2)
@@ -227,61 +233,101 @@ function showReviews(rest_index) {
   });
 } //.showReviews
 
-function showPopup(rest_index) {
-  //Trigger a click event on each marker when the corresponding marker link is clicked
-  console.log(markers[rest_index]);
-  google.maps.event.trigger(markers[rest_index], 'click');
-};
-
-/** Searches with Geocoding
+/** Open new restaurant review form
 *****************************************************/
-function codeAddress() {
-  let geocoder = new google.maps.Geocoder();
-  const queryParam1 = 'address=';
-  const wordQuery = searchBox.value;  
-  console.log(wordQuery);
-  const queryParam2 = '&key=';
-  //const endpoint = `${geocoding_url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
-  const endpoint = `${geocoding_url}${queryParam1}${wordQuery}${queryParam2}${apiKey}`;
-  //Making an AJAX Request
-  const xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = () => {
-    if (xhr.readyState === /*4*/ XMLHttpRequest.DONE) {
-      if (xhr.status === 200 || xhr.status === 201) {
-        let data = JSON.parse(xhr.responseText); //xhr.response;
-        console.log(data);
-        console.log(data.results[0].place_id);
-        // console.log(xhr.results); //undefined
-        myMap.setCenter(data.results[0].geometry.location);
-        user_marker.setPosition(data.results[0].geometry.location);  
-      } //end of inner if statement
-      else if (xhr.status === 404) {
-        console.log('404: File not found');
-      } 
-      else if (xhr.status === 500) {
-        console.log('500: Server had a problem');
-      } 
-    }
-    else {
-      console.log('Geocode was not successful for the following reason: ' + xhr.statusText);
-    }
-  } //end of onreadystatechange
-  xhr.open('GET', endpoint);
-  xhr.send(); 
+let close_ReviewBtn = document.getElementById('close-review-btn');
+function addReview(rest_index) {
+// modalBtn.addEventListener('click', function() {
+  document.getElementById('review_dialog-box').innerHTML = modal;//Open Review Form
+// });
+
+  //pass restaurant identidier to "Add review" button
+  let modal_addReviewBtn = document.getElementById('add-review-btn');
+  modal_addReviewBtn.setAttribute('onClick', `submitReview(${rest_index}); return false;`);
 }
 
-const modalBtn = document.getElementById('leave-review');
-let close_ReviewBtn = document.getElementById('close-review-btn');
-//Open Review Form
-modalBtn.addEventListener('click', function() {
-  document.getElementById('review_dialog-box').innerHTML = modal;
-});
-//Close review form
+/** Close new restaurant review form
+*****************************************************/
 function close_ReviewForm() {
   let modal = document.getElementById('close-review-btn').closest('#modalWrapper');
   modal.style.display = "none";
 }
 
+/** Submit new restaurant review
+*****************************************************/
+function submitReview(rest_index) {
+  //take user input 
+  const user_fName = document.getElementById('full-name').value;
+  const dropdown = document.getElementById('score');
+  const score = dropdown.options[dropdown.selectedIndex].text;
+  let user_score = parseInt(score, 10);
+  const user_comment = document.getElementById('user-review').value;
+  //add review to restaurants array
+  const newReview = { 
+    user: user_fName,
+    stars: user_score, 
+    comment: user_comment
+  }
+  console.log(restaurants[rest_index]);
+  restaurants[rest_index].ratings.push(newReview);
+  console.log(restaurants[rest_index].ratings);
+  //close form
+  document.getElementById('review_dialog-box').style.display = "none";
+  //print user input on the page
+  let x_rest_reviews = [];
+  let rvw;
+  // let j = restaurants[rest_index].ratings.length - 1;
+  for (let x = 0; x < restaurants[rest_index].ratings.length; x++) {
+    let userName = `User${x+1}`;
+    let rate = restaurants[rest_index].ratings[x].stars; //takes int
+    let comment = restaurants[rest_index].ratings[x].comment;
+    let rvw;
+    if (restaurants[rest_index].ratings[x]) {
+      if (restaurants[rest_index].ratings[x].user) {
+        userName = restaurants[rest_index].ratings[x].user;
+      }
+      rvw = newRestReview(userName, rate, comment);
+    }
+    x_rest_reviews.push(rvw);
+  }
+  _rest_reviews[rest_index] = x_rest_reviews;
+  console.log(_rest_reviews[rest_index]);
+
+  showReviews(rest_index);
+
+} //.submitReview(rest_index)
+
+//Trigger marker click event
+function showPopup(rest_index) {
+  google.maps.event.trigger(markers[rest_index], 'click');
+};
+
+//show restaurants in list form
+function restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance_miles, i) {
+  return `
+    <li id="${rest_index}" class="selection">
+      <a onClick="showPopup(${rest_index});" href="#header" class="liDirectChild marker-link" data-marker-id="${rest_index}" data-marker-title="${restaurant}">
+        <div class="restaurant-pic-wrapper"><img src="../images/food.png"/></div>
+        <div class="restaurant-brief-wrapper">
+          <h5>${restaurant}</h5>
+          <div style="margin: 0; display: flex;"> 
+            <p style="margin: 0; padding: 0;">
+              <div style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 1.5px;">${avg}</div> 
+              <span style="font-size: 13px; margin-left: 3px;">${rtngs_xxxxx}</span>
+              <span id="noRev" style="font-size: 13px; margin-left: 3px; color: #9F9E9E;">(${numbOfReviews} reviews)</span>
+            </p>
+          </div> 
+          <p style="display: flex; margin: 0; padding: 0;">
+            <span style="width: 16px; height: 16px;"> 
+              <img src="../images/location_marker.png" alt="location in miles" style="width: 100%; height: 100%;"/>
+            </span>
+            <span id="lct-marker" style="font-size: 13px; margin-left: 3px; padding-top: 4px; color: #9F9E9E;">${distance_miles.toFixed(1)} mi</span>
+          </p>
+        </div>
+      </a>
+    </li>`;
+};
+        
 //New Restaurant Popup
 function restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, rest_index) {
   return `
@@ -301,6 +347,28 @@ function restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telepho
           <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rest_index});">See reviews</a>
         </p>
       </div>
+    </div>`;
+};
+
+//show restaurant details
+function restDtls(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, website) {
+  return `
+    <div class="col-hg" style="display: flex; align-items: center; justify-content: center;">
+      <div style="width: 100%;">
+        <h3 style="margin: 0 0 4px; padding: 4px 0; font-weight: 600; color: #2E2A24;">${restaurant}</h3>
+        <p style="margin: 0 0 4px; padding: 0 0 4px; display: flex;">
+          <span style="font-size: 15px; font-weight: 600; color: #E7711B; margin-left: 0px; padding-top: 4px;">${avg}</span> 
+          <span style="font-size: 20px; margin-left: 3px;">${rtngs_xxxxx}</span>
+          <span id="noRev" style="font-size: 15px; padding-top: 5px; margin-left: 3px;">(${numbOfReviews} reviews)</span>
+        </p>
+        <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px;">${address}</p>
+        <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${telephone}</a> </p>
+        <p id="bt-align-x" style="font-size: 15px; padding: 18px 0; margin: 0 0 4px;">
+          <a id="site-btn" href="${website}" target="_blank" style="text-decoration: none;">
+            <img src="../images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
+          </a>
+        </p>
+      </div> 
     </div>`;
 };
 
@@ -377,91 +445,8 @@ function newRestReview(userName, score, comment) {
   </div>`;
 };
 
-
-
-
-/*===========================================================================================================
-*  INITIALISING GOOGLE MAPS
-===========================================================================================================*/
-function initMap() {
-  /** Geolocation API
-  *****************************************************/
-  //if user's browser does not support Navigator.geolocation object
-  if (!navigator.geolocation) {
-    console.log("Geolocation is not supported by your browser");
-    alert('Geolocation is not supported by your browser');
-  } else {
-    document.querySelector('#rattings-wrapper').style.display = 'none';
-    document.querySelector('#bottomSection').style.display = 'none';
-    document.querySelector('#footer').style.display = 'none';
-
-    document.getElementById('map').innerHTML = welcome_msg;
-    //getCurrentLocation gets the current location of the device
-    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options); //navigator.geolocation.getCurrentPosition(success[, error[, [options]])
-  }
-} 
-
-/** if user's browser supports Geolocation
-*****************************************************/
-let getUserLocation = function (position) {
-  document.querySelector('#rattings-wrapper').style.display = 'block';
-  document.querySelector('#bottomSection').style.display = 'block';
-  document.querySelector('#footer').style.display = 'block';
-  document.querySelector('#bottomSection').style.display = 'none';
-
-  let lat = position.coords.latitude;
-  let lng = position.coords.longitude;
-  // console.log(`Current Latitude is ${lat} and your longitude is ${lng}`);
-  console.log("To get the location used for this project, please use LAT (52.6431335), and LNG (1.3342981999999999)");
-  let pos = { lat: lat, lng: lng };
-  
-  iw_restDtls = new google.maps.InfoWindow;
-  //map built-in controls
-  mapOptions = {
-    center: new google.maps.LatLng(lat, lng),
-    zoom: 12,
-    styles: myMapStyles,
-    panControl: true,
-    scaleControl: false,
-    mapTypeControl: true,
-    // mapTypeId: google.maps.MapTypeId.ROADMAP,
-    mapTypeControlOptions: {
-      mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID/*, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.TERRAIN*/],
-      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU /*.DEFAULT or HORIZONTAL_BAR*/
-    },
-    zoomControl: true,
-    zoomControlOptions: {
-      style: google.maps.ZoomControlStyle.SMALL,
-      position: google.maps.ControlPosition.RIGHT_CENTER
-    },
-    overviewMapControl: true,
-    overviewMapControlOptions: {
-      opened: true
-    },
-    streetViewControl: false
-  }
-  //creating the map
-  myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
-  //creating user location marker
-  user_marker = new google.maps.Marker({ 
-    position: pos, 
-    map: myMap, 
-    icon: user_mrkrIcon, 
-    draggable: true,
-    animation: google.maps.Animation.BOUNCE 
-  });
-  setTimeout(function () {
-    user_marker.setAnimation(null)
-  }, 3000);
-
-
-  /** Adding new restaurant by clicking on the map
-  *****************************************************/
-  google.maps.event.addListener(myMap, 'rightclick', function(event) {
-    newRestaurantForm(event.latLng);
-  });
-
-  function newRestaurantForm(location) {
+//Adding New Restaurant
+function newRestaurantForm(location) {
     //add new restaurant marker
     let new_rest_marker = new google.maps.Marker({
       position: location, 
@@ -582,12 +567,8 @@ let getUserLocation = function (position) {
               selRestAddress = document.getElementById('ui-newRest-address');
               let selRestAddressOption = selRestAddress.options[selRestAddress.selectedIndex].text; //.value returns the index
               console.log(selRestAddressOption);
-              
-              // let selOption = restAddress.options[restAddress.selectedIndex];
               restTelephone = document.getElementById('ui-newRest-telephone').value;
               restWebsite = document.getElementById('ui-newRest-website').value;
-
-              // console.log(selOption);
               let newRestaurant = {
                 restaurantName: restName,
                 address: selRestAddressOption,
@@ -598,15 +579,13 @@ let getUserLocation = function (position) {
                 ratings: []
               }
               restaurants.push(newRestaurant);
-
               console.log(restaurants);
-              //close new restaurant form
-              // iw_newRestaurant.close();
+
               const rest_index = restaurants.length - 1;
               let avg = NaN;
               /** if no reviews found
               *****************************************************/
-              if (isNaN(avg_mrkr[rest_index]) || isNaN(avg)) { //JavaScript for Web Developers > Data Types > NaN
+              if (isNaN(avg_mrkr[rest_index]) || isNaN(avg)) {
                 let noReviews = 0;
                 avg_mrkr[rest_index] = noReviews;
                 avg = noReviews.toFixed(1);
@@ -617,9 +596,8 @@ let getUserLocation = function (position) {
               let numbOfReviews = 0;
               //open new restaurant's newly created popup
               const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restName, selRestAddressOption, restTelephone, rest_index);
-              
               //bring new popup
-              // iw_newRestaurant.setContent(popup);
+              iw_newRestaurant.setContent(popup);
               
               //add new marker for the newly added restaurant
               let new_rest_marker = new google.maps.Marker({
@@ -631,15 +609,24 @@ let getUserLocation = function (position) {
               //newly added restaurant marker's click event handler
               new_rest_marker.addListener('click', function() {
                 iw_newRestaurant.setPosition(mrkr_locations[rest_index]);
-                iw_newRestaurant.setContent(popup); // iw_restDtls.setContent(iw_popus[i]); 
+                iw_newRestaurant.setContent(popup); // iw_restDtls.setContent(iw_popups[i]); 
                 iw_newRestaurant.open(myMap, new_rest_marker);
               });
-              //Update "markers" array
-              markers.push(new_rest_marker);
+              //Add to global array, "markers"
+              markers.push(new_rest_marker);              
+              //Add new restaurant on side of the page
+                // restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance_miles, rest_index);
+              //show restaurant details
+              const nr_restaurant = restaurants[rest_index].restaurantName;
+              const nr_address = restaurants[rest_index].address;
+              const nr_telephone = restaurants[rest_index].telephone;
+              const nr_website = restaurants[rest_index].website;
+              const rest_dtls = restDtls(avg, rtngs_xxxxx, numbOfReviews, nr_restaurant, nr_address, nr_telephone, nr_website);
+              _rest_svDetails.push(rest_dtls);
+              //add empty array (show reviews will need _rest_reviews[rest_index])
+              _rest_reviews.push([]);//No reviews found
 
-              //trigger "click" event on newly added restaurant's marker
-              showPopup(rest_index);
-            }
+            } //addNewRestaurant()
             
           } else {
             window.alert('No results found');
@@ -648,10 +635,89 @@ let getUserLocation = function (position) {
           window.alert('Geocoder failed due to: ' + status);
         }
       });
-
-    
     });
   }
+
+
+/*===========================================================================================================
+*  INITIALISING GOOGLE MAPS
+===========================================================================================================*/
+function initMap() {
+  /** Geolocation API
+  *****************************************************/
+  //if user's browser does not support Navigator.geolocation object
+  if (!navigator.geolocation) {
+    console.log("Geolocation is not supported by your browser");
+    alert('Geolocation is not supported by your browser');
+  } else {
+    document.querySelector('#rattings-wrapper').style.display = 'none';
+    document.querySelector('#bottomSection').style.display = 'none';
+    document.querySelector('#footer').style.display = 'none';
+
+    document.getElementById('map').innerHTML = welcome_msg;
+    //getCurrentLocation gets the current location of the device
+    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options);
+  }
+} 
+
+/** if user's browser supports Geolocation
+*****************************************************/
+let getUserLocation = function (position) {
+  document.querySelector('#rattings-wrapper').style.display = 'block';
+  document.querySelector('#bottomSection').style.display = 'block';
+  document.querySelector('#footer').style.display = 'block';
+  document.querySelector('#bottomSection').style.display = 'none';
+
+  let lat = position.coords.latitude;
+  let lng = position.coords.longitude;
+  // console.log(`Current Latitude is ${lat} and your longitude is ${lng}`);
+  console.log("To get the location used for this project, please use LAT (52.6431335), and LNG (1.3342981999999999)");
+  let pos = { lat: lat, lng: lng };
+  
+  iw_restDtls = new google.maps.InfoWindow;
+  //map built-in controls
+  mapOptions = {
+    center: new google.maps.LatLng(lat, lng),
+    zoom: 12,
+    styles: myMapStyles,
+    panControl: true,
+    scaleControl: false,
+    mapTypeControl: true,
+    // mapTypeId: google.maps.MapTypeId.ROADMAP,
+    mapTypeControlOptions: {
+      mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID/*, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.TERRAIN*/],
+      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU /*.DEFAULT or HORIZONTAL_BAR*/
+    },
+    zoomControl: true,
+    zoomControlOptions: {
+      style: google.maps.ZoomControlStyle.SMALL,
+      position: google.maps.ControlPosition.RIGHT_CENTER
+    },
+    overviewMapControl: true,
+    overviewMapControlOptions: {
+      opened: true
+    },
+    streetViewControl: false
+  }
+  //creating the map
+  myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
+  //creating user location marker
+  user_marker = new google.maps.Marker({ 
+    position: pos, 
+    map: myMap, 
+    icon: user_mrkrIcon, 
+    draggable: true,
+    animation: google.maps.Animation.BOUNCE 
+  });
+  setTimeout(function () {
+    user_marker.setAnimation(null)
+  }, 3000);
+
+  /** Adding new restaurant by clicking on the map
+  *****************************************************/
+  google.maps.event.addListener(myMap, 'rightclick', function(event) {
+    newRestaurantForm(event.latLng);
+  });
 
   /** AJAX Request - Importing JSON data into map
   *****************************************************/
@@ -669,20 +735,19 @@ let getUserLocation = function (position) {
         /** Finding avarage of restaurants' reviews 
         *****************************************************/
         for (let i = 0; i < restaurants.length; i++) {
-
           let lat = restaurants[i].lat;
           let lng = restaurants[i].long;
-          ratings = restaurants[i].ratings;
-          website = restaurants[i].website;
-          restaurant = restaurants[i].restaurantName;
-          telephone = restaurants[i].telephone;
-          address = restaurants[i].address;
+          let ratings = restaurants[i].ratings;
+          let website = restaurants[i].website;
+          let restaurant = restaurants[i].restaurantName;
+          let telephone = restaurants[i].telephone;
+          let address = restaurants[i].address;
           rest_index = i;
           
           let values = []; //stores starred rating values
           let sum = 0;
           let numbOfReviews = 0;
-          let reviews = [];
+          let x_rest_reviews = [];
 
           for (let j = 0; j < ratings.length; j++) {
             let rate = ratings[j].stars; //takes int
@@ -692,8 +757,11 @@ let getUserLocation = function (position) {
             let comment = ratings[j].comment;
             let rvw;
             let userName = `User${j+1}`;
-            // console.log("TYPEOF COMMENT IS ---->> " + typeof comment);
-            if (comment) { //if (typeof comment === 'string' || myVar instanceof String)
+            // if (ratings[j] === undefined || ratings[j].length == 0) {     // array empty or does not exist } //if (typeof comment === 'string' || myVar instanceof String)
+            //   rvw ='No reviews found';
+            //   console.log(rvw);
+            // } else {}
+            if (ratings[j]) {
               rvw =`
                 <div class="review_item">
                   <div class="review-item-top" style="font-size: 18px; font-weight: 600; ">
@@ -704,13 +772,8 @@ let getUserLocation = function (position) {
                     <p>${comment}</p>
                   </div>
                 </div>`;
-            } else {
-              console.log("No Reviews Found!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-              comment = 'No Reviews Found';
-              rvw ='No Reviews Found';
-              reviews.push(rvw);
             }
-            reviews.push(rvw);
+            x_rest_reviews.push(rvw);
           }
           //calculating rating avarages
           rtngAvg = sum / values.length; //holds a value with a decimal point, eg: 1.3333333333333333
@@ -739,89 +802,52 @@ let getUserLocation = function (position) {
           //variable to hold ratings for stars being printed on the page
           const rtngs_xxxxx = getXstars(avg); //avg is 0.0 when no reviews found 
 
-        /** Getting distance in miles using Geometry library
-        *****************************************************/
-        const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
-        console.log("USER POINT ON THE MAP: " + pos.lat + ", " + pos.lng);
-        const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
-        console.log("RESTAURANT POINT ON THE MAP: " + lat + ", " + lng);
-        //Getting the distance 
-        function getDistanceInMiles(point_a, point_b) {
-          let distance_in_meters = google.maps.geometry.spherical.computeDistanceBetween(point_a, point_b);
-          let distance_in_miles = distance_in_meters * 0.000621371; // converts meters to miles
-          return distance_in_miles;
-        }
-        const distance_miles = getDistanceInMiles(user_point, restaurant_point);  
-        console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" ); //round distant to 1 decimal
+          /** Getting distance in miles using Geometry library
+          *****************************************************/
+          const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
+          console.log("USER POINT ON THE MAP: " + pos.lat + ", " + pos.lng);
+          const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
+          console.log("RESTAURANT POINT ON THE MAP: " + lat + ", " + lng);
+          //Getting the distance 
+          function getDistanceInMiles(point_a, point_b) {
+            let distance_in_meters = google.maps.geometry.spherical.computeDistanceBetween(point_a, point_b);
+            let distance_in_miles = distance_in_meters * 0.000621371; // converts meters to miles
+            return distance_in_miles;
+          }
+          distance_miles = getDistanceInMiles(user_point, restaurant_point);  
+          console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" ); //round distant to 1 decimal
 
         
-        /** Data to be loaded on the page and on the map 
-        *****************************************************/ 
-        let liItem =`
-          <li id="${rest_index}" class="selection">
-            <a onClick="showPopup(${rest_index});" href="#header" class="liDirectChild marker-link" data-marker-id="${rest_index}" data-marker-title="${restaurant}">
-              <div class="restaurant-pic-wrapper"><img src="../images/food.png"/></div>
-              <div class="restaurant-brief-wrapper">
-                <h5>${restaurant}</h5>
-                <div style="margin: 0; display: flex;"> 
-                  <p style="margin: 0; padding: 0;">
-                    <div style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 1.5px;">${avg}</div> 
-                    <span style="font-size: 13px; margin-left: 3px;">${rtngs_xxxxx}</span>
-                    <span id="noRev" style="font-size: 13px; margin-left: 3px; color: #9F9E9E;">(${numbOfReviews} reviews)</span>
-                  </p>
-                </div> 
-                <p style="display: flex; margin: 0; padding: 0;">
-                  <span style="width: 16px; height: 16px;"> 
-                    <img src="../images/location_marker.png" alt="location in miles" style="width: 100%; height: 100%;"/>
-                  </span>
-                  <span id="lct-marker" style="font-size: 13px; margin-left: 3px; padding-top: 4px; color: #9F9E9E;">${distance_miles.toFixed(1)} mi</span>
-                </p>
-              </div>
-            </a>
-          </li>`;
-
-          let rest_dtls = `
-            <div class="col-hg" style="display: flex; align-items: center; justify-content: center;">
-              <div style="width: 100%;">
-                <h3 style="margin: 0 0 4px; padding: 4px 0; font-weight: 600; color: #2E2A24;">${restaurant}</h3>
-                <p style="margin: 0 0 4px; padding: 0 0 4px; display: flex;">
-                  <span style="font-size: 15px; font-weight: 600; color: #E7711B; margin-left: 0px; padding-top: 4px;">${avg}</span> 
-                  <span style="font-size: 20px; margin-left: 3px;">${rtngs_xxxxx}</span>
-                  <span id="noRev" style="font-size: 15px; padding-top: 5px; margin-left: 3px;">(${numbOfReviews} reviews)</span>
-                </p>
-                <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px;">${address}</p>
-                <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${telephone}</a> </p>
-                <p id="bt-align-x" style="font-size: 15px; padding: 18px 0; margin: 0 0 4px;">
-                  <a id="site-btn" href="${website}" target="_blank" style="text-decoration: none;">
-                    <img src="../images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
-                  </a>
-                </p>
-              </div> 
-            </div>`;
-       
+          /** Data to be loaded on the page and on the map 
+          *****************************************************/ 
           //show restaurant details in popup
           const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, i);
+          //show restaurants in list form
+          const liItem = restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance_miles, i);
+          //show restaurant details
+          const rest_dtls = restDtls(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, website);
+          
 
-          //making objects available outside the for loop
+          //global variables
           mrkr_icons.push("../images/" + avg_mrkr[i] + "star-marker.png"); //updated value of avg_mrkr (after getXstars() is executed)
           console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
           mrkr_locations.push({lat, lng});
-          li_elems += liItem;
-          iw_popus.push(popup);
-          rest_dtls_collection.push(rest_dtls);
-          allCompany_reviews.push(reviews);
+          iw_popups.push(popup);
+          _rest_liItems += liItem;
+          _rest_svDetails.push(rest_dtls);
+          _rest_reviews.push(x_rest_reviews);
 
         } //end of outer (main) for loop
+
+        //listing restaurants on the side of the page - turn this into a function that I can later call right after adding a new restaurant-----------
+        document.querySelector('.restaurant-list').innerHTML = _rest_liItems;
+        //--------------------------------------------------------------------------------------------------------------------------------------------
         
-
-        //listing restaurants on the side of the page
-        document.querySelector('.restaurant-list').innerHTML = li_elems;
-
         //placing new markers on the map
         for (let i = 0; i < mrkr_locations.length; i++) {  
           //listing restaurants on the side of the page
-          // document.querySelector('.restaurant-list').innerHTML = li_elems[i];
-          // document.querySelector('.restaurant-list').append(li_elems[i]);
+          // document.querySelector('.restaurant-list').innerHTML = _rest_liItems[i];
+          // document.querySelector('.restaurant-list').append(_rest_liItems[i]);
 
           let marker = new google.maps.Marker({
             //position: new google.maps.LatLng(mrkr_locations[i][i], mrkr_locations[i][i]),
@@ -835,18 +861,19 @@ let getUserLocation = function (position) {
           /*marker.addListener('mouseover', function() {
             myMap.setZoom(13);
             iw_restDtls.setPosition(mrkr_locations[i]);
-            iw_restDtls.setContent(iw_popus[i]); 
+            iw_restDtls.setContent(iw_popups[i]); 
             iw_restDtls.open(myMap, marker);
           });*/
 
           marker.addListener('click', function(e) {
             // myMap.setCenter(marker.getPosition());
             iw_restDtls.setPosition(mrkr_locations[i]);
-            iw_restDtls.setContent(iw_popus[i]); 
+            iw_restDtls.setContent(iw_popups[i]); 
             iw_restDtls.open(myMap, marker);
           });
           
           markers.push(marker);
+          console.log(_rest_reviews[i]);
         } //.for
   
         //adding styles to selected <li> elements 

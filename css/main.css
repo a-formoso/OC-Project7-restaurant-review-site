@@ -399,7 +399,7 @@ form {
 }
 form #full-name, form label, select#score, form textarea, #add-review-btn, #close-review-btn {
   padding: 8px;
-  margin: 0 10px 16px;
+  margin: 0 16px 16px;
   /*border-radius: 2px;*/
   color: #666;
 }
@@ -460,7 +460,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   padding: 10px;
   margin: 15px;
   border: none;
-  /*border-radius: 2px;*/
+  border-radius: 2px;
   box-shadow: 0px 0px 5px 3px rgba(0, 0, 0, 0.1);
   list-style-type: none;
 }
@@ -655,7 +655,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
-    border: 1px solid #888;
+    border: none;
     width: 60%; 
   }
   

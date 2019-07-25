@@ -15,7 +15,7 @@
 
 #### Step 2: 
 * Add a review about an existing restaurant
-* Add a restaurant by clicking on a specific place on the map
+* Add a restaurant by right-clicking on a specific place on the map
 
 #### Step 3: 
 * Implement the Google Search API to find restaurants in a particular display area
