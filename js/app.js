@@ -544,6 +544,10 @@ function createNewRestaurant(location) {
               const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restName, selRestAddressOption, restTelephone, new_rest_index);
               iw_restDtls.setContent(popup);
               // document.querySelector('#bottomSection').style.display = "none";
+             
+              const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
+              const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
+              distance_miles = getDistanceInMiles(user_point, restaurant_point);  
               console.log(distance_miles);
               const liItem = restList(avg, rtngs_xxxxx, numbOfReviews, restName, restWebsite, distance_miles, new_rest_index); //for list
 

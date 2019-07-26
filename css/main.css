@@ -44,8 +44,7 @@ html, body {
   width: 130px; 
   height: 130px; 
   margin: 0 auto;
-  /*border: 1px solid #d3d3d3;*/
-  border: 3px solid #2E2A24;
+  border: 1px solid #d3d3d3;
   padding: 30px;
   border-radius: 100%; 
   background-color: #F6F6F6;
