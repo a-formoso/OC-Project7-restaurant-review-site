@@ -114,14 +114,12 @@ let iw_popups = [];
 let _rest_liItems = ""; 
 let _rest_svDetails = [];
 let _rest_reviews = [];
-
 let avg;
 let rtngAvg;
 let avg_mrkr = [];
 let mrkr_icons = [];
 let mrkr_locations = [];
 let rest_index;
-
 let modal = `
  <div class="container form-wrapper" id="modalWrapper">
     <form class="modal-content">
@@ -165,31 +163,25 @@ const jsonPath = 'js/restaurants.json';
 /*===========================================================================================================
 *  CALLBACK FUNCTIONS
 ===========================================================================================================*/
-
 /** Handling location errors
 *****************************************************/
 let handleErrors = function () {
   document.querySelector('#main-content').style.display = 'none';
-  // document.querySelector('#footer').style.display = 'none';
-
   const msg_wrapper = document.getElementById('error_Display');
   console.log("Unable to retrieve your location");
   document.getElementById('error_display').innerHTML = error_msg;
 };
-
 /** Improving device location accuracy
 *****************************************************/
 let options = {
   enableHighAccuracy: true //for best possible location results
 }
-
 /** Showing Restaurant reviews
 *****************************************************/
 function showReviews(rest_index) {
   document.querySelector('#bottomSection').style.display = 'block';
-  //show restaurant info and Street View 
+  //restaurant info and Street View 
   document.querySelector('#rest-brief').innerHTML = _rest_svDetails[rest_index];
-  //show Street View panorama
   let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
     position: mrkr_locations[rest_index],
     pov: {heading: 270, pitch: 10},
@@ -197,13 +189,9 @@ function showReviews(rest_index) {
     fullscreenControl: false,
     linksControl: false,
     panControl: false,
-    // enableCloseButton: true,
     zoom: 0
   });
-  //show restaurant reviews
   let rvwsList = '<ul>';
-  // console.log(_rest_reviews[rest_index]);
-  // console.log(_rest_reviews[rest_index].length);
   if (_rest_reviews[rest_index].length == 0) {
     rvwsList += '<li>' + 'No reviews found' + '</li>'
   }
@@ -226,33 +214,25 @@ function showReviews(rest_index) {
       elems[i].classList.remove('selected');
       elems[i].style.backgroundColor = '#fff'; //restore white background (#D9FEA2)
     }
-    //add styles to correspondent <li>
     $(li_elem_id).addClass('selected');
     let selected = document.querySelector('.selected');
     selected.style.backgroundColor = '#D9FEA2';
   });
-} //.showReviews
-
+}
 /** Open new restaurant review form
 *****************************************************/
-let close_ReviewBtn = document.getElementById('close-review-btn');
 function addReview(rest_index) {
-// modalBtn.addEventListener('click', function() {
-  document.getElementById('review_dialog-box').innerHTML = modal;//Open Review Form
-// });
-
+  document.getElementById('review_dialog-box').innerHTML = modal;
   //pass restaurant identidier to "Add review" button
   let modal_addReviewBtn = document.getElementById('add-review-btn');
   modal_addReviewBtn.setAttribute('onClick', `submitReview(${rest_index}); return false;`);
 }
-
 /** Close new restaurant review form
 *****************************************************/
 function close_ReviewForm() {
   let modal = document.getElementById('close-review-btn').closest('#modalWrapper');
   modal.style.display = "none";
 }
-
 /** Submit new restaurant review
 *****************************************************/
 function submitReview(rest_index) {
@@ -276,7 +256,6 @@ function submitReview(rest_index) {
   //print user input on the page
   let x_rest_reviews = [];
   let rvw;
-  // let j = restaurants[rest_index].ratings.length - 1;
   for (let x = 0; x < restaurants[rest_index].ratings.length; x++) {
     let userName = `User${x+1}`;
     let rate = restaurants[rest_index].ratings[x].stars; //takes int
@@ -291,18 +270,16 @@ function submitReview(rest_index) {
     x_rest_reviews.push(rvw);
   }
   _rest_reviews[rest_index] = x_rest_reviews;
-  console.log(_rest_reviews[rest_index]);
-
+  // console.log(_rest_reviews[rest_index]);
   showReviews(rest_index);
-
-} //.submitReview(rest_index)
-
-//Trigger marker click event
+}
+/** Trigger marker click event
+*****************************************************/
 function showPopup(rest_index) {
   google.maps.event.trigger(markers[rest_index], 'click');
 };
-
-//show restaurants in list form
+/** Show restaurants in list form
+*****************************************************/
 function restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance_miles, i) {
   return `
     <li id="${rest_index}" class="selection">
@@ -327,8 +304,8 @@ function restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance
       </a>
     </li>`;
 };
-        
-//New Restaurant Popup
+/** New Restaurant Popup
+*****************************************************/        
 function restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, rest_index) {
   return `
     <div class="popup_cttWrapper" style="width: 220px;">
@@ -349,8 +326,8 @@ function restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telepho
       </div>
     </div>`;
 };
-
-//show restaurant details
+/** Show restaurant details
+*****************************************************/  
 function restDtls(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, website) {
   return `
     <div class="col-hg" style="display: flex; align-items: center; justify-content: center;">
@@ -371,8 +348,7 @@ function restDtls(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephon
       </div> 
     </div>`;
 };
-
-/** computing average for star ratings
+/** Computing average for star ratings
 *****************************************************/
 function getXstars(avg, avg_mrkr) { //4.4
   let int = Math.floor(avg); //4
@@ -429,9 +405,9 @@ function getXstars(avg, avg_mrkr) { //4.4
     }
     return allStars;
   }   
-}; //end of getXstars()
-
-//create restaurant review funtion
+};
+/** Create restaurant review funtion
+*****************************************************/
 function newRestReview(userName, score, comment) {
   return `
   <div class="review_item">
@@ -444,61 +420,48 @@ function newRestReview(userName, score, comment) {
     </div>
   </div>`;
 };
-
-//Adding New Restaurant
-function newRestaurantForm(location) {
-    //add new restaurant marker
+/** Adding New Restaurant on the map
+*****************************************************/
+function createNewRestaurant(location) {
+    //add new restaurant marker and taking marker's coordinates
     let new_rest_marker = new google.maps.Marker({
       position: location, 
       map: myMap,
       icon: '../images/new-marker.png', 
       title: 'click for details'
     });
-    //get new restaurant's coordinates
     const lat = location.lat();
     const lng = location.lng();
     let rest_coordinates = {lat, lng};
     let nRest_address;
-    
     //add new marker position to "mrkr_locations" array
     mrkr_locations.push({lat, lng});
-
-    //take new restaurant details
+    //take form user input for new restaurant
     let iw_newRestaurant;
     new_rest_marker.addListener('click', function() {
-      //Reverse geocoding request
       let geocoder = new google.maps.Geocoder();
       let location = `${geocoding_url}$latlng=${rest_coordinates}&key=${apiKey}`;
-      // let latlngStr = rest_coordinates.toString().split('/');
-      // let latlng = {lat: parseFloat(rest_coordinates.lat), lng: parseFloat(rest_coordinates.lng)};
-      console.log("AYOOOO_________coordinates translation = " + rest_coordinates.lat + ", " + rest_coordinates.lng);
-
-      //Making an AJAX Request
+      console.log("New marker's coordinates translation = " + rest_coordinates.lat + ", " + rest_coordinates.lng);
+      //Reverse geocoding request
       geocoder.geocode({'location': rest_coordinates}, function(results, status) {
         if (status === 'OK') {
-          console.log(results);
-          
+          console.log(results); 
           if (results[0]) {
-            myMap.setZoom(11);
+            myMap.setZoom(12);
             myMap.setCenter(rest_coordinates);
             new_rest_marker.setPosition(rest_coordinates);  
             nRest_address = results[0].formatted_address;
             console.log(nRest_address);
-            
-            //open infowindow/new restaurant form
+            //creating the HTML form for new restaurant
             let newRest_form = document.createElement('div');
             newRest_form.setAttribute('class', 'nr_popup_wrapper');
-
-            let nr_inner_div = document.createElement('div'); //--------------------------------------------------------
+            let nr_inner_div = document.createElement('div'); 
             nr_inner_div.setAttribute('class', 'nr_inner_wrapper');
-            // nr_container.appendChild(nr_inner_div);
-
-            //h5 (Heading)
+            //Heading (h5)
             let nr_heading = document.createElement('h5');
             nr_heading.setAttribute('class', 'nr_heading');
             nr_heading.textContent = 'Add New Restaurant';
             nr_inner_div.appendChild(nr_heading);
-          
             //input (Restaurant Name)
             let nr_restName = document.createElement('input');
             nr_restName.setAttribute('type', 'text');
@@ -506,13 +469,10 @@ function newRestaurantForm(location) {
             nr_restName.setAttribute('id', 'ui-newRest-name');
             nr_restName.setAttribute('placeholder', 'Restaurant name');
             nr_inner_div.appendChild(nr_restName);
-
-            //select options list (Restaurant Address) <input type="text"  placeholder="Restaurant address" value="${nRest_address}"/>
-            let select = document.createElement('select'); //'<select name="rating-list" id="rating-list" onchange="getSelect()"></select>';
+            //select options list (Restaurant Address) 
+            let select = document.createElement('select'); 
             select.setAttribute('name', 'ui-newRest-address');
             select.setAttribute('id', 'ui-newRest-address');
-            // $(select).attr("value", "ui-newRest-address");
-            //select options (all returned addresses)
             let options = [];
             for (let i = 0; i < results.length; i++) {
               let rest_address = results[i].formatted_address;
@@ -525,7 +485,6 @@ function newRestaurantForm(location) {
             }
             console.log(select);
             nr_inner_div.appendChild(select);
-
             //input (Restaurant Telephone)
             let nr_restTel = document.createElement('input');
             nr_restTel.setAttribute('type', 'tel');
@@ -533,7 +492,6 @@ function newRestaurantForm(location) {
             nr_restTel.setAttribute('id', 'ui-newRest-telephone');
             nr_restTel.setAttribute('placeholder', 'Restaurant telephone');
             nr_inner_div.appendChild(nr_restTel);
-
             //input (Restaurant Website)
             let nr_restSite = document.createElement('input');
             nr_restSite.setAttribute('type', 'url');
@@ -541,31 +499,27 @@ function newRestaurantForm(location) {
             nr_restSite.setAttribute('id', 'ui-newRest-website');
             nr_restSite.setAttribute('placeholder', 'Restaurant website');
             nr_inner_div.appendChild(nr_restSite);
-
-            //button (Add Restaurant button)
+            //button (Add Restaurant)
             let nr_restBtn = document.createElement('button');
             nr_restBtn.setAttribute('class', 'nr_btn');
-            // nr_restBtn.setAttribute('onClick', 'addNewRestaurant();');
             nr_restBtn.onclick = addNewRestaurant;
             nr_restBtn.textContent = 'Add Restaurant';
-            // nr_restBtn.value = 'Add Restaurant';
             nr_inner_div.appendChild(nr_restBtn);
-
-            //container div houses inner div
             newRest_form.appendChild(nr_inner_div);
-
+            //creating the infowindow object
             iw_newRestaurant = new google.maps.InfoWindow({
               position: rest_coordinates,
               content: newRest_form
             });
             iw_newRestaurant.open(myMap, new_rest_marker);
 
+            //Add Restaurant on the map
             function addNewRestaurant() {
-              //get user input data
+              //create new restaurant object based on user input
               let restName, selRestAddress, restTelephone, restWebsite, nOptions;
               restName = document.getElementById('ui-newRest-name').value;
               selRestAddress = document.getElementById('ui-newRest-address');
-              let selRestAddressOption = selRestAddress.options[selRestAddress.selectedIndex].text; //.value returns the index
+              let selRestAddressOption = selRestAddress.options[selRestAddress.selectedIndex].text; 
               console.log(selRestAddressOption);
               restTelephone = document.getElementById('ui-newRest-telephone').value;
               restWebsite = document.getElementById('ui-newRest-website').value;
@@ -580,11 +534,9 @@ function newRestaurantForm(location) {
               }
               restaurants.push(newRestaurant);
               console.log(restaurants);
-
+              //prepare no rating variables
               const rest_index = restaurants.length - 1;
               let avg = NaN;
-              /** if no reviews found
-              *****************************************************/
               if (isNaN(avg_mrkr[rest_index]) || isNaN(avg)) {
                 let noReviews = 0;
                 avg_mrkr[rest_index] = noReviews;
@@ -594,11 +546,10 @@ function newRestaurantForm(location) {
               }
               let rtngs_xxxxx = getXstars(avg, avg_mrkr[rest_index]);
               let numbOfReviews = 0;
-              //open new restaurant's newly created popup
+              //open newly created restaurant's infowindow
               const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restName, selRestAddressOption, restTelephone, rest_index);
-              //bring new popup
+              //set "popup" as new infowindow content (newRest_form)
               iw_newRestaurant.setContent(popup);
-              
               //add new marker for the newly added restaurant
               let new_rest_marker = new google.maps.Marker({
                 position: rest_coordinates, 
@@ -606,60 +557,51 @@ function newRestaurantForm(location) {
                 icon: '../images/0star-marker.png', 
                 title: 'click for details'
               });
-              //newly added restaurant marker's click event handler
               new_rest_marker.addListener('click', function() {
                 iw_newRestaurant.setPosition(mrkr_locations[rest_index]);
                 iw_newRestaurant.setContent(popup); // iw_restDtls.setContent(iw_popups[i]); 
                 iw_newRestaurant.open(myMap, new_rest_marker);
               });
-              //Add to global array, "markers"
-              markers.push(new_rest_marker);              
-              //Add new restaurant on side of the page
-                // restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance_miles, rest_index);
-              //show restaurant details
+              markers.push(new_rest_marker); //Add to global array, "markers"         
+              //restaurant details - data for the bottom section
               const nr_restaurant = restaurants[rest_index].restaurantName;
               const nr_address = restaurants[rest_index].address;
               const nr_telephone = restaurants[rest_index].telephone;
               const nr_website = restaurants[rest_index].website;
               const rest_dtls = restDtls(avg, rtngs_xxxxx, numbOfReviews, nr_restaurant, nr_address, nr_telephone, nr_website);
               _rest_svDetails.push(rest_dtls);
-              //add empty array (show reviews will need _rest_reviews[rest_index])
-              _rest_reviews.push([]);//No reviews found
+              //restaurant reviews - data for the bottom section 
+              _rest_reviews.push([]);//will print "No reviews found"
 
-            } //addNewRestaurant()
-            
+            } //.addNewRestaurant()
           } else {
-            window.alert('No results found');
+            window.alert('No results found');  //if (results[0])
           }
         } else {
-          window.alert('Geocoder failed due to: ' + status);
+          window.alert('Geocoder failed due to: ' + status); //if (status === 'OK')
         }
       });
     });
   }
 
-
+let pos;
 /*===========================================================================================================
 *  INITIALISING GOOGLE MAPS
 ===========================================================================================================*/
 function initMap() {
-  /** Geolocation API
-  *****************************************************/
-  //if user's browser does not support Navigator.geolocation object
-  if (!navigator.geolocation) {
+  //Geolocation API
+  if (!navigator.geolocation) { //if user's browser does not support Navigator.geolocation object
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
     document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
     document.querySelector('#footer').style.display = 'none';
-
     document.getElementById('map').innerHTML = welcome_msg;
-    //getCurrentLocation gets the current location of the device
+    //getCurrentLocation gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options);
   }
 } 
-
 /** if user's browser supports Geolocation
 *****************************************************/
 let getUserLocation = function (position) {
@@ -667,13 +609,11 @@ let getUserLocation = function (position) {
   document.querySelector('#bottomSection').style.display = 'block';
   document.querySelector('#footer').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'none';
-
+  //user location coordinates
   let lat = position.coords.latitude;
   let lng = position.coords.longitude;
-  // console.log(`Current Latitude is ${lat} and your longitude is ${lng}`);
   console.log("To get the location used for this project, please use LAT (52.6431335), and LNG (1.3342981999999999)");
-  let pos = { lat: lat, lng: lng };
-  
+  pos = { lat: lat, lng: lng };
   iw_restDtls = new google.maps.InfoWindow;
   //map built-in controls
   mapOptions = {
@@ -683,7 +623,6 @@ let getUserLocation = function (position) {
     panControl: true,
     scaleControl: false,
     mapTypeControl: true,
-    // mapTypeId: google.maps.MapTypeId.ROADMAP,
     mapTypeControlOptions: {
       mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID/*, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.TERRAIN*/],
       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU /*.DEFAULT or HORIZONTAL_BAR*/
@@ -699,9 +638,8 @@ let getUserLocation = function (position) {
     },
     streetViewControl: false
   }
-  //creating the map
   myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
-  //creating user location marker
+  //user marker
   user_marker = new google.maps.Marker({ 
     position: pos, 
     map: myMap, 
@@ -713,206 +651,177 @@ let getUserLocation = function (position) {
     user_marker.setAnimation(null)
   }, 3000);
 
-  /** Adding new restaurant by clicking on the map
-  *****************************************************/
+  //Adding new restaurant by clicking on the map
   google.maps.event.addListener(myMap, 'rightclick', function(event) {
-    newRestaurantForm(event.latLng);
+    createNewRestaurant(event.latLng);
   });
 
-  /** AJAX Request - Importing JSON data into map
-  *****************************************************/
+  //AJAX Request - geting local JSON data
+  getJSON(jsonPath, getRestaurants);
+
+};//.getUserLocation()
+
+
+function getJSON(url, callback) {
+//return Promise((resolve, reject) => {
   const xhr = new XMLHttpRequest();
-  // AJAX Request
-  //return Promise((resolve, reject) => {
+  xhr.open('GET', url);
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
         restaurants = JSON.parse(xhr.responseText); 
-        // resolve(data);
-        // console.log('response data\'s typeof: ' + typeof restaurants); //object
-        console.log("Parsed JSON: ",   restaurants); //prints array of objects
-
-        /** Finding avarage of restaurants' reviews 
-        *****************************************************/
-        for (let i = 0; i < restaurants.length; i++) {
-          let lat = restaurants[i].lat;
-          let lng = restaurants[i].long;
-          let ratings = restaurants[i].ratings;
-          let website = restaurants[i].website;
-          let restaurant = restaurants[i].restaurantName;
-          let telephone = restaurants[i].telephone;
-          let address = restaurants[i].address;
-          rest_index = i;
-          
-          let values = []; //stores starred rating values
-          let sum = 0;
-          let numbOfReviews = 0;
-          let x_rest_reviews = [];
-
-          for (let j = 0; j < ratings.length; j++) {
-            let rate = ratings[j].stars; //takes int
-            values.push(rate);
-            sum += rate;
-            numbOfReviews ++; 
-            let comment = ratings[j].comment;
-            let rvw;
-            let userName = `User${j+1}`;
-            // if (ratings[j] === undefined || ratings[j].length == 0) {     // array empty or does not exist } //if (typeof comment === 'string' || myVar instanceof String)
-            //   rvw ='No reviews found';
-            //   console.log(rvw);
-            // } else {}
-            if (ratings[j]) {
-              rvw =`
-                <div class="review_item">
-                  <div class="review-item-top" style="font-size: 18px; font-weight: 600; ">
-                    <p>${userName}</p>
-                    <p style="float: right;"><span style="margin-left: 6px;">${getXstars(rate)}</span></p>
-                  </div>
-                  <div class="review-item-body">
-                    <p>${comment}</p>
-                  </div>
-                </div>`;
-            }
-            x_rest_reviews.push(rvw);
-          }
-          //calculating rating avarages
-          rtngAvg = sum / values.length; //holds a value with a decimal point, eg: 1.3333333333333333
-          console.log("===rtngAvg===" + rtngAvg); //eg: 1.3333333333333333
-          avg = rtngAvg.toFixed(1); //forces value to stay with a decimal point regardless of browser interpretation or change in score, eg: 1.3
-          console.log("===avg===" + avg); //eg: 1.3
-          
-          //value of avg_mrkr is updated after WHEN (only aften when) function getXstars(avg) executes
-          avg_mrkr[i] = rtngAvg.toFixed(0); //initial value (this is later updated when getXstars(avg) is executed)
-          console.log("===avg_mrkr===" + avg_mrkr[i]);
-          //console.log("AVG_MRKR (map marker variable) ---> " + avg_mrkr); //value held [BEFORE] function getXstars(avg) is used to add extra stars
-          
-          /** if no reviews found
-          *****************************************************/
-          if (isNaN(avg_mrkr[i]) || isNaN(avg)) { //JavaScript for Web Developers > Data Types > NaN
-            let noReviews = 0;
-            avg_mrkr[i] = noReviews;
-            avg = noReviews.toFixed(1);
-            console.log("avg_mrkr (for map markers) assumes ---> " + avg_mrkr[i]);
-            console.log("avg (for li elems) assumes ---> " + avg);
-          }
-
-          //call rtngs_xxxxx
-
-          console.log("-----RESTAURANT[" + [i] + "] avg = " + avg);        
-          //variable to hold ratings for stars being printed on the page
-          const rtngs_xxxxx = getXstars(avg); //avg is 0.0 when no reviews found 
-
-          /** Getting distance in miles using Geometry library
-          *****************************************************/
-          const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
-          console.log("USER POINT ON THE MAP: " + pos.lat + ", " + pos.lng);
-          const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
-          console.log("RESTAURANT POINT ON THE MAP: " + lat + ", " + lng);
-          //Getting the distance 
-          function getDistanceInMiles(point_a, point_b) {
-            let distance_in_meters = google.maps.geometry.spherical.computeDistanceBetween(point_a, point_b);
-            let distance_in_miles = distance_in_meters * 0.000621371; // converts meters to miles
-            return distance_in_miles;
-          }
-          distance_miles = getDistanceInMiles(user_point, restaurant_point);  
-          console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" ); //round distant to 1 decimal
-
-        
-          /** Data to be loaded on the page and on the map 
-          *****************************************************/ 
-          //show restaurant details in popup
-          const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, i);
-          //show restaurants in list form
-          const liItem = restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance_miles, i);
-          //show restaurant details
-          const rest_dtls = restDtls(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, website);
-          
-
-          //global variables
-          mrkr_icons.push("../images/" + avg_mrkr[i] + "star-marker.png"); //updated value of avg_mrkr (after getXstars() is executed)
-          console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
-          mrkr_locations.push({lat, lng});
-          iw_popups.push(popup);
-          _rest_liItems += liItem;
-          _rest_svDetails.push(rest_dtls);
-          _rest_reviews.push(x_rest_reviews);
-
-        } //end of outer (main) for loop
-
-        //listing restaurants on the side of the page - turn this into a function that I can later call right after adding a new restaurant-----------
-        document.querySelector('.restaurant-list').innerHTML = _rest_liItems;
-        //--------------------------------------------------------------------------------------------------------------------------------------------
-        
-        //placing new markers on the map
-        for (let i = 0; i < mrkr_locations.length; i++) {  
-          //listing restaurants on the side of the page
-          // document.querySelector('.restaurant-list').innerHTML = _rest_liItems[i];
-          // document.querySelector('.restaurant-list').append(_rest_liItems[i]);
-
-          let marker = new google.maps.Marker({
-            //position: new google.maps.LatLng(mrkr_locations[i][i], mrkr_locations[i][i]),
-            position: mrkr_locations[i],
-            map: myMap,
-            icon: mrkr_icons[i], 
-            title: 'click for details'
-          });
-
-          //adding mouse event handlers for each marker
-          /*marker.addListener('mouseover', function() {
-            myMap.setZoom(13);
-            iw_restDtls.setPosition(mrkr_locations[i]);
-            iw_restDtls.setContent(iw_popups[i]); 
-            iw_restDtls.open(myMap, marker);
-          });*/
-
-          marker.addListener('click', function(e) {
-            // myMap.setCenter(marker.getPosition());
-            iw_restDtls.setPosition(mrkr_locations[i]);
-            iw_restDtls.setContent(iw_popups[i]); 
-            iw_restDtls.open(myMap, marker);
-          });
-          
-          markers.push(marker);
-          console.log(_rest_reviews[i]);
-        } //.for
-  
-        //adding styles to selected <li> elements 
-        $('.restaurant-list li').click(function(e) {
-          let elems = document.querySelectorAll('.selection.selected');
-          //remove all pre-existing active classes
-          for (let i = 0; i < elems.length; i++) {
-            elems[i].classList.remove('selected');
-            elems[i].style.backgroundColor = '#fff'; //remove '#D9FEA2' (green) background
-          }
-          //add the active class to clicked <li>
-          $(this).addClass('selected');
-          let selected = document.querySelector('.selected');
-          selected.style.backgroundColor = '#D9FEA2';
-          e.preventDefault();
-        });
-  
-      } //end of inner if statement
+        // resolve(restaurants);
+        return getRestaurants(restaurants);     
+      } 
       else if (xhr.status === 404) {
-            console.log('404: File not found');
+        console.log('404: File not found');
       } 
       else if (xhr.status === 500) {
-            console.log('500: Server had a problem');
+        console.log('500: Server had a problem');
       } 
     }
     else {
-      console.log(xhr.statusText); //OK
+      console.log(xhr.statusText); //(OK)
     }
-  }; //end of onreadystatechange
-  xhr.open('GET', jsonPath);
+  }; 
   xhr.send();
   //}); //end of Promise
+}
 
-};//end of getUserLocation function
+function getRestaurants(restaurants) {
+   console.log("Parsed JSON: ",   restaurants);
+  /** Finding avarage of restaurants' reviews 
+  *****************************************************/
+  for (let i = 0; i < restaurants.length; i++) {
+    let lat = restaurants[i].lat;
+    let lng = restaurants[i].long;
+    let ratings = restaurants[i].ratings;
+    let website = restaurants[i].website;
+    let restaurant = restaurants[i].restaurantName;
+    let telephone = restaurants[i].telephone;
+    let address = restaurants[i].address;
+    rest_index = i;
+    let values = []; //stores starred rating values
+    let sum = 0;
+    let numbOfReviews = 0;
+    let x_rest_reviews = [];
 
+    for (let j = 0; j < ratings.length; j++) {
+      let rate = ratings[j].stars; //takes int
+      values.push(rate);
+      sum += rate;
+      numbOfReviews ++; 
+      let comment = ratings[j].comment;
+      let rvw;
+      let userName = `User${j+1}`;
+      if (ratings[j]) {
+        rvw = newRestReview(userName, rate, comment);
+      }
+      x_rest_reviews.push(rvw);
+    }
+    //calculating rating avarages
+    rtngAvg = sum / values.length; //eg: 1.3333333333333333
+    console.log("===rtngAvg===" + rtngAvg);
+    avg = rtngAvg.toFixed(1); //eg: 1.3
+    console.log("===avg===" + avg);
+    //avg_mrkr is upon execution of getXstars(avg) 
+    avg_mrkr[i] = rtngAvg.toFixed(0); //initial value 
+    console.log("===avg_mrkr===" + avg_mrkr[i]);
 
+    /** if no reviews found
+    *****************************************************/
+    if (isNaN(avg_mrkr[i]) || isNaN(avg)) {
+      let noReviews = 0;
+      avg_mrkr[i] = noReviews;
+      avg = noReviews.toFixed(1);
+      console.log("avg_mrkr (for map markers) assumes ---> " + avg_mrkr[i]);
+      console.log("avg (for li elems) assumes ---> " + avg);
+    }
 
+    //call rtngs_xxxxx
 
+    console.log("-----RESTAURANT[" + [i] + "] avg = " + avg);        
+    const rtngs_xxxxx = getXstars(avg); //rtngs_xxxxx holds number of stars being printed on the page, avg is 0.0 when no reviews found 
 
+    /** Getting distance in miles using Geometry library
+    *****************************************************/
+    const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
+    console.log("USER POINT ON THE MAP: " + pos.lat + ", " + pos.lng);
+    const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
+    console.log("RESTAURANT POINT ON THE MAP: " + lat + ", " + lng);
+
+    function getDistanceInMiles(point_a, point_b) {
+      let distance_in_meters = google.maps.geometry.spherical.computeDistanceBetween(point_a, point_b);
+      let distance_in_miles = distance_in_meters * 0.000621371; // converts meters to miles
+      return distance_in_miles;
+    }
+    distance_miles = getDistanceInMiles(user_point, restaurant_point);  
+    console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" );
+
+    /** Data to be loaded on the page and on the map 
+    *****************************************************/ 
+    const popup = restPopup(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, i); //for infowindow content
+    const liItem = restList(avg, rtngs_xxxxx, numbOfReviews, restaurant, website, distance_miles, i); //for list 
+    const rest_dtls = restDtls(avg, rtngs_xxxxx, numbOfReviews, restaurant, address, telephone, website); //for bottom section
+    
+    //updating global variables
+    mrkr_icons.push("../images/" + avg_mrkr[i] + "star-marker.png"); //after getXstars() is executed
+    console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
+    mrkr_locations.push({lat, lng});
+    iw_popups.push(popup);
+    _rest_liItems += liItem;
+    _rest_svDetails.push(rest_dtls);
+    _rest_reviews.push(x_rest_reviews);
+
+  } //outer for loop
+
+  //listing restaurants on the side of the page - turn this into a function that I can later call right after adding a new restaurant-----------
+  document.querySelector('.restaurant-list').innerHTML = _rest_liItems;
+  //--------------------------------------------------------------------------------------------------------------------------------------------
+  
+  //placing new markers on the map
+  for (let i = 0; i < mrkr_locations.length; i++) {  
+    let marker = new google.maps.Marker({
+      position: mrkr_locations[i],
+      map: myMap,
+      icon: mrkr_icons[i], 
+      title: 'click for details'
+    });
+
+    //adding mouse event handlers for each marker
+    /*marker.addListener('mouseover', function() {
+      myMap.setZoom(13);
+      iw_restDtls.setPosition(mrkr_locations[i]);
+      iw_restDtls.setContent(iw_popups[i]); 
+      iw_restDtls.open(myMap, marker);
+    });*/
+
+    marker.addListener('click', function(e) {
+      // myMap.setCenter(marker.getPosition());
+      iw_restDtls.setPosition(mrkr_locations[i]);
+      iw_restDtls.setContent(iw_popups[i]); 
+      iw_restDtls.open(myMap, marker);
+    });
+    
+    markers.push(marker);
+    console.log(_rest_reviews[i]);
+  } //for
+
+  //adding styles to active <li> elements 
+  $('.restaurant-list li').click(function(e) {
+    let elems = document.querySelectorAll('.selection.selected');
+    //remove all pre-existing active classes
+    for (let i = 0; i < elems.length; i++) {
+      elems[i].classList.remove('selected');
+      elems[i].style.backgroundColor = '#fff'; //remove '#D9FEA2' (green) background
+    }
+    //add the active class to clicked <li>
+    $(this).addClass('selected');
+    let selected = document.querySelector('.selected');
+    selected.style.backgroundColor = '#D9FEA2';
+    e.preventDefault();
+  });
+}
 
 
 
