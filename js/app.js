@@ -706,7 +706,7 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
       <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
       <div>
         <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
-          <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${getRating(rRating)}</span> 
+          <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${getRating(rRating).toFixed(1)}</span> 
           <span style="margin-left: 3px;">${xxxxxStars}</span><span id="noRev" style="margin-left: 3px;">(${getRatingsTotal(rRatingsTotal)} reviews)</span>
         </p>
         <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${rName}">${rName}</h5>
@@ -730,16 +730,16 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
           <h5>${rName}</h5>
           <div style="margin: 0; display: flex;"> 
             <p style="margin: 0; padding: 0;">
-              <div style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 1.5px;">${rRating}</div> 
+              <div style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 1.5px;">${getRating(rRating).toFixed(1)}</div> 
               <span style="font-size: 13px; margin-left: 3px;">${xxxxxStars}</span>
-              <span id="noRev" style="font-size: 13px; margin-left: 3px; color: #9F9E9E;">(${rRatingsTotal} reviews)</span>
+              <span id="noRev" style="font-size: 13px; margin-left: 3px; color: #9F9E9E;">(${getRatingsTotal(rRatingsTotal)} reviews)</span>
             </p>
           </div> 
           <p style="display: flex; margin: 0; padding: 0;">
             <span style="width: 16px; height: 16px;"> 
               <img src="../images/location_marker.png" alt="location in miles" style="width: 100%; height: 100%;"/>
             </span>
-            <span id="lct-marker" style="font-size: 13px; margin-left: 3px; padding-top: 4px; color: #9F9E9E;">${distanceInMiles} mi</span>
+            <span id="lct-marker" style="font-size: 13px; margin-left: 3px; padding-top: 4px; color: #9F9E9E;">${distanceInMiles} miles</span>
           </p>
         </div>
       </a>
@@ -798,9 +798,11 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
 }
 
 function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceStatus, PlaceSearchPagination)
+  
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     // console.info(JSON.stringify(results, null, ' '));
-    console.log(results); 
+    console.log('NEARBY SEARCH'); 
+    console.log(results);
     //loop through returned results
     $.each(results, function(i, entry) {
       // console.log(i);
@@ -827,6 +829,7 @@ function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceS
 }
 
 function getRestaurants_details(i, place) {
+  console.log('getDEATAILS SEARCH'); 
   //Place Details Requests - to get place reviews, regionally converted phone numbers, website, etc
   var request = {
       placeId : place.place_id,
@@ -841,7 +844,8 @@ function getRestaurants_details(i, place) {
         results.website, results.geometry.location.lat(), results.geometry.location.lng(), results.rating, 
         results.user_ratings_total, results.reviews, results.icon, results.photos, results.price_level, i
       );
-      restaurantsList[restaurantsList.length] = restaurant;
+      restaurantsList.push(restaurant);
+      restaurant.popup();
     } 
     else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
       //Asynchronous programming 
@@ -851,23 +855,13 @@ function getRestaurants_details(i, place) {
         **************************************************************************/    
       setTimeout(function() {
         getRestaurants_details(i, place);
-      }, 2000);
+        // getRestaurants();
+      }, 200);
     }
   }); 
   //show restaurants
-  showLocalRestaurants();
-
+  console.log('index = ' + i);
 }//.getRestaurantsMoreInfo() 
-
-let xyz = 0;
-function showLocalRestaurants() {
-  for (let i = 0; i < restaurantsList.length; i++) {
-    //closure
-    restaurantsList[i].popup();
-    // restaurantsList[i].list();
-    console.log(xyz + 1); //tracks the number of times the loop runs
-  }
-}
 
 
 function showRestaurants(data) {
@@ -923,14 +917,6 @@ function showRestaurants(data) {
     console.log("-----RESTAURANT[" + [i] + "] avg = " + avg);        
     const xxxxxStars = getXstars(avg); //xxxxxStars holds number of stars being printed on the page, avg is 0.0 when no reviews found 
 
-    /** Getting distance in miles using Geometry library
-    // *****************************************************/
-    // const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
-    // console.log("USER POINT ON THE MAP: " + pos.lat + ", " + pos.lng);
-    // const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
-    // console.log("RESTAURANT POINT ON THE MAP: " + lat + ", " + lng);
-    // distance_miles = getDistanceInMiles(user_point, restaurant_point);  
-    // console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" );
 
     /** Data to be loaded on the page and on the map 
     *****************************************************/ 
