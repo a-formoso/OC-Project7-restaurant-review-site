@@ -109,14 +109,14 @@ const myMapStyles = [
 ];
 const searchBox = document.getElementById('ui-query');
 let restaurantsList = []; //collection of restaurant objects
-let markers = [];
+// let markers = [];
 let foodReviews = [];
-let avg;
-let rtngAvg;
-let avg_mrkr = [];
-// let mrkr_icons = [];
-let fooodLocations = [];
-let rest_index;
+// let avg;
+// let rtngAvg;
+// let avg_mrkr = [];
+// // let mrkr_icons = [];
+// let fooodLocations = [];
+// let rest_index;
 let modal = `
  <div class="container form-wrapper" id="modalWrapper">
     <form class="modal-content" id="myForm">
@@ -276,59 +276,8 @@ function submitReview(rest_index) {
   //close form
   
 }
-/** Trigger marker click event
-*****************************************************/
-function showPopup(rest_index) {
-  google.maps.event.trigger(markers[rest_index], 'click');
-};
-/** Show restaurants in list form
-*****************************************************/
-function restList(avg, xxxxxStars, numbOfReviews, restaurant, website, distance_miles, i) {
-  return `
-    <li id="${rest_index}" class="selection">
-      <a onClick="showPopup(${rest_index});" href="#header" class="liDirectChild marker-link" data-marker-id="${rest_index}" data-marker-title="${restaurant}">
-        <div class="restaurant-pic-wrapper"><img src="../images/food.png"/></div>
-        <div class="restaurant-brief-wrapper">
-          <h5>${restaurant}</h5>
-          <div style="margin: 0; display: flex;"> 
-            <p style="margin: 0; padding: 0;">
-              <div style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 1.5px;">${avg}</div> 
-              <span style="font-size: 13px; margin-left: 3px;">${xxxxxStars}</span>
-              <span id="noRev" style="font-size: 13px; margin-left: 3px; color: #9F9E9E;">(${numbOfReviews} reviews)</span>
-            </p>
-          </div> 
-          <p style="display: flex; margin: 0; padding: 0;">
-            <span style="width: 16px; height: 16px;"> 
-              <img src="../images/location_marker.png" alt="location in miles" style="width: 100%; height: 100%;"/>
-            </span>
-            <span id="lct-marker" style="font-size: 13px; margin-left: 3px; padding-top: 4px; color: #9F9E9E;">${distance_miles.toFixed(1)} mi</span>
-          </p>
-        </div>
-      </a>
-    </li>`;
-};
-/** New Restaurant Popup
-*****************************************************/        
-function restPopup(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone, rest_index) {
-  return `
-    <div class="popup_cttWrapper" style="width: 220px;">
-      <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
-      <div>
-        <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
-          <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${avg}</span> 
-          <span style="margin-left: 3px;">${xxxxxStars}</span><span id="noRev" style="margin-left: 3px;">(${numbOfReviews} reviews)</span>
-        </p>
-        <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${restaurant}">${restaurant}</h5>
-        <p style=" width: 200px; display: flex; margin: 0 0 4px;">${address}</p>
-        <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${telephone}</a> </p>
-      </div>
-      <div style="display: flex; justify-content: center; padding: 0px;">
-        <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0px">
-          <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rest_index});">See reviews</a>
-        </p>
-      </div>
-    </div>`;
-};
+
+
 /** Show restaurant details
 *****************************************************/  
 function restDtls(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone, website) {
@@ -351,64 +300,7 @@ function restDtls(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone
       </div> 
     </div>`;
 };
-/** Computing average for star ratings
-*****************************************************/
-function getXstars(avg, avg_mrkr) { //4.4
-  let int = Math.floor(avg); //4
-  console.log("(avg)int: " + int);
-  let decimal = (avg % 1).toFixed(1); //eg: 0.4
-  console.log("(avg)decimal: " + decimal);
 
-  let marker_Rtng = int;
-
-   //if no reviews found (or NaN was trown) - minimum "int" can hold is 1 regardless if only one 1star review found ("avg" would still avarage 1)
-  let allStars = '<img src="../images/fStar-user-rate.png"/>';
-  let counter = 0;
-  if (int >= 1) {
-    console.log("pass - reviews found");
-    for (let i = 1; i < int; i++) {
-      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole stars
-      counter++;
-    }
-    if (decimal >= 0.8) {
-      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole star
-      counter++;
-      //marker rating rounded by 1 when decimal of an average >= 0.8
-      marker_Rtng++; 
-    }
-    if (decimal > 0.3 && decimal <= 0.7) {
-      allStars = allStars + '<img src="../images/hStar-user-rate.png"/>'; //half star
-      counter++;
-    }
-    if (decimal <= 0.3) {
-      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star
-      counter++;
-    }
-    //for the map markers - assigning value for variable avg_mrkr (outside the function)
-    avg_mrkr = [marker_Rtng];
-    console.log("-- 'avg_mrkr' inside getXstars() = " + avg_mrkr);
-    //counter after all stars have been added based on their averaged rating
-    // console.log(counter);
-    if (counter < 5) {
-      //add empty star(s) to make it 5 total
-      let starsRemaining = 5-counter;
-      // console.log(starsRemaining); 
-      for (let i = 1; i < starsRemaining; i++) {
-        allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star(s)  
-      }
-      return allStars;
-    }
-    return allStars;
-  }
-  else {
-    console.log("fail - no reviews found");
-    allStars = '<img src="../images/noStar-user-rate.png"/>'; //empty star
-    for (let i = 1; i < 5; i++) {
-      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty stars
-    }
-    return allStars;
-  }   
-};
 
 /** Create restaurant review funtion
 *****************************************************/
@@ -586,11 +478,7 @@ function createNewRestaurant(location) {
     });
 }
 
-function getDistanceInMiles(point_a, point_b) {
-  let distance_in_meters = google.maps.geometry.spherical.computeDistanceBetween(point_a, point_b);
-  let distance_in_miles = distance_in_meters * 0.000621371; // converts meters to miles
-  return distance_in_miles;
-}
+
 
 
 /*===========================================================================================================
@@ -690,10 +578,92 @@ function getPhotoHTML(photo) {
     return restIMG;
   }
 }
+
 let iw_content;
 
-// factory function
+/** Computing the average for markers (star no)
+************************************************************/
+function getMarker_No(rating) {
+  if (rating == null || rating === 'undefined') {
+    let int = 0;
+    return int;
+  } 
+  let int = Math.floor(rating); 
+  let decimal = (rating % 1).toFixed(1); 
+  if (int >= 1) {
+    if (decimal >= 0.8) {
+      int ++;
+    }
+    return int;
+  }
+  else {
+    int = 0;
+    return int;
+  }   
+};
+
+/** Computing the average for (rating) stars
+************************************************************/
+function getXstars(rating) { 
+  let int = Math.floor(rating); 
+  // console.log("(rating)int: " + int);
+  let decimal = (rating % 1).toFixed(1); 
+  // console.log("(rating)decimal: " + decimal);
+  let allStars = '<img src="../images/fStar-user-rate.png"/>';
+  let counter = 0;
+  if (int >= 1) {
+    for (let i = 1; i < int; i++) {
+      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole stars
+      counter++;
+    }
+    if (decimal >= 0.8) {
+      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; 
+      counter++;
+    }
+    if (decimal > 0.3 && decimal <= 0.7) {
+      allStars = allStars + '<img src="../images/hStar-user-rate.png"/>'; //half star
+      counter++;
+    }
+    if (decimal <= 0.3) {
+      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; 
+      counter++;
+    }
+    if (counter < 5) {
+      let starsRemaining = 5 - counter;
+      for (let i = 1; i < starsRemaining; i++) {
+        allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star(s)  
+      }
+      return allStars;
+    }
+    return allStars;
+  }
+  else {
+    // console.log("fail - no reviews found");
+    allStars = '<img src="../images/noStar-user-rate.png"/>'; //empty stars
+    for (let i = 1; i < 5; i++) {
+      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>';
+    }
+    return allStars;
+  }   
+}; 
+
+function getDistanceInMiles(point_a, point_b) {
+  let distance_in_meters = google.maps.geometry.spherical.computeDistanceBetween(point_a, point_b);
+  let distance_in_miles = distance_in_meters * 0.000621371; // converts meters to miles
+  return distance_in_miles.toFixed(1);
+}
+
+const markers = [];
+/** Trigger marker click event
+*****************************************************/
+function showPopup(rest_index) {
+  google.maps.event.trigger(markers[rest_index], 'click');
+};
+
+/** Factory function
+************************************************************/
 const restPlace = function(name, address, telephone, website, lat, lng, rating, userRatingsTotal, reviews, icon, photos, priceLevel, restIndex) {
+  //private data variables
   const rName = name;
   const rAddress = address;
   const rTelephone = telephone;
@@ -701,19 +671,79 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
   let rLat = lat;
   let rLng = lng;
   const rRating = rating;
-  const rUserRatingsTotal = userRatingsTotal;
-  const rUserReviews = reviews;
+  //dealing with no ratings
+  function getRating(rRating) { 
+    if (rRating == null || rRating === 'undefined') {
+      rRating = 0;
+      // return getMarker_No(rRating).toFixed(1);
+      return getMarker_No(rRating);
+    }
+    else {
+     return rRating;  
+    }         
+  };
+  function getRatingsTotal(rRatingsTotal) { 
+    if (rRatingsTotal == null || rRatingsTotal === 'undefined') {
+      rRatingsTotal = 0;
+      return rRatingsTotal;
+    }
+    else {
+     return rRatingsTotal;  
+    }         
+  };
+  const rRatingsTotal = userRatingsTotal;
+  const rReviews = reviews;
   const rIcon = icon;
   const rPhoto = photos;
   const rPriceLevel = priceLevel;
   const rRestIndex = restIndex;
 
-  // let avavg_mrkr = [];
-  avg_mrkr[rRestIndex] = rRating.toFixed(0);
-  let rMrkrRating = 4;
-  const rPopup = "Restaurant Detail:";
-  const xxxxxStars = getXstars(rRating);
-  let markerImg = '../images/' + avg_mrkr[rRestIndex] + 'star-marker.png';
+  let rAvg_mrkr = getMarker_No(rRating);
+  let markerImg = '../images/' + rAvg_mrkr + 'star-marker.png';
+  let xxxxxStars = getXstars(rRating);
+  let rPopup = `
+    <div class="popup_cttWrapper" style="width: 220px;">
+      <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
+      <div>
+        <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
+          <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${getRating(rRating)}</span> 
+          <span style="margin-left: 3px;">${xxxxxStars}</span><span id="noRev" style="margin-left: 3px;">(${getRatingsTotal(rRatingsTotal)} reviews)</span>
+        </p>
+        <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${rName}">${rName}</h5>
+        <p style=" width: 200px; display: flex; margin: 0 0 4px;">${rAddress}</p>
+        <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${rTelephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${rTelephone}</a> </p>
+      </div>
+      <div style="display: flex; justify-content: center; padding: 0px;">
+        <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0px">
+          <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rRestIndex});">See reviews</a>
+        </p>
+      </div>
+    </div>`;
+  const user_point = new google.maps.LatLng(pos.lat, pos.lng); 
+  const restaurant_point = new google.maps.LatLng(lat, lng);
+  const distanceInMiles = getDistanceInMiles(user_point, restaurant_point);  
+  let rListItem = `
+    <li id="${rRestIndex}" class="selection">
+      <a onClick="showPopup(${rRestIndex});" href="#header" class="liDirectChild marker-link" data-marker-id="${rRestIndex}" data-marker-title="${rName}">
+        <div class="restaurant-pic-wrapper"><img src="../images/food.png"/></div>
+        <div class="restaurant-brief-wrapper">
+          <h5>${rName}</h5>
+          <div style="margin: 0; display: flex;"> 
+            <p style="margin: 0; padding: 0;">
+              <div style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 1.5px;">${rRating}</div> 
+              <span style="font-size: 13px; margin-left: 3px;">${xxxxxStars}</span>
+              <span id="noRev" style="font-size: 13px; margin-left: 3px; color: #9F9E9E;">(${rRatingsTotal} reviews)</span>
+            </p>
+          </div> 
+          <p style="display: flex; margin: 0; padding: 0;">
+            <span style="width: 16px; height: 16px;"> 
+              <img src="../images/location_marker.png" alt="location in miles" style="width: 100%; height: 100%;"/>
+            </span>
+            <span id="lct-marker" style="font-size: 13px; margin-left: 3px; padding-top: 4px; color: #9F9E9E;">${distanceInMiles} mi</span>
+          </p>
+        </div>
+      </a>
+    </li>`;
   let infowindow = new google.maps.InfoWindow;
   let marker = new google.maps.Marker({
     title: `${rName}`,
@@ -721,20 +751,50 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
     icon: markerImg,
     map: myMap
   });
-  iw_content = restPopup(rRating, xxxxxStars, rUserRatingsTotal, rName, rAddress, rTelephone, rRestIndex);
-  return {
-    popup: function() { 
-      console.log(rPopup); /*property of object literal*/ 
-      marker.addListener('click', function(e) {
-        // infowindow.setPosition({rLat, rLng});
-        infowindow.setContent(iw_content); 
+ marker.addListener('click', function(e) {
+        infowindow.setContent(rPopup); 
         infowindow.open(myMap, marker);
       });
-    },
-    restDetails: function() {
-      console.log(`restaurant name: ${rName} \naddress: ${rAddress} \ntelephone: ${rTelephone} \nwebsite: ${rWebsite} \nindex: ${rRestIndex}`);
+ //IEFE
+  return {
+    //closure functions - public methods and properties
+    popup: function() { 
+      // console.log(`RESTAURANT: ${rName}, VALOR DE MARKER = ${rAvg_mrkr}, VALOR DE INDEX = ${rRestIndex}`);
+      $('.restaurant-list').append(rListItem);
+      // applying styles to active <li> elems 
+      $('.restaurant-list li').click(function(e) {
+        document.querySelector('#bottomSection').style.display = "none";
+        let elems = document.querySelectorAll('.selection.selected');
+        for (let i = 0; i < elems.length; i++) {
+          elems[i].classList.remove('selected');
+          elems[i].style.backgroundColor = '#fff'; //overrides previous (green) 
+        }
+        $(this).addClass('selected');
+        let selected = document.querySelector('.selected');
+        selected.style.backgroundColor = '#D9FEA2';
+        e.preventDefault();
+      });
+
     }
-  }
+    // list: function() {
+    //   $('.restaurant-list').append(rListItem);
+
+    //   // applying styles to active <li> elems 
+    //   $('.restaurant-list li').click(function(e) {
+    //     // document.querySelector('#bottomSection').style.display = "none";
+    //     let elems = document.querySelectorAll('.selection.selected');
+    //     for (let i = 0; i < elems.length; i++) {
+    //       elems[i].classList.remove('selected');
+    //       elems[i].style.backgroundColor = '#fff'; //overrides previous (green) 
+    //     }
+    //     $(this).addClass('selected');
+    //     let selected = document.querySelector('.selected');
+    //     selected.style.backgroundColor = '#D9FEA2';
+    //     e.preventDefault();
+    //   });
+    // } //.list
+  };
+
 }
 
 function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceStatus, PlaceSearchPagination)
@@ -743,12 +803,20 @@ function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceS
     console.log(results); 
     //loop through returned results
     $.each(results, function(i, entry) {
-      console.log(i);
+      // console.log(i);
        getRestaurants_details(i, entry);
     });
     
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-    console.log('No restaurants found at your location');
+    let noRestFound_msg =`
+      <div id="error-card">
+        <div id="msg-wrapper">
+          <div class="logo-wrapper"> <img src="../images/no-location-marker.png" alt="no restaurants"/> </div>
+          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at your current location</h4>
+        </div>
+      </div>`;
+    document.getElementById('error_display').innerHTML = noRestFound_msg;
+    console.log('No restaurants found at your current location');
   } else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
     console.log('The app\'s exceeded its request usage limits. Give it a few seconds or try within the next 24 hours.'); //error code 403 or 429
   } else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
@@ -774,9 +842,6 @@ function getRestaurants_details(i, place) {
         results.user_ratings_total, results.reviews, results.icon, results.photos, results.price_level, i
       );
       restaurantsList[restaurantsList.length] = restaurant;
-      // restaurant.popup();
-      // restaurant.restDetails();
-
     } 
     else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
       //Asynchronous programming 
@@ -785,26 +850,24 @@ function getRestaurants_details(i, place) {
         * we're using setTimeout() to get around the OVER_QUERY_LIMIT issue
         **************************************************************************/    
       setTimeout(function() {
-        console.log("tracking the i - " + i);
         getRestaurants_details(i, place);
-      }, 200);
+      }, 2000);
     }
   }); 
-
   //show restaurants
   showLocalRestaurants();
 
-}//getRestaurantsMoreInfo() 
+}//.getRestaurantsMoreInfo() 
 
-
+let xyz = 0;
 function showLocalRestaurants() {
   for (let i = 0; i < restaurantsList.length; i++) {
+    //closure
     restaurantsList[i].popup();
-    // restaurantsList[i].restDetails();
+    // restaurantsList[i].list();
+    console.log(xyz + 1); //tracks the number of times the loop runs
   }
 }
-
-
 
 
 function showRestaurants(data) {
@@ -861,23 +924,23 @@ function showRestaurants(data) {
     const xxxxxStars = getXstars(avg); //xxxxxStars holds number of stars being printed on the page, avg is 0.0 when no reviews found 
 
     /** Getting distance in miles using Geometry library
-    *****************************************************/
-    const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
-    console.log("USER POINT ON THE MAP: " + pos.lat + ", " + pos.lng);
-    const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
-    console.log("RESTAURANT POINT ON THE MAP: " + lat + ", " + lng);
-    distance_miles = getDistanceInMiles(user_point, restaurant_point);  
-    console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" );
+    // *****************************************************/
+    // const user_point = new google.maps.LatLng(pos.lat, pos.lng); //user point on the map
+    // console.log("USER POINT ON THE MAP: " + pos.lat + ", " + pos.lng);
+    // const restaurant_point = new google.maps.LatLng(lat, lng); //restaurant point on the map
+    // console.log("RESTAURANT POINT ON THE MAP: " + lat + ", " + lng);
+    // distance_miles = getDistanceInMiles(user_point, restaurant_point);  
+    // console.log( "The distance between USER POINT and RESTAURANT POINT = " + distance_miles.toFixed(1) + " miles" );
 
     /** Data to be loaded on the page and on the map 
     *****************************************************/ 
-    const popup = restPopup(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone, i); //for infowindow content
-    const liItem = restList(avg, xxxxxStars, numbOfReviews, restaurant, website, distance_miles, i); //for list 
+    // const popup = restPopup(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone, i); //for infowindow content
+    // const liItem = restList(avg, xxxxxStars, numbOfReviews, restaurant, website, distance_miles, i); //for list 
     const rest_dtls = restDtls(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone, website); //for bottom section
     
     //updating global variables
-    let markerImg = '../images/' + avg_mrkr[i] + 'star-marker.png';
-    console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
+    // let markerImg = '../images/' + avg_mrkr[i] + 'star-marker.png';
+    // console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
     
     fooodLocations.push([restaurant, {lat, lng}, markerImg, popup, liItem]); //bidimentional array
     // restaurantsList += liItem;
