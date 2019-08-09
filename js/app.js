@@ -8,20 +8,20 @@ const user_geoLct = document.getElementById("ui-lct");
 let myMap, iw_restDtls;
 let mapOptions;
 let script = document.createElement('script');
-const user_mrkrIcon  = '../images/user.png';
+const user_mrkrIcon  = 'images/user.png';
 let user_marker;
 let errorDisplay = document.getElementById('error-display');
 let welcome_msg = `
   <div id="welcome-card">
     <div id="welcome-msg-wrapper">
       <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Location-based Experience</h4>
-      <h6 style="color: #B3B1AF;"><strong>Food Place</strong> uses location to find restaurants around you.</h6>
+      <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurants around you.</h6>
     </div>
   </div>`;
 let error_msg =`
   <div id="error-card">
     <div id="msg-wrapper">
-      <div class="logo-wrapper"> <img src="../images/no-location-marker.png" alt="user location"/> </div>
+      <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="user location"/> </div>
       <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">Enable your location</h4>
       <h6>To enable location, please refresh your browser and respond to the prompt.</h6>
       <h6>Alternatively, see <a style="text-decoration: underline;" target="_blank" href="https://www.google.com/search?rlz=1C1CHBD_en-GBGB755GB755&ei=y4EJXZO3K9GEhbIPjNS80AU&q=how+to+enable+geolocation+&oq=how+to+enable+geolocation+&gs_l=psy-ab.3..0l10.16403.27912..28314...4.0..0.106.1961.29j1......0....1..gws-wiz.....6..0i71j35i39j0i67j0i131i67j0i131j0i10i67j0i20i263.IB3pk3dkMoY">how to enable Geolocation</a></h6> 
@@ -165,9 +165,9 @@ const localJSON = 'js/restaurants.json';
 *****************************************************/
 let handleErrors = function () {
   document.querySelector('#main-content').style.display = 'none';
-  const msg_wrapper = document.getElementById('error_Display');
+  const msg_wrapper = document.getElementById('msg_Display');
   console.log("Unable to retrieve your location");
-  document.getElementById('error_display').innerHTML = error_msg;
+  document.getElementById('msg_display').innerHTML = error_msg;
 };
 /** Improving device location accuracy
 *****************************************************/
@@ -291,10 +291,10 @@ function restDtls(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone
           <span id="noRev" style="font-size: 15px; padding-top: 5px; margin-left: 3px;">(${numbOfReviews} reviews)</span>
         </p>
         <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px;">${address}</p>
-        <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${telephone}</a> </p>
+        <p style="font-size: 15px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${telephone}"><img src="images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${telephone}</a> </p>
         <p id="bt-align-x" style="font-size: 15px; padding: 18px 0; margin: 0 0 4px;">
           <a id="site-btn" href="${website}" target="_blank" style="text-decoration: none;">
-            <img src="../images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
+            <img src="images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
           </a>
         </p>
       </div> 
@@ -323,7 +323,7 @@ function createNewRestaurant(location) {
     let new_rest_marker = new google.maps.Marker({
       position: location, 
       map: myMap,
-      icon: '../images/new-marker.png', 
+      icon: 'images/new-marker.png', 
       title: 'click to open form'
     });
     const lat = location.lat();
@@ -442,7 +442,7 @@ function createNewRestaurant(location) {
               console.log(distance_miles);
               const liItem = restList(avg, xxxxxStars, numbOfReviews, restName, restWebsite, distance_miles, new_rest_index); //for list
 
-              let markerImg = '../images/0star-marker.png';
+              let markerImg = 'images/0star-marker.png';
               fooodLocations.push([restName, {lat, lng}, markerImg, popup, liItem]);
               //add new marker for the newly added restaurant
               let nr_marker = new google.maps.Marker({
@@ -560,6 +560,13 @@ let getUserLocation = function (position) {
   };
   //nearbySearch
   service = new google.maps.places.PlacesService(myMap);
+  let loading_status =`
+  <div class="loading_status" style="background-color: #201D19;">
+    <div id="msg-wrapper">
+      <div style="width: 220px; height: 70px; display: block;"> <img src="images/logo-01.png" style="width: 100%; height: 100%;"/> </div>
+    </div>
+  </div>`;
+  document.getElementById('msg_display').innerHTML = loading_status;
   service.nearbySearch(request, getRestaurants); //Place Details Requests ->  service.getDetails(request, callback);
   //Find Place from Query
   
@@ -574,7 +581,7 @@ function getPhotoHTML(photo) {
     return restIMG;
   } 
   else {
-    const restIMG = "<img src='../images/restaurant.png'/>";
+    const restIMG = "<img src='images/restaurant.png'/>";
     return restIMG;
   }
 }
@@ -609,29 +616,29 @@ function getXstars(rating) {
   // console.log("(rating)int: " + int);
   let decimal = (rating % 1).toFixed(1); 
   // console.log("(rating)decimal: " + decimal);
-  let allStars = '<img src="../images/fStar-user-rate.png"/>';
+  let allStars = '<img src="images/fStar-user-rate.png"/>';
   let counter = 0;
   if (int >= 1) {
     for (let i = 1; i < int; i++) {
-      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; //whole stars
+      allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; //whole stars
       counter++;
     }
     if (decimal >= 0.8) {
-      allStars = allStars + '<img src="../images/fStar-user-rate.png"/>'; 
+      allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; 
       counter++;
     }
     if (decimal > 0.3 && decimal <= 0.7) {
-      allStars = allStars + '<img src="../images/hStar-user-rate.png"/>'; //half star
+      allStars = allStars + '<img src="images/hStar-user-rate.png"/>'; //half star
       counter++;
     }
     if (decimal <= 0.3) {
-      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; 
+      allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; 
       counter++;
     }
     if (counter < 5) {
       let starsRemaining = 5 - counter;
       for (let i = 1; i < starsRemaining; i++) {
-        allStars = allStars + '<img src="../images/noStar-user-rate.png"/>'; //empty star(s)  
+        allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; //empty star(s)  
       }
       return allStars;
     }
@@ -639,9 +646,9 @@ function getXstars(rating) {
   }
   else {
     // console.log("fail - no reviews found");
-    allStars = '<img src="../images/noStar-user-rate.png"/>'; //empty stars
+    allStars = '<img src="images/noStar-user-rate.png"/>'; //empty stars
     for (let i = 1; i < 5; i++) {
-      allStars = allStars + '<img src="../images/noStar-user-rate.png"/>';
+      allStars = allStars + '<img src="images/noStar-user-rate.png"/>';
     }
     return allStars;
   }   
@@ -654,9 +661,11 @@ function getDistanceInMiles(point_a, point_b) {
 }
 
 const markers = [];
+const infowindows = [];
 /** Trigger marker click event
 *****************************************************/
 function showPopup(rest_index) {
+  infowindows.forEach(infowindow => infowindow.close());
   google.maps.event.trigger(markers[rest_index], 'click');
 };
 
@@ -699,11 +708,11 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
   const rRestIndex = restIndex;
 
   let rAvg_mrkr = getMarker_No(rRating);
-  let markerImg = '../images/' + rAvg_mrkr + 'star-marker.png';
+  let markerImg = 'images/' + rAvg_mrkr + 'star-marker.png';
   let xxxxxStars = getXstars(rRating);
   let rPopup = `
     <div class="popup_cttWrapper" style="width: 220px;">
-      <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="../images/food.png"/></div>
+      <div style="margin: auto; width: 200px; height: 100px;"><img style="width: 100%; height: 100%;" src="images/food.png"/></div>
       <div>
         <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
           <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${getRating(rRating).toFixed(1)}</span> 
@@ -711,7 +720,7 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
         </p>
         <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${rName}">${rName}</h5>
         <p style=" width: 200px; display: flex; margin: 0 0 4px;">${rAddress}</p>
-        <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${rTelephone}"><img src="../images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${rTelephone}</a> </p>
+        <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${rTelephone}"><img src="images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${rTelephone}</a> </p>
       </div>
       <div style="display: flex; justify-content: center; padding: 0px;">
         <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0px">
@@ -724,8 +733,8 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
   const distanceInMiles = getDistanceInMiles(user_point, restaurant_point);  
   let rListItem = `
     <li id="${rRestIndex}" class="selection">
-      <a onClick="showPopup(${rRestIndex});" href="#header" class="liDirectChild marker-link" data-marker-id="${rRestIndex}" data-marker-title="${rName}">
-        <div class="restaurant-pic-wrapper"><img src="../images/food.png"/></div>
+      <a onclick="showPopup(${rRestIndex});" href="#header" class="liDirectChild marker-link" data-marker-id="${rRestIndex}" data-marker-title="${rName}">
+        <div class="restaurant-pic-wrapper"><img src="images/food.png"/></div>
         <div class="restaurant-brief-wrapper">
           <h5>${rName}</h5>
           <div style="margin: 0; display: flex;"> 
@@ -737,7 +746,7 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
           </div> 
           <p style="display: flex; margin: 0; padding: 0;">
             <span style="width: 16px; height: 16px;"> 
-              <img src="../images/location_marker.png" alt="location in miles" style="width: 100%; height: 100%;"/>
+              <img src="images/location_marker.png" alt="location in miles" style="width: 100%; height: 100%;"/>
             </span>
             <span id="lct-marker" style="font-size: 13px; margin-left: 3px; padding-top: 4px; color: #9F9E9E;">${distanceInMiles} miles</span>
           </p>
@@ -755,10 +764,12 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
         infowindow.setContent(rPopup); 
         infowindow.open(myMap, marker);
       });
- //IEFE
+  infowindows.push(infowindow);
+  markers.push(marker);
+  //IEFE
   return {
     //closure functions - public methods and properties
-    popup: function() { 
+    popup: function() {
       // console.log(`RESTAURANT: ${rName}, VALOR DE MARKER = ${rAvg_mrkr}, VALOR DE INDEX = ${rRestIndex}`);
       $('.restaurant-list').append(rListItem);
       // applying styles to active <li> elems 
@@ -798,26 +809,21 @@ const restPlace = function(name, address, telephone, website, lat, lng, rating, 
 }
 
 function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceStatus, PlaceSearchPagination)
-  
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     // console.info(JSON.stringify(results, null, ' '));
-    console.log('NEARBY SEARCH'); 
-    console.log(results);
-    //loop through returned results
-    $.each(results, function(i, entry) {
-      // console.log(i);
-       getRestaurants_details(i, entry);
-    });
-    
+    console.log('NEARBY DETAILED RESULTS'); 
+
+    getRestaurants_details(results);
+
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
     let noRestFound_msg =`
       <div id="error-card">
         <div id="msg-wrapper">
-          <div class="logo-wrapper"> <img src="../images/no-location-marker.png" alt="no restaurants"/> </div>
+          <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="no restaurants"/> </div>
           <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at your current location</h4>
         </div>
       </div>`;
-    document.getElementById('error_display').innerHTML = noRestFound_msg;
+    document.getElementById('msg_display').innerHTML = noRestFound_msg;
     console.log('No restaurants found at your current location');
   } else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
     console.log('The app\'s exceeded its request usage limits. Give it a few seconds or try within the next 24 hours.'); //error code 403 or 429
@@ -828,147 +834,56 @@ function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceS
   }
 }
 
-function getRestaurants_details(i, place) {
-  console.log('getDEATAILS SEARCH'); 
+let currentRestaurant = null;
+let loopCounter = 0;
+
+function showRestaurants() {
+  document.getElementById('msg_display').style.display = 'none';
+  console.log("All restaurants have been processed. Dumping restaurantsList below:");
+  for (let i = 0; i < restaurantsList.length; i++) {
+    console.log(restaurantsList[i].popup());
+  }
+}
+
+function getRestaurants_details(restPlaces) {
+  // When we reach the end of the loop
+  if (restPlaces.length < 1 && currentRestaurant == null) {
+    showRestaurants();
+    return false;
+  }
+  //While in the loop, get current restaurant
+  currentRestaurant = currentRestaurant == null ? restPlaces.splice(0, 1)[0] : currentRestaurant;
+
   //Place Details Requests - to get place reviews, regionally converted phone numbers, website, etc
   var request = {
-      placeId : place.place_id,
+    placeId : currentRestaurant.place_id,
   };
   service = new google.maps.places.PlacesService(myMap);
   service.getDetails(request, function(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
-      // console.log(results.url +' > ' + results.name);
       console.log(results);
       //factory function
       const restaurant = restPlace(results.name, results.formatted_address, results.formatted_phone_number, 
         results.website, results.geometry.location.lat(), results.geometry.location.lng(), results.rating, 
-        results.user_ratings_total, results.reviews, results.icon, results.photos, results.price_level, i
+        results.user_ratings_total, results.reviews, results.icon, results.photos, results.price_level, loopCounter
       );
       restaurantsList.push(restaurant);
       restaurant.popup();
+    currentRestaurant = null;
+    loopCounter++;
+    getRestaurants_details(restPlaces);
     } 
     else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
       //Asynchronous programming 
       /*******************************************************************************
         * Because Place Details requests only lets you query 10 results per second, 
         * we're using setTimeout() to get around the OVER_QUERY_LIMIT issue
-        **************************************************************************/    
+        **************************************************************************/
+      console.log("OVER_QUERY_LIMIT ... Waiting 200ms to retry");
       setTimeout(function() {
-        getRestaurants_details(i, place);
-        // getRestaurants();
+        getRestaurants_details(restPlaces);
       }, 200);
     }
   }); 
-  //show restaurants
-  console.log('index = ' + i);
-}//.getRestaurantsMoreInfo() 
-
-
-function showRestaurants(data) {
-   console.log("Parsed JSON: ",   data);
-  /** Finding avarage of restaurants' reviews 
-  *****************************************************/
-  for (let i = 0; i < data.length; i++) {
-    // let lat = data[i].lat;
-    // let lng = data[i].long;
-    let ratings = data[i].ratings;
-    let website = data[i].website;
-    let restaurant = data[i].restaurantName;
-    let telephone = data[i].telephone;
-    let address = data[i].address;
-    rest_index = i;
-    let values = []; //stores starred rating values
-    let sum = 0;
-    let numbOfReviews = 0;
-    let x_rest_reviews = [];
-
-    for (let j = 0; j < ratings.length; j++) {
-      let rate = ratings[j].stars; //takes int
-      values.push(rate);
-      sum += rate;
-      numbOfReviews ++; 
-      let comment = ratings[j].comment;
-      let rvw;
-      let userName = `User${j+1}`;
-      if (ratings[j]) {
-        rvw = newRestReview(userName, rate, comment);
-      }
-      x_rest_reviews.push(rvw);
-    }
-    //calculating rating avarages
-    rtngAvg = sum / values.length; //eg: 1.3333333333333333
-    console.log("===rtngAvg===" + rtngAvg);
-    avg = rtngAvg.toFixed(1); //eg: 1.3
-    console.log("===avg===" + avg);
-    //avg_mrkr is upon execution of getXstars(avg) 
-    avg_mrkr[i] = rtngAvg.toFixed(0); //initial value 
-    console.log("===avg_mrkr===" + avg_mrkr[i]);
-
-    /** if no reviews found
-    *****************************************************/
-    if (isNaN(avg_mrkr[i]) || isNaN(avg)) {
-      let noReviews = 0;
-      avg_mrkr[i] = noReviews;
-      avg = noReviews.toFixed(1);
-      console.log("avg_mrkr (for map markers) assumes ---> " + avg_mrkr[i]);
-      console.log("avg (for li elems) assumes ---> " + avg);
-    }
-    //call xxxxxStars
-    console.log("-----RESTAURANT[" + [i] + "] avg = " + avg);        
-    const xxxxxStars = getXstars(avg); //xxxxxStars holds number of stars being printed on the page, avg is 0.0 when no reviews found 
-
-
-    /** Data to be loaded on the page and on the map 
-    *****************************************************/ 
-    // const popup = restPopup(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone, i); //for infowindow content
-    // const liItem = restList(avg, xxxxxStars, numbOfReviews, restaurant, website, distance_miles, i); //for list 
-    const rest_dtls = restDtls(avg, xxxxxStars, numbOfReviews, restaurant, address, telephone, website); //for bottom section
-    
-    //updating global variables
-    // let markerImg = '../images/' + avg_mrkr[i] + 'star-marker.png';
-    // console.log( " -- UDATE: avg_mrkr = " + avg_mrkr[i]);
-    
-    fooodLocations.push([restaurant, {lat, lng}, markerImg, popup, liItem]); //bidimentional array
-    // restaurantsList += liItem;
-    foodReviews.push([rest_dtls, x_rest_reviews]);
-
-  } //outer for loop
-
-  iw_restDtls = new google.maps.InfoWindow;
-  //placing restaurant marker, li items and applying click events to each marker
-  for (let i = 0; i < fooodLocations.length; i++) { 
-    //creating marker and applying click event to show correspondent infowindow content
-    let marker = new google.maps.Marker({
-      title: `${fooodLocations[i][0]}`,
-      position: fooodLocations[i][1],
-      icon: fooodLocations[i][2],/*markerImg*/ 
-      map: myMap
-    });
-    marker.addListener('click', function(e) {
-      // iw_restDtls.setPosition(fooodLocations[i][1]);
-      iw_restDtls.setContent(fooodLocations[i][3]); 
-      iw_restDtls.open(myMap, marker);
-    });
-    //update markers arr
-    markers.push(marker);
-    //displaying restaurants on the side of the page
-    $('.restaurant-list').append(fooodLocations[i][4]);
-  } 
-   // adding styles to active <li> elements 
-  $('.restaurant-list li').click(function(e) {
-    // document.querySelector('#bottomSection').style.display = "none";
-    let elems = document.querySelectorAll('.selection.selected');
-    //remove all pre-existing active classes
-    for (let i = 0; i < elems.length; i++) {
-      elems[i].classList.remove('selected');
-      elems[i].style.backgroundColor = '#fff'; //remove '#D9FEA2' (green) background
-    }
-    //add the active class to clicked <li>
-    $(this).addClass('selected');
-    let selected = document.querySelector('.selected');
-    selected.style.backgroundColor = '#D9FEA2';
-    e.preventDefault();
-  });
-
-}//.showRestaurants(data)
+}
 

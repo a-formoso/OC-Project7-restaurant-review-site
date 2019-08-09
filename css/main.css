@@ -13,7 +13,7 @@ html, body {
 }
 
 /*WELCOME CARD*/
-#error-card, #welcome-card {
+#error-card, #welcome-card, .loading_status {
   top: 0;
   left: 0;
   position: absolute;
@@ -210,11 +210,12 @@ div#map-wrapper {
   /*padding: 15px 15px 0 0; */
   height: 500px;
   background-color: #F6F6F6;
+  padding: 15px 15px 0 15px;
 }
 div#map {
   height: 100%;
   width: 100%;
-  margin: 0 0 1px 0;
+  margin: 0;
   padding: 0;
 }
 /*info window content*/
@@ -239,7 +240,7 @@ div#map {
   margin: 4px;
   color: #524A65;
 }
-div#rattings-wrapper {
+/*div#rattings-wrapper {
   display: block;
   background-color: #D9D8D7;
   margin: 0 0 30px;
@@ -247,7 +248,7 @@ div#rattings-wrapper {
   padding: 10px 0;
   color: #636363;
   letter-spacing: 1px;
-}
+}*/
 #rattings-wrapper label {
   margin-bottom: 0;
 }
@@ -542,7 +543,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     padding: 10px 10px 0;
   }*/
   div#map-wrapper {
-    padding: 0;
+    padding: ;
   }
   #restaurants-wrapper {
     margin: 0;
@@ -552,13 +553,25 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
 
 @media (max-width: 767px) { 
   header {
-    padding: 2px 0 10px;
+    padding: 0 0 15px;
+  }
+  #map-wrapper {
+    padding: 15px;
+  }
+  div#rattings-wrapper {
+    display: block;
+    background-color: #D9D8D7;
+    margin: 0 15px 30px;
+    text-align: center;
+    padding: 10px 0;
+    color: #636363;
+    letter-spacing: 1px;
   }
   #rest-reviews-inner-wrapper {
     display: flex;
     flex-direction: column;
   }
-   #restaurants-wrapper {
+  #restaurants-wrapper {
     margin: 0;
     padding: 0;
   }
@@ -587,7 +600,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     padding: 30px 10px;
   }
   div.restaurants-list-wrapper {
-    padding: 15px;
+    padding: 15px 30px;
   }
   .restaurant-list li:last-child {
   margin-bottom: 15px;
@@ -598,19 +611,26 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   }
 }
 
-
 @media (min-width: 768px) { 
   header {
-  display: flex;
-  justify-content: center;
-  padding: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+  div#rattings-wrapper {
+    display: block;
+    background-color: #D9D8D7;
+    margin: 0 0 30px;
+    text-align: center;
+    padding: 10px 0;
+    color: #636363;
+    letter-spacing: 1px;
   }
   div#restaurants-wrapper { 
-  text-align: left;
-    padding: 0 0 0 15px;
+    text-align: left;
+    padding: 0;
     background-color: #F6F6F6;
   }
- 
   div.ui-src-wrapper {
     width: 300px;
   }
