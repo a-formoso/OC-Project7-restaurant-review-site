@@ -207,7 +207,6 @@ section#midSection {
   margin-bottom: 30px;
 }
 div#map-wrapper {
-  /*padding: 15px 15px 0 0; */
   height: 500px;
   background-color: #F6F6F6;
   padding: 15px 15px 0 15px;
@@ -538,13 +537,6 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
 }
 /* Small devices (landscape phones, 576px and below)*/
 @media (max-width: 576px) { 
-  
- /* section#midSection  {
-    padding: 10px 10px 0;
-  }*/
-  div#map-wrapper {
-    padding: ;
-  }
   #restaurants-wrapper {
     margin: 0;
     padding: 0;
