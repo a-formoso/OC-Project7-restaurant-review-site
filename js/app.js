@@ -1,4 +1,4 @@
-//ECMAScript 5 Strict Mode
+// ECMAScript 5 Strict Mode
 "use strict";
 
 /*===========================================================================================================
@@ -108,7 +108,7 @@ const myMapStyles = [
   }
 ];
 const searchBox = document.getElementById('ui-query');
-let restaurantsList = []; //collection of restaurant objects
+let restaurantsList = []; // collection of restaurant objects
 let foodReviews = [];
 let modal = `
  <div class="container form-wrapper" id="modalWrapper">
@@ -166,8 +166,8 @@ let handleErrors = function () {
 *****************************************************/
 let options = {
   timeout: 5000,
-  maximumage: 3000, //how long until we update position for more information (restaurants) 
-  enableHighAccuracy: true //for best possible location results
+  maximumage: 3000, // how long until we update position for more information (restaurants) 
+  enableHighAccuracy: true // for best possible location results
 }
 
 /** Computing the average for markers (star no)
@@ -202,7 +202,7 @@ function getXstars(rating) {
   let counter = 0;
   if (int >= 1) {
     for (let i = 1; i < int; i++) {
-      allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; //whole stars
+      allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; // whole stars
       counter++;
     }
     if (decimal >= 0.8) {
@@ -210,7 +210,7 @@ function getXstars(rating) {
       counter++;
     }
     if (decimal > 0.3 && decimal <= 0.7) {
-      allStars = allStars + '<img src="images/hStar-user-rate.png"/>'; //half star
+      allStars = allStars + '<img src="images/hStar-user-rate.png"/>'; // half star
       counter++;
     }
     if (decimal <= 0.3) {
@@ -220,7 +220,7 @@ function getXstars(rating) {
     if (counter < 5) {
       let starsRemaining = 5 - counter;
       for (let i = 1; i < starsRemaining; i++) {
-        allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; //empty star(s)  
+        allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; // empty star(s)  
       }
       return allStars;
     }
@@ -228,7 +228,50 @@ function getXstars(rating) {
   }
   else {
     // console.log("fail - no reviews found");
-    allStars = '<img src="images/noStar-user-rate.png"/>'; //empty stars
+    allStars = '<img src="images/noStar-user-rate.png"/>'; // empty stars
+    for (let i = 1; i < 5; i++) {
+      allStars = allStars + '<img src="images/noStar-user-rate.png"/>';
+    }
+    return allStars;
+  }   
+}; 
+
+function getUserScore(score) { 
+  let int = score; 
+  // console.log("(rating)int: " + int);
+  // let decimal = (rating % 1).toFixed(1); 
+  // console.log("(rating)decimal: " + decimal);
+  let allStars = '<img src="images/fStar-user-rate.png"/>';
+  let counter = 0;
+  if (int >= 1) {
+    for (let i = 1; i < int; i++) {
+      allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; // whole stars
+      counter++;
+    }
+    // if (decimal >= 0.8) {
+    //   allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; 
+    //   counter++;
+    // }
+    // if (decimal > 0.3 && decimal <= 0.7) {
+    //   allStars = allStars + '<img src="images/hStar-user-rate.png"/>'; // half star
+    //   counter++;
+    // }
+    // if (decimal <= 0.3) {
+    //   allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; 
+    //   counter++;
+    // }
+    if (counter < 5) {
+      let starsRemaining = 5 - counter;
+      for (let i = 1; i < starsRemaining; i++) {
+        allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; // empty star(s)  
+      }
+      return allStars;
+    }
+    return allStars;
+  }
+  else {
+    // console.log("fail - no reviews found");
+    allStars = '<img src="images/noStar-user-rate.png"/>'; // empty stars
     for (let i = 1; i < 5; i++) {
       allStars = allStars + '<img src="images/noStar-user-rate.png"/>';
     }
@@ -249,6 +292,20 @@ const infowindows = [];
 function showPopup(rest_index) {
   infowindows.forEach(infowindow => infowindow.close());
   google.maps.event.trigger(markers[rest_index], 'click');
+  // target list element on the side of the page
+  let li_elem_id = '#' + rest_index;
+  $(this).click(function(e) {
+    // remove all pre-existing active classes
+    elems = document.querySelectorAll('.selection.selected');
+    for (let i = 0; i < elems.length; i++) { 
+      elems[i].classList.remove('selected');
+      elems[i].style.backgroundColor = '#fff'; // restore white background (#D9FEA2)
+    }
+    // add styles to correspondent <li>
+    $(li_elem_id).addClass('selected');
+    let selected = document.querySelector('.selected');
+    selected.style.backgroundColor = '#D9FEA2';
+  });
 };
 
 function getNoRating(rRating) { 
@@ -316,52 +373,62 @@ function rest_liElem(rRestIndex, rPhoto, rName, getRating, xxxxxStars, getRating
     </a>
   </li>`;
 }
-/** restaurant reviews
-*****************************************************/
-function showReviews(rest_index) {
-  document.querySelector('#bottomSection').style.display = 'block';
-  //restaurant info and Street View 
-  document.querySelector('#rest-brief').innerHTML = foodReviews[rest_index][0];
-  let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
-    position: fooodLocations[rest_index][1], /*[restaurant, {lat, lng}, markerImg, popup]*/
-    pov: {heading: 270, pitch: 10},
-    motionTracking: false,
-    fullscreenControl: false,
-    linksControl: false,
-    panControl: false,
-    zoom: 0
-  });
-  let rvwsList = '<ul>'; 
-  if (foodReviews[rest_index][1].length == 0) {
-    rvwsList += '<li>' + 'No reviews found' + '</li>'
+/** restaurant brief
+*****************************************************/ 
+function rest_dtls(rName, isRestOpen, getRating, xxxxxStars, getRatingsTotal, rAddress, rTelephone, rWebsite) {
+  let bck, color, isItOpen;
+  isItOpen = isRestOpen;
+  if (isItOpen === true) {
+    isItOpen = 'Open';
+    bck = '#9DC95A';
+    color = 'white'; /*'#4CB510';*/
+  } else {
+    isItOpen = 'Closed';
+    color = 'white'; /*'#561D25';*/
+    bck = '#DC493A';
   }
-  else {
-    for (let i = 0; i < foodReviews[rest_index][1].length; i++) {
-      rvwsList += '<li>' + foodReviews[rest_index][1][i] + '</li>'
-    }
-  }
-  rvwsList += '</ul>';
-  document.querySelector('#rest-reviews').innerHTML = rvwsList; 
-  //pass restaurant identidier to "Add review" button
-  let btn_addReview = document.getElementById('leave-review');
-  btn_addReview.setAttribute('onClick', `addReview(${rest_index});`);
-  //target list element on the side of the page
-  let li_elem_id = '#' + rest_index;
-  let elems = document.querySelectorAll('.selection.selected');
-  for (let i = 0; i < elems.length; i++) { 
-    elems[i].classList.remove('selected');
-    elems[i].style.backgroundColor = '#fff'; //restore white background (#D9FEA2)
-  }
-  $(li_elem_id).addClass('selected');
-  let selected = document.querySelector('.selected');
-  selected.style.backgroundColor = '#D9FEA2';
+  return `
+  <div class="col-hg" style="display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%;">
+      <h3 style="display: flex; align-items: center; margin: 0 0 4px; padding: 4px 0; font-weight: 600; color: #2E2A24;">${rName}
+        <span style="font-size: 12px; font-weight: 600; padding: 5px; margin-left: 5px; background-color: ${bck}; color: ${color};">${isItOpen}</span>
+      </h3>
+      <p style="margin: 0 0 4px; padding: 0 0 4px; display: flex;">
+        <span style="font-size: 18px; font-weight: 600; color: #E7711B; margin-left: 0px; padding-top: 4px;">${getRating.toFixed(1)}</span> 
+        <span style="font-size: 20px; margin-left: 3px;">${xxxxxStars}</span>
+        <span id="noRev" style="font-size: 15px; padding-top: 5px; margin-left: 3px;">(${getRatingsTotal} reviews)</span>
+      </p>
+      <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px;">${rAddress}</p>
+      <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${rTelephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${rTelephone}</a> </p>
+      <p id="bt-align-x" style="font-size: 18px; padding: 18px 0; margin: 0 0 4px;">
+        <a id="site-btn" href="${rWebsite}" target="_blank" style="text-decoration: none;">
+          <img src="../images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
+        </a>
+      </p>
+    </div> 
+  </div>`;
 }
+/** list restaurant reviews
+*****************************************************/
+function newRestReview(user, time, score, comment) {
+  return `
+  <div class="review_item">
+    <div class="review-item-top" style="font-size: 18px; font-weight: 600;">
+      <p>${user}
+        <span style="padding: 0; margin: 0; font-size: 12px; font-weight: normal; color: #9A9A9A;"> - ${time}</span></p>
+      <p style="float: right;"><span style="margin-left: 6px;">${score}</span></p>
+    </div>
+    <div class="review-item-body">
+      <p>${comment}</p>
+    </div>
+  </div>`;
+};
 
 /** Open new restaurant review form
 *****************************************************/
 function addReview(rest_index) {
   document.getElementById('review_dialog-box').innerHTML = modal;
-  //pass restaurant identidier to "Add review" button
+  // pass restaurant identidier to "Add review" button
   let modal_addReviewBtn = document.getElementById('add-review-btn');
   modal_addReviewBtn.setAttribute('onClick', `submitReview(${rest_index});`);
 }
@@ -375,13 +442,13 @@ function close_ReviewForm() {
 /** Submit new restaurant review
 *****************************************************/
 function submitReview(rest_index) {
-  //take user input 
+  // take user input 
   const user_fName = document.getElementById('full-name').value;
   const dropdown = document.getElementById('score');
   const score = dropdown.options[dropdown.selectedIndex].text;
   let user_score = parseInt(score, 10);
   const user_comment = document.getElementById('user-review').value;
-  //add review to restaurants array
+  // add review to restaurants array
   const newReview = { 
     user: user_fName,
     stars: user_score, 
@@ -391,12 +458,12 @@ function submitReview(rest_index) {
   restaurantsList[rest_index].ratings.push(newReview);
   console.log(restaurantsList[rest_index].ratings);
  
-  //print user input on the page
+  // print user input on the page
   let x_rest_reviews = [];
   let rvw;
   for (let x = 0; x < restaurantsList[rest_index].ratings.length; x++) {
     let userName = `User${x+1}`;
-    let rate = restaurantsList[rest_index].ratings[x].stars; //takes int
+    let rate = restaurantsList[rest_index].ratings[x].stars; // takes int
     let comment = restaurantsList[rest_index].ratings[x].comment;
     let rvw;
     if (restaurantsList[rest_index].ratings[x]) {
@@ -413,27 +480,13 @@ function submitReview(rest_index) {
   showReviews(rest_index);
   // let formContent = document.getElementById('myForm');
   // formContent.innerHTML = ""; 
-  //close form
+  // close form
   
 }
-/** Create restaurant review funtion
-*****************************************************/
-function newRestReview(userName, score, comment) {
-  return `
-  <div class="review_item">
-    <div class="review-item-top" style="font-size: 18px; font-weight: 600; ">
-      <p>${userName}</p>
-      <p style="float: right;"><span style="margin-left: 6px;">${getXstars(score)}</span></p>
-    </div>
-    <div class="review-item-body">
-      <p>${comment}</p>
-    </div>
-  </div>`;
-};
 /** Adding New Restaurant on the map
 *****************************************************/
 function createNewRestaurant(location) {
-    //add new restaurant marker and taking marker's coordinates
+    // add new restaurant marker and taking marker's coordinates
     let new_rest_marker = new google.maps.Marker({
       position: location, 
       map: myMap,
@@ -448,7 +501,7 @@ function createNewRestaurant(location) {
       let geocoder = new google.maps.Geocoder();
       let location = `${geocoding_url}$latlng=${rest_coordinates}&key=${apiKey}`;
       console.log("New restaurant's marker coordinates: \n" + rest_coordinates.lat + ", " + rest_coordinates.lng);
-      //Reverse geocoding request
+      // Reverse geocoding request
       geocoder.geocode({'location': rest_coordinates}, function(results, status) {
         if (status === 'OK') {
           console.log('Geocoding results: \n', results);
@@ -457,25 +510,25 @@ function createNewRestaurant(location) {
             new_rest_marker.setPosition(rest_coordinates);  
             // nRest_address = results[0].formatted_address;
             // console.log(nRest_address);
-            //FORM HTML FOR NEW RESTAURANT
-            //Containers (div)
+            // FORM HTML FOR NEW RESTAURANT
+            // Containers (div)
             let newRest_form = document.createElement('div');
             newRest_form.setAttribute('class', 'nr_popup_wrapper');
             let nr_inner_div = document.createElement('div'); 
             nr_inner_div.setAttribute('class', 'nr_inner_wrapper');
-            //Heading (h5)
+            // Heading (h5)
             let nr_heading = document.createElement('h5');
             nr_heading.setAttribute('class', 'nr_heading');
             nr_heading.textContent = 'Add New Restaurant';
             nr_inner_div.appendChild(nr_heading);
-            //input (Restaurant Name)
+            // input (Restaurant Name)
             let nr_restName = document.createElement('input');
             nr_restName.setAttribute('type', 'text');
             nr_restName.setAttribute('name', 'newRestName');
             nr_restName.setAttribute('id', 'ui-newRest-name');
             nr_restName.setAttribute('placeholder', 'Restaurant name');
             nr_inner_div.appendChild(nr_restName);
-            //select options list (Restaurant Address) 
+            // select options list (Restaurant Address) 
             let select = document.createElement('select'); 
             select.setAttribute('name', 'ui-newRest-address');
             select.setAttribute('id', 'ui-newRest-address');
@@ -491,21 +544,21 @@ function createNewRestaurant(location) {
             }
             console.log('Select options list: \n', select);
             nr_inner_div.appendChild(select);
-            //input (Restaurant Telephone)
+            // input (Restaurant Telephone)
             let nr_restTel = document.createElement('input');
             nr_restTel.setAttribute('type', 'tel');
             nr_restTel.setAttribute('name', 'newRestTelephone');
             nr_restTel.setAttribute('id', 'ui-newRest-telephone');
             nr_restTel.setAttribute('placeholder', 'Restaurant telephone');
             nr_inner_div.appendChild(nr_restTel);
-            //input (Restaurant Website)
+            // input (Restaurant Website)
             let nr_restSite = document.createElement('input');
             nr_restSite.setAttribute('type', 'url');
             nr_restSite.setAttribute('name', 'newRestWebsite');
             nr_restSite.setAttribute('id', 'ui-newRest-website');
             nr_restSite.setAttribute('placeholder', 'Restaurant website');
             nr_inner_div.appendChild(nr_restSite);
-            //button (Add Restaurant)
+            // button (Add Restaurant)
             let nr_restBtn = document.createElement('button');
             nr_restBtn.setAttribute('class', 'nr_btn');
             nr_restBtn.onclick = addNewRestaurant;
@@ -513,17 +566,17 @@ function createNewRestaurant(location) {
             nr_inner_div.appendChild(nr_restBtn);
             newRest_form.appendChild(nr_inner_div);
             
-            //infowindow object houses New Restaurant form
+            // infowindow object houses New Restaurant form
             const iw_restDtls = new google.maps.InfoWindow({
               position: rest_coordinates,
               content: newRest_form
             });
             iw_restDtls.open(myMap, new_rest_marker);
 
-            //onClick function - add new restaurant on the map
+            // onClick function - add new restaurant on the map
             function addNewRestaurant() {
-              //create new restaurant object based on user input
-              let restName, selRestAddress, restTelephone, restWebsite, nrRating, nrTotalRatings, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos;
+              // create new restaurant object based on user input
+              let restName, selRestAddress, restTelephone, restWebsite, nrRating, nrTotalRatings, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos, isRestOpen;
               restName = document.getElementById('ui-newRest-name').value;
               selRestAddress = document.getElementById('ui-newRest-address');
               let selRestAddressOption = selRestAddress.options[selRestAddress.selectedIndex].text; 
@@ -534,8 +587,8 @@ function createNewRestaurant(location) {
               nrTotalRatings = 0;
               const nr_getRating = getNoRating(nrRating);
               const nr_getRatingsTotal = getNoRatingsTotal(nrTotalRatings);
-              nrReviews = []; //{author_name: __, rating: __, text: ___},
-              // nrIcon = "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png"; //...mapfiles/place_api/icons/shopping-71.png
+              nrReviews = []; // {author_name: __, rating: __, text: ___},
+              // nrIcon = "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png"; // ...mapfiles/place_api/icons/shopping-71.png
               nrIcon = '../images/restaurant.png';
               /** ****************************************************************************************************************************
               ** A more viable way to add photos when creating a new restaurant would be to give the user the option 
@@ -545,29 +598,30 @@ function createNewRestaurant(location) {
               ** to send data to the backend and return it on the page once the user submits the form.
               ******************************************************************************************************************************/
               nrPhotos = [
-                //properties randomly copied from the results of getDetails request, photos[0] 
+                // properties randomly copied from the results of getDetails request, photos[0] 
                 {
                 //   height: 4608, 
                 //   html_attributions: ["<a href='https://maps.google.com/maps/contrib/102455675478533544119/photos'>Alexandre</a>"], 
                 //   width: 2592, 
                 //   customised property - because 
                   getUrl: function() {
-                    return nrIcon; //processed in get_iw_Photo(photos, icon)
+                    return nrIcon; // processed in get_iw_Photo(photos, icon)
                   }
                 } 
               ];
               nrPriceLevel = 1;
               nrIndexPos = restaurantsList.length;
-              //instantiating restaurant object
+              isRestOpen = false;
+              // instantiating restaurant object
               const restaurant = restPlace(restName, selRestAddressOption, restTelephone, 
                 restWebsite, rest_coordinates.lat, rest_coordinates.lng, nr_getRating, 
-                nr_getRatingsTotal, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos
+                nr_getRatingsTotal, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos, isRestOpen
               );
               restaurantsList.push(restaurant);
               iw_restDtls.close(myMap, restaurant.marker);
               showPopup(nrIndexPos);
-              showRestaurants();
-            } //.addNewRestaurant()
+              showRestaurantList();
+            } // .addNewRestaurant()
           } else {
             window.alert('No results found');  
           }
@@ -583,8 +637,8 @@ function createNewRestaurant(location) {
 *  INITIALISING GOOGLE MAPS
 ===========================================================================================================*/
 function initMap() {
-  //Geolocation API
-  if (!navigator.geolocation) { //if user's browser does not support Navigator.geolocation object
+  // Geolocation API
+  if (!navigator.geolocation) { // if user's browser does not support Navigator.geolocation object
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
@@ -592,7 +646,7 @@ function initMap() {
     document.querySelector('#bottomSection').style.display = 'none';
     document.querySelector('#footer').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
-    //getCurrentLocation gets device's live location
+    // getCurrentLocation gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options);
   }
 } 
@@ -603,12 +657,12 @@ let getUserLocation = function (position) {
   document.querySelector('#bottomSection').style.display = 'block';
   document.querySelector('#footer').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'none';
-  //user location coordinates
+  // user location coordinates
   let lat = position.coords.latitude;
   let lng = position.coords.longitude;
   console.log("To get the location used for this project, please use LAT (52.6431335), and LNG (1.3342981999999999)");
   pos = { lat: lat, lng: lng };
-  //map built-in controls
+  // map built-in controls
   mapOptions = {
     center: new google.maps.LatLng(lat, lng),
     zoom: 14.5,
@@ -632,7 +686,7 @@ let getUserLocation = function (position) {
     streetViewControl: false
   }
   myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
-  //user marker
+  // user marker
   user_marker = new google.maps.Marker({ 
     position: pos, 
     map: myMap, 
@@ -644,19 +698,19 @@ let getUserLocation = function (position) {
     user_marker.setAnimation(null)
   }, 3000);
 
-  //Adding new restaurant by clicking on the map
+  // Adding new restaurant by clicking on the map
   google.maps.event.addListener(myMap, 'rightclick', function(event) {
     createNewRestaurant(event.latLng);
   });
 
-  //Google Places API
+  // Google Places API
   let request = {
     fields: ['name', 'geometry', 'rating', 'user_ratings_total', 'photos', 'icon', 'place_id', 'opening_hours', 'permanently_closed'],
     location: pos,
     radius: '1500',
     type: ['restaurant']
   };
-  //nearbySearch
+  // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
   let loading_status =`
   <div class="loading_status" style="background-color: #201D19;">
@@ -666,11 +720,11 @@ let getUserLocation = function (position) {
   </div>`;
   document.getElementById('msg_display').innerHTML = loading_status;
   service.nearbySearch(request, getRestaurants); //Place Details Requests ->  service.getDetails(request, callback);
-  //Find Place from Query
+  // Find Place from Query
   
 };//.getUserLocation()
 
-//Google Place Photos service
+// Google Place Photos service
 function get_iw_Photo(photos, icon) {
   if (photos) {
     let photoURL = photos[0].getUrl({
@@ -686,13 +740,14 @@ function get_iw_Photo(photos, icon) {
   }
 }
 
-//Google Place Photos service
+// Google Place Photos service
 function get_LI_Photo(photos, icon) {
   if (photos) {
     let photoURL = photos[0].getUrl({
       maxWidth: 200,
       maxHeight: 100
     });
+    console.log('Photo Reference: \n' + photoURL);
     const restIMG = `<img id="photoURL" src='${photoURL}' id="get_LI_Photo"/>`;
     return restIMG;
   } 
@@ -704,8 +759,8 @@ function get_LI_Photo(photos, icon) {
 
 /** Factory function
 ************************************************************/
-function restPlace(name, address, telephone, website, lat, lng, rating, userRatingsTotal, reviews, icon, photos, priceLevel, restIndex) {
-  //private data variables
+function restPlace(name, address, telephone, website, lat, lng, rating, userRatingsTotal, reviews, icon, photos, priceLevel, restIndex, isOpen) {
+  // private data variables
   const rName = name;
   const rAddress = address;
   const rTelephone = telephone;
@@ -719,6 +774,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   const rPhotos = photos;
   const rPriceLevel = priceLevel;
   const rRestIndex = restIndex;
+  const rIsRestOpen = isOpen; // true/false
 
   const popup_IMG = get_iw_Photo(rPhotos, rIcon);
   const list_IMG = get_LI_Photo(rPhotos, rIcon);
@@ -732,6 +788,8 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   const xxxxxStars = getXstars(rRating);
   const rPopup = rest_popup(popup_IMG, getRating, xxxxxStars, getRatingsTotal, rName, rAddress, rTelephone, rRestIndex); 
   const rListItem = rest_liElem(rRestIndex, list_IMG, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles);
+  // const isItOpen = ;
+  const rBrief = rest_dtls(rName, rIsRestOpen, getRating, xxxxxStars, getRatingsTotal, rAddress, rTelephone, rWebsite);
   const infowindow = new google.maps.InfoWindow;
   const marker = new google.maps.Marker({
     title: `${rName}`,
@@ -746,9 +804,9 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   });
   infowindows.push(infowindow);
   markers.push(marker);
-  //IEFE
+  // IEFE
   return {
-    //closure functions - public methods and properties
+    // closure functions - public methods and properties
     list: function() {
       $('.restaurant-list').append(rListItem);
       $('.restaurant-list li').click(function(e) {
@@ -756,7 +814,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
         let elems = document.querySelectorAll('.selection.selected');
         for (let i = 0; i < elems.length; i++) {
           elems[i].classList.remove('selected');
-          elems[i].style.backgroundColor = '#fff'; //overrides previous (green) 
+          elems[i].style.backgroundColor = '#fff'; // overrides previous (green) 
         }
         $(this).addClass('selected');
         let selected = document.querySelector('.selected');
@@ -764,13 +822,44 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
         e.preventDefault();
       });
 
-    }
-  }; //.iefe
-} //.restPlace
+    },
+    reviews: function() {
+      // show restaurant brief
+      document.querySelector('#rest-brief').innerHTML = rBrief;
+       // show Street View panorama
+      let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
+        position: {lat: rLat, lng: rLng},
+        pov: {heading: 270, pitch: 10},
+        motionTracking: false,
+        fullscreenControl: false,
+        linksControl: false,
+        panControl: false,
+        zoom: 0
+      });
+     
+      let rvwsList = '<ul>';
+      for (let i = 0; i < rReviews.length; i++) {
+        console.log('User: ' + rReviews[i].author_name + '\nReview Time: ' 
+          + rReviews[i].relative_time_description + '\nRating: ' + rReviews[i].rating + '\nReview: ' + rReviews[i].text);
+        const user_name = rReviews[i].author_name;
+        const user_review = rReviews[i].text;
+        const review_time = rReviews[i].relative_time_description;
+        const user_xxxxxStars = getUserScore(rReviews[i].rating);
+        // create review
+        const review = newRestReview(user_name, review_time, user_xxxxxStars, user_review);
+        rvwsList += '<li>' + review + '</li>'
+      }
+      rvwsList += '</ul>';
+      document.querySelector('#rest-reviews').innerHTML = rvwsList; 
+    } // .reviews
+  }; // .iefe
+} // .restPlace
 
-function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceStatus, PlaceSearchPagination)
+function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesServiceStatus, PlaceSearchPagination)
+
   if (status == google.maps.places.PlacesServiceStatus.OK) {
-    // console.info(JSON.stringify(results, null, ' '));
+    // console.log('NEARBY RESULTS'); 
+    // console.info(JSON.stringify(results); //console.info(JSON.stringify(results, null, ' '));
     console.log('NEARBY DETAILED RESULTS'); 
 
     getRestaurants_details(results);
@@ -786,23 +875,22 @@ function getRestaurants(results, status) { //(Array<PlaceResult>, PlacesServiceS
     document.getElementById('msg_display').innerHTML = noRestFound_msg;
     console.log('No restaurants found at your current location');
   } else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-    console.log('The app\'s exceeded its request usage limits. Give it a few seconds or try within the next 24 hours.'); //error code 403 or 429
+    console.log('The app\'s exceeded its request usage limits. Give it a few seconds or try within the next 24 hours.'); // error code 403 or 429
   } else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
     console.log('Request denied. Request query parameter(s) either invalid or missing.');
   } else {
-    console.log('Server-side error. Please try again.'); //UNKNOWN_ERROR
+    console.log('Server-side error. Please try again.'); // UNKNOWN_ERROR
   }
 }
 
 let currentRestaurant = null;
 let loopCounter = 0;
 
-function showRestaurants() {
+function showRestaurantList() {
   document.getElementById('msg_display').style.display = 'none';
   console.log("All restaurants have been processed. Dumping restaurantsList below:");
-  console.log(restaurantsList);
+  // console.log(restaurantsList);
   for (let i = 0; i < restaurantsList.length; i++) {
-    // console.log(restaurantsList[i].list);
     restaurantsList[i].list();
   }
 }
@@ -810,13 +898,13 @@ function showRestaurants() {
 function getRestaurants_details(restPlaces) {
   // When we reach the end of the loop
   if (restPlaces.length < 1 && currentRestaurant == null) {
-    showRestaurants();
+    showRestaurantList();
     return false;
   }
-  //While in the loop, get current restaurant
+  // While in the loop, get current restaurant
   currentRestaurant = currentRestaurant == null ? restPlaces.splice(0, 1)[0] : currentRestaurant;
 
-  //Place Details Requests - to get place reviews, regionally converted phone numbers, website, etc
+  // Place Details Requests - to get place reviews, regionally converted phone numbers, website, etc
   var request = {
     placeId : currentRestaurant.place_id,
   };
@@ -824,11 +912,27 @@ function getRestaurants_details(restPlaces) {
   service.getDetails(request, function(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       console.log(results);
-      //instantiating restaurant object
+      // console.log(results.opening_hours.isOpen());
+      let isRestOpen;
+      if (results.opening_hours) { 
+        isRestOpen = results.opening_hours.isOpen();
+        console.log('isRestOpen: ' + isRestOpen);
+      } 
+      else {
+        isRestOpen = false;
+        console.log('isRestOpen does not exist. isRestOpen = ' + isRestOpen);
+      }
+      
+
+      // else {
+      //   isRestOpen = results.opening_hours.isOpen();
+      // }
+      // instantiating restaurant object
       const restaurant = restPlace(results.name, results.formatted_address, results.formatted_phone_number, 
         results.website, results.geometry.location.lat(), results.geometry.location.lng(), results.rating, 
-        results.user_ratings_total, results.reviews, results.icon, results.photos, results.price_level, loopCounter
+        results.user_ratings_total, results.reviews, results.icon, results.photos, results.price_level, loopCounter, isRestOpen
       );
+      
       restaurantsList.push(restaurant);
       currentRestaurant = null;
       console.log('value of loopCounter = ' + loopCounter);
@@ -836,7 +940,7 @@ function getRestaurants_details(restPlaces) {
       getRestaurants_details(restPlaces);
     } 
     else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
-      //Asynchronous programming 
+      // Asynchronous programming 
       /*******************************************************************************
         * Because Place Details requests only lets you query 10 results per second, 
         * we're using setTimeout() to get around the OVER_QUERY_LIMIT issue
@@ -851,25 +955,54 @@ function getRestaurants_details(restPlaces) {
 
 /** Mobile-only Carousel
 ************************************************************/
-function myFunction(mql) {
+function myCarousel(mql) {
   if (mql.matches) { // If media query matches
     // document.body.style.backgroundColor = 'yellow';
 
     // Container carousel and cell elems
     let ulElm = document.querySelector('ul.restaurant-list');
     let liElms = document.getElementsByClassName('selection');
-    ulElm.className += ' main-carousel'; //adds new class, "main-carousel"
+    ulElm.className += ' main-carousel'; // adds new class, "main-carousel"
     for (let i = 0; i < liElms.length; i++) {
       // liElms[i].setAttribute('class', 'selection carousel-cell');
       liElms[i].className += ' carousel-cell';
     }
-    //Carousel is created using the css classes create above
+    // Carousel is created using the css classes create above
     
   // else {
   //   // document.body.style.backgroundColor = 'pink';
   // }
   }
 }
-const mql = window.matchMedia('(max-width: 767px)'); //The Window interface's matchMedia() method returns a new MediaQueryList object 
-myFunction(mql);
-mql.addListener(myFunction); // Attach listener function on state changes
+const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
+myCarousel(mql);
+mql.addListener(myCarousel); // Attach listener function on state changes
+
+
+
+/** Showing Restaurant reviews
+*****************************************************/
+function showReviews(rest_index) {
+  document.querySelector('#bottomSection').style.display = 'block';
+  // show restaurant brief and Street View
+  for (let i = 0; i < restaurantsList.length; i++) {
+    if (i === rest_index) {
+      restaurantsList[i].reviews();
+    }
+  }
+  // target list element on the side of the page
+  let li_elem_id = '#' + rest_index;
+  $(this).click(function(e) {
+    // remove all pre-existing active classes
+    elems = document.querySelectorAll('.selection.selected');
+    for (let i = 0; i < elems.length; i++) { 
+      elems[i].classList.remove('selected');
+      elems[i].style.backgroundColor = '#fff'; // restore white background (#D9FEA2)
+    }
+    // add styles to correspondent <li>
+    $(li_elem_id).addClass('selected');
+    let selected = document.querySelector('.selected');
+    selected.style.backgroundColor = '#D9FEA2';
+  });
+} // .showReviews
+
