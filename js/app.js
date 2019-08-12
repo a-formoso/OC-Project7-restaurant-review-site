@@ -292,11 +292,11 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
 }
 /** restaurant list element
 *****************************************************/  
-function rest_liElem(rRestIndex, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles) {
+function rest_liElem(rRestIndex, rPhoto, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles) {
   return `
   <li id="${rRestIndex}" class="selection">
     <a onclick="showPopup(${rRestIndex});" href="#header" class="liDirectChild marker-link" data-marker-id="${rRestIndex}" data-marker-title="${rName}">
-      <div class="restaurant-pic-wrapper"><img src="images/food.png"/></div>
+      <div class="restaurant-pic-wrapper">${rPhoto}</div>
       <div class="restaurant-brief-wrapper">
         <h5>${rName}</h5>
         <div style="margin: 0; display: flex;"> 
@@ -523,7 +523,7 @@ function createNewRestaurant(location) {
             //onClick function - add new restaurant on the map
             function addNewRestaurant() {
               //create new restaurant object based on user input
-              let restName, selRestAddress, restTelephone, restWebsite, nrRating, nrTotalRatings, nrReviews, nrIcon, nrPhoto, nrPriceLevel, nrIndexPos;
+              let restName, selRestAddress, restTelephone, restWebsite, nrRating, nrTotalRatings, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos;
               restName = document.getElementById('ui-newRest-name').value;
               selRestAddress = document.getElementById('ui-newRest-address');
               let selRestAddressOption = selRestAddress.options[selRestAddress.selectedIndex].text; 
@@ -535,14 +535,33 @@ function createNewRestaurant(location) {
               const nr_getRating = getNoRating(nrRating);
               const nr_getRatingsTotal = getNoRatingsTotal(nrTotalRatings);
               nrReviews = []; //{author_name: __, rating: __, text: ___},
-              nrIcon = "";
-              nrPhoto = [];
+              // nrIcon = "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png"; //...mapfiles/place_api/icons/shopping-71.png
+              nrIcon = '../images/restaurant.png';
+              /** ****************************************************************************************************************************
+              ** A more viable way to add photos when creating a new restaurant would be to give the user the option 
+              ** to add their own photo by accessing the file either on their local machine or on their mobile phones.
+              ** 
+              ** To achieve this I'd we could integrate the >> HTML5 File API + AJAX + Backend PHP (or other language) << 
+              ** to send data to the backend and return it on the page once the user submits the form.
+              ******************************************************************************************************************************/
+              nrPhotos = [
+                //properties randomly copied from the results of getDetails request, photos[0] 
+                {
+                //   height: 4608, 
+                //   html_attributions: ["<a href='https://maps.google.com/maps/contrib/102455675478533544119/photos'>Alexandre</a>"], 
+                //   width: 2592, 
+                //   customised property - because 
+                  getUrl: function() {
+                    return nrIcon; //processed in get_iw_Photo(photos, icon)
+                  }
+                } 
+              ];
               nrPriceLevel = 1;
               nrIndexPos = restaurantsList.length;
               //instantiating restaurant object
               const restaurant = restPlace(restName, selRestAddressOption, restTelephone, 
                 restWebsite, rest_coordinates.lat, rest_coordinates.lng, nr_getRating, 
-                nr_getRatingsTotal, nrReviews, nrIcon, nrPhoto, nrPriceLevel, nrIndexPos
+                nr_getRatingsTotal, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos
               );
               restaurantsList.push(restaurant);
               iw_restDtls.close(myMap, restaurant.marker);
@@ -651,16 +670,34 @@ let getUserLocation = function (position) {
   
 };//.getUserLocation()
 
-function getPhotoHTML(photo) {
-  let photoURL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference=";
-  if (photo) {
-    photoURL += photo[0].photo_reference;
-    photoURL += "&key=" + apiKey;
+//Google Place Photos service
+function get_iw_Photo(photos, icon) {
+  if (photos) {
+    let photoURL = photos[0].getUrl({
+      maxWidth: 200,
+      maxHeight: 100
+    });
     const restIMG = `<img src='${photoURL}' style='width: 100%; height: 100%;'/>`;
     return restIMG;
   } 
   else {
-    const restIMG = "<img src='images/restaurant.png' style='width: 100%; height: 100%;'/>";
+    const restIMG = `<img src='${icon}' style='width: 100%; height: 100%;'/>`;
+    return restIMG;
+  }
+}
+
+//Google Place Photos service
+function get_LI_Photo(photos, icon) {
+  if (photos) {
+    let photoURL = photos[0].getUrl({
+      maxWidth: 200,
+      maxHeight: 100
+    });
+    const restIMG = `<img id="photoURL" src='${photoURL}' id="get_LI_Photo"/>`;
+    return restIMG;
+  } 
+  else {
+    const restIMG = `<img id="iconIMG" src='${icon}' id="get_LI_Icon"/>`;
     return restIMG;
   }
 }
@@ -679,10 +716,12 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   const rRatingsTotal = userRatingsTotal;
   const rReviews = reviews;
   const rIcon = icon;
-  const rPhoto = getPhotoHTML(photos);
+  const rPhotos = photos;
   const rPriceLevel = priceLevel;
   const rRestIndex = restIndex;
 
+  const popup_IMG = get_iw_Photo(rPhotos, rIcon);
+  const list_IMG = get_LI_Photo(rPhotos, rIcon);
   const user_point = new google.maps.LatLng(pos.lat, pos.lng); 
   const restaurant_point = new google.maps.LatLng(lat, lng);
   const distanceInMiles = getDistanceInMiles(user_point, restaurant_point);
@@ -691,8 +730,8 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   const rAvg_mrkr = getMarker_No(rRating);
   const markerImg = 'images/' + rAvg_mrkr + 'star-marker.png';
   const xxxxxStars = getXstars(rRating);
-  const rPopup = rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddress, rTelephone, rRestIndex); 
-  const rListItem = rest_liElem(rRestIndex, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles);
+  const rPopup = rest_popup(popup_IMG, getRating, xxxxxStars, getRatingsTotal, rName, rAddress, rTelephone, rRestIndex); 
+  const rListItem = rest_liElem(rRestIndex, list_IMG, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles);
   const infowindow = new google.maps.InfoWindow;
   const marker = new google.maps.Marker({
     title: `${rName}`,
@@ -810,3 +849,27 @@ function getRestaurants_details(restPlaces) {
   }); 
 }
 
+/** Mobile-only Carousel
+************************************************************/
+function myFunction(mql) {
+  if (mql.matches) { // If media query matches
+    // document.body.style.backgroundColor = 'yellow';
+
+    // Container carousel and cell elems
+    let ulElm = document.querySelector('ul.restaurant-list');
+    let liElms = document.getElementsByClassName('selection');
+    ulElm.className += ' main-carousel'; //adds new class, "main-carousel"
+    for (let i = 0; i < liElms.length; i++) {
+      // liElms[i].setAttribute('class', 'selection carousel-cell');
+      liElms[i].className += ' carousel-cell';
+    }
+    //Carousel is created using the css classes create above
+    
+  // else {
+  //   // document.body.style.backgroundColor = 'pink';
+  // }
+  }
+}
+const mql = window.matchMedia('(max-width: 767px)'); //The Window interface's matchMedia() method returns a new MediaQueryList object 
+myFunction(mql);
+mql.addListener(myFunction); // Attach listener function on state changes
