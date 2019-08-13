@@ -94,7 +94,7 @@ header {
   margin: 0 auto;
   /*padding: 0 0 10px;*/
 }
-#heading-column {
+#logo_column {
   width: 220px;
   height: 70px;
   padding: 0;
@@ -665,7 +665,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     width: 100%;
     margin: 0 auto;
   }
-   #heading-column {
+   #logo_column {
     display: inline-block;
     margin: 0 0 0 50px;
   }

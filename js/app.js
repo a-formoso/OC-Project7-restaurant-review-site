@@ -238,9 +238,6 @@ function getXstars(rating) {
 
 function getUserScore(score) { 
   let int = score; 
-  // console.log("(rating)int: " + int);
-  // let decimal = (rating % 1).toFixed(1); 
-  // console.log("(rating)decimal: " + decimal);
   let allStars = '<img src="images/fStar-user-rate.png"/>';
   let counter = 0;
   if (int >= 1) {
@@ -248,18 +245,6 @@ function getUserScore(score) {
       allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; // whole stars
       counter++;
     }
-    // if (decimal >= 0.8) {
-    //   allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; 
-    //   counter++;
-    // }
-    // if (decimal > 0.3 && decimal <= 0.7) {
-    //   allStars = allStars + '<img src="images/hStar-user-rate.png"/>'; // half star
-    //   counter++;
-    // }
-    // if (decimal <= 0.3) {
-    //   allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; 
-    //   counter++;
-    // }
     if (counter < 5) {
       let starsRemaining = 5 - counter;
       for (let i = 1; i < starsRemaining; i++) {
@@ -423,66 +408,6 @@ function newRestReview(user, time, score, comment) {
     </div>
   </div>`;
 };
-
-/** Open new restaurant review form
-*****************************************************/
-function addReview(rest_index) {
-  document.getElementById('review_dialog-box').innerHTML = modal;
-  // pass restaurant identidier to "Add review" button
-  let modal_addReviewBtn = document.getElementById('add-review-btn');
-  modal_addReviewBtn.setAttribute('onClick', `submitReview(${rest_index});`);
-}
-
-/** Close new restaurant review form
-*****************************************************/
-function close_ReviewForm() {
-  let modal = document.getElementById('close-review-btn').closest('#modalWrapper');
-  modal.style.display = "none";
-}
-/** Submit new restaurant review
-*****************************************************/
-function submitReview(rest_index) {
-  // take user input 
-  const user_fName = document.getElementById('full-name').value;
-  const dropdown = document.getElementById('score');
-  const score = dropdown.options[dropdown.selectedIndex].text;
-  let user_score = parseInt(score, 10);
-  const user_comment = document.getElementById('user-review').value;
-  // add review to restaurants array
-  const newReview = { 
-    user: user_fName,
-    stars: user_score, 
-    comment: user_comment
-  }
-  console.log(restaurantsList[rest_index]);
-  restaurantsList[rest_index].ratings.push(newReview);
-  console.log(restaurantsList[rest_index].ratings);
- 
-  // print user input on the page
-  let x_rest_reviews = [];
-  let rvw;
-  for (let x = 0; x < restaurantsList[rest_index].ratings.length; x++) {
-    let userName = `User${x+1}`;
-    let rate = restaurantsList[rest_index].ratings[x].stars; // takes int
-    let comment = restaurantsList[rest_index].ratings[x].comment;
-    let rvw;
-    if (restaurantsList[rest_index].ratings[x]) {
-      if (restaurantsList[rest_index].ratings[x].user) {
-        userName = restaurantsList[rest_index].ratings[x].user;
-      }
-      rvw = newRestReview(userName, rate, comment);
-    }
-    x_rest_reviews.push(rvw);
-  }
-  foodReviews[rest_index][1] = x_rest_reviews;
-  // console.log(_rest_reviews[rest_index]);
-  document.getElementById('review_dialog-box').innerHTML = "";
-  showReviews(rest_index);
-  // let formContent = document.getElementById('myForm');
-  // formContent.innerHTML = ""; 
-  // close form
-  
-}
 /** Adding New Restaurant on the map
 *****************************************************/
 function createNewRestaurant(location) {
@@ -611,7 +536,7 @@ function createNewRestaurant(location) {
               ];
               nrPriceLevel = 1;
               nrIndexPos = restaurantsList.length;
-              isRestOpen = false;
+              isRestOpen = true;
               // instantiating restaurant object
               const restaurant = restPlace(restName, selRestAddressOption, restTelephone, 
                 restWebsite, rest_coordinates.lat, rest_coordinates.lng, nr_getRating, 
@@ -769,7 +694,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   const rLng = lng;
   const rRating = rating;
   const rRatingsTotal = userRatingsTotal;
-  const rReviews = reviews;
+  let rReviews = reviews;
   const rIcon = icon;
   const rPhotos = photos;
   const rPriceLevel = priceLevel;
@@ -823,7 +748,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
       });
 
     },
-    reviews: function() {
+    brief: function() {
       // show restaurant brief
       document.querySelector('#rest-brief').innerHTML = rBrief;
        // show Street View panorama
@@ -836,7 +761,8 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
         panControl: false,
         zoom: 0
       });
-     
+    }, // .brief
+    reviews: function() {
       let rvwsList = '<ul>';
       for (let i = 0; i < rReviews.length; i++) {
         console.log('User: ' + rReviews[i].author_name + '\nReview Time: ' 
@@ -851,7 +777,11 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
       }
       rvwsList += '</ul>';
       document.querySelector('#rest-reviews').innerHTML = rvwsList; 
-    } // .reviews
+    }, // .reviews
+    housing: function(newReview) {
+      console.log('user: ' + newReview.author_name + '\nscore: ' + newReview.rating + '\nreview: \n' + newReview['text']);
+      rReviews.unshift(newReview);
+    }
   }; // .iefe
 } // .restPlace
 
@@ -912,7 +842,6 @@ function getRestaurants_details(restPlaces) {
   service.getDetails(request, function(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       console.log(results);
-      // console.log(results.opening_hours.isOpen());
       let isRestOpen;
       if (results.opening_hours) { 
         isRestOpen = results.opening_hours.isOpen();
@@ -922,17 +851,10 @@ function getRestaurants_details(restPlaces) {
         isRestOpen = false;
         console.log('isRestOpen does not exist. isRestOpen = ' + isRestOpen);
       }
-      
-
-      // else {
-      //   isRestOpen = results.opening_hours.isOpen();
-      // }
-      // instantiating restaurant object
       const restaurant = restPlace(results.name, results.formatted_address, results.formatted_phone_number, 
         results.website, results.geometry.location.lat(), results.geometry.location.lng(), results.rating, 
         results.user_ratings_total, results.reviews, results.icon, results.photos, results.price_level, loopCounter, isRestOpen
       );
-      
       restaurantsList.push(restaurant);
       currentRestaurant = null;
       console.log('value of loopCounter = ' + loopCounter);
@@ -987,6 +909,7 @@ function showReviews(rest_index) {
   // show restaurant brief and Street View
   for (let i = 0; i < restaurantsList.length; i++) {
     if (i === rest_index) {
+      restaurantsList[i].brief();
       restaurantsList[i].reviews();
     }
   }
@@ -1004,5 +927,48 @@ function showReviews(rest_index) {
     let selected = document.querySelector('.selected');
     selected.style.backgroundColor = '#D9FEA2';
   });
+  //passing onClick function to a button
+  const modalBtn = document.getElementById('leave-review');
+  modalBtn.setAttribute('onClick', `addReview(${rest_index});`);
 } // .showReviews
 
+
+/** Adding a rew review
+*****************************************************/
+//Open modal form
+function addReview(rest_index) {
+  document.getElementById('review_dialog-box').innerHTML = modal;
+  //passing onClick function to a button
+  let modal_addReviewBtn = document.getElementById('add-review-btn');
+  modal_addReviewBtn.setAttribute('onClick', `submitReview(${rest_index});`);
+}
+//Close review form
+let close_ReviewBtn = document.getElementById('close-review-btn');
+function close_ReviewForm() {
+  let modal = document.getElementById('close-review-btn').closest('#modalWrapper');
+  modal.style.display = "none";
+}
+//submit review form
+function submitReview(rest_index) {
+
+  // take user input 
+  const user_fName = document.getElementById('full-name').value;
+  const dropdown = document.getElementById('score');
+  const score = dropdown.options[dropdown.selectedIndex].text;
+  let user_score = parseInt(score, 10);
+  const user_comment = document.getElementById('user-review').value;
+  // add review to restaurantsList array
+  const newReview = { 
+    author_name: user_fName,
+    rating: user_score, 
+    // relative_time_description: '1 minute ago', // setInterval,
+    text: user_comment
+  }
+  for (let i = 0; i < restaurantsList.length; i++) {
+    if (i === rest_index) {
+      restaurantsList[i].housing(newReview);
+      restaurantsList[i].reviews();
+    }
+  }
+  close_ReviewForm(); 
+}
