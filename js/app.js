@@ -117,7 +117,7 @@ let modal = `
         <h5 style="margin: 15px 14px 25px; padding: 0;">Add a review</h5>
       </div>
       <div class="row">
-        <input type="text" id="full-name" name="full-name" placeholder="Your name">
+        <input type="text" id="full-name" name="full-name" placeholder="Your name" required>
       </div>
       <div class="row score-wrapper">
         <label for="score">Score</label>
@@ -961,7 +961,7 @@ function submitReview(rest_index) {
   const newReview = { 
     author_name: user_fName,
     rating: user_score, 
-    // relative_time_description: '1 minute ago', // setInterval,
+    relative_time_description: 'added today', // setInterval,
     text: user_comment
   }
   for (let i = 0; i < restaurantsList.length; i++) {
