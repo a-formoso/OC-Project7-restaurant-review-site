@@ -40,7 +40,7 @@
       <!-- Logo -->
       <div class="row mb-display">
         <div id="logo_column">
-          <img style="width: 100%; height: 100%;" src="images/logo-01.png"/>
+          <img style="width: 100%; height: 100%;" src="images/logo-01.png" alt="logo" onclick="pageReload();"/>
         </div>
         <!-- User Input -->
         <div class="ui-column">
@@ -70,11 +70,17 @@
           <div id="restaurants-wrapper" class="col-xs-12 col-md-4">
             <div id="rattings-wrapper" class="ratings">
               <label for="rating-list" class="">Sort By</label>
-              <select name="rating-list" id="rating-list" onchange="getSelect()">
+              <!-- <select name="rating-list" id="rating-list" onchange="getSelect()">
                 <option value="any rating">Any rating</option>
                 <option value="5 stars">5 stars</option>
                 <option value="4 stars">4 stars</option>
                 <option value="1-3 stars">1-3 stars</option>
+              </select> -->
+              <select name="rating-list" id="rating-list" onchange="getSelect(this)">
+                <option selected value="[0,1,2,3,4,5]">Any rating</option>
+                <option value="[5]">5 stars</option>
+                <option value="[4]">4 stars</option>
+                <option value="[1,2,3]">1-3 stars</option>
               </select>
             </div>
             <div class="restaurants-list-wrapper">
@@ -123,6 +129,13 @@
     <footer id="footer">
       <h6>© <em><a href="https://aformoso.dev">2019 aformoso</em></a></h6>     
     </footer>
+
+    <script>
+      // Refresh the page
+      function pageReload() {
+        document.location.reload();
+      }
+    </script>
 
     <!-- jQuery CDN -->  
     <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>

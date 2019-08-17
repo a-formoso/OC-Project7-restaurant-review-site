@@ -335,9 +335,9 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
 }
 /** restaurant list element
 *****************************************************/  
-function rest_liElem(rRestIndex, rPhoto, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles) {
+function rest_liElem(rRestIndex, rPhoto, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles, displayLi) {
   return `
-  <li id="${rRestIndex}" class="selection">
+  <li id="${rRestIndex}" class="selection" style="display:${displayLi};" data-avgrating="${getRating}">
     <a onclick="showPopup(${rRestIndex});" href="#header" class="liDirectChild marker-link" data-marker-id="${rRestIndex}" data-marker-title="${rName}">
       <div class="restaurant-pic-wrapper">${rPhoto}</div>
       <div class="restaurant-brief-wrapper">
@@ -623,7 +623,7 @@ function createMap(pos) {
     position: pos, 
     map: myMap, 
     icon: user_mrkrIcon, 
-    draggable: true,
+    draggable: false,
     animation: google.maps.Animation.BOUNCE 
   });
   setTimeout(function () {
@@ -652,9 +652,8 @@ function createMap(pos) {
   </div>`;
   document.getElementById('msg_display').innerHTML = loading_status;
   service.nearbySearch(request, getRestaurants); //Place Details Requests ->  service.getDetails(request, callback);
-  // Find Place from Query
   
-};//.getUserLocation()
+};//.createMap()
 
 // Google Place Photos service
 function get_iw_Photo(photos, icon) {
@@ -689,6 +688,32 @@ function get_LI_Photo(photos, icon) {
   }
 }
 
+/** Sort By: show restaurants by user selection
+*****************************************************/
+let showRated = [0, 1, 2, 3, 4, 5];
+
+function getSelect(selectEl) {
+  infowindows.forEach(infowindow => infowindow.close());
+  console.log(selectEl);
+  showRated = JSON.parse(selectEl.value);
+  for(let i = 0; i < markers.length; i++) {
+    if (showRated.indexOf(markers[i].restaurantRating) < 0) {
+      markers[i].setVisible(false);
+    } else {
+      markers[i].setVisible(true);
+    }
+  }
+  let restaurantLiEls = document.querySelectorAll(".restaurant-list li"); //returns collection
+  for (let j = 0; j < restaurantLiEls.length; j++) {
+    let avgRating = parseInt(restaurantLiEls[j].getAttribute("data-avgrating"));
+    if (showRated.indexOf(avgRating) < 0) {
+      restaurantLiEls[j].style.display = "none";
+    } else {
+      restaurantLiEls[j].style.display = "list-item"; //"list-item"
+    }
+  }
+}
+
 /** Factory function
 ************************************************************/
 function restPlace(name, address, telephone, website, lat, lng, rating, userRatingsTotal, reviews, icon, photos, priceLevel, restIndex, isOpen) {
@@ -718,24 +743,30 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   const rAvg_mrkr = getMarker_No(rRating);
   const markerImg = 'images/' + rAvg_mrkr + 'star-marker.png';
   const xxxxxStars = getXstars(rRating);
+  const displayLi = showRated.indexOf(parseInt(getRating)) >= 0 ? "list-item" : "none";
   const rPopup = rest_popup(popup_IMG, getRating, xxxxxStars, getRatingsTotal, rName, rAddress, rTelephone, rRestIndex); 
-  const rListItem = rest_liElem(rRestIndex, list_IMG, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles);
-  // const isItOpen = ;
+  const rListItem = rest_liElem(rRestIndex, list_IMG, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles, displayLi);
   const rBrief = rest_dtls(rName, rIsRestOpen, getRating, xxxxxStars, getRatingsTotal, rAddress, rTelephone, rWebsite);
-  const infowindow = new google.maps.InfoWindow;
+  const rInfowindow = new google.maps.InfoWindow;
+  
   const marker = new google.maps.Marker({
     title: `${rName}`,
     position: {lat: rLat, lng: rLng},
     icon: markerImg,
     map: myMap
   });
+  marker.restaurantRating = parseInt(getRating);
+  if(showRated.indexOf(marker.restaurantRating) < 0) {
+    marker.setVisible(false);
+  }
   marker.addListener('click', function(e) {
     infowindows.forEach(infowindow => infowindow.close());
-    infowindow.setContent(rPopup); 
-    infowindow.open(myMap, marker);
-    myMap.setCenter({lat: rLat, lng: rLng});
+    rInfowindow.setContent(rPopup); 
+    rInfowindow.open(myMap, marker);
+    // myMap.setCenter({lat: rLat, lng: rLng});
   });
-  infowindows.push(infowindow);
+
+  infowindows.push(rInfowindow);
   markers.push(marker);
   // IEFE
   return {
@@ -827,7 +858,6 @@ let loopCounter = 0;
 function showRestaurantList() {
   document.getElementById('msg_display').style.display = 'none';
   console.log("All restaurants have been processed. Dumping restaurantsList below:");
-  // console.log(restaurantsList);
   for (let i = 0; i < restaurantsList.length; i++) {
     restaurantsList[i].list();
   }
@@ -1001,6 +1031,16 @@ function submitReview(rest_index) {
 /** Find Place from Query
 *****************************************************/
 function codeAddress() {
+  // hide any existing li elems
+  let restaurantLiEls = document.querySelectorAll(".restaurant-list li"); //returns collection
+  for (let j = 0; j < restaurantLiEls.length; j++) {
+    restaurantLiEls[j].style.display = "none";
+  }
+  // prepare global arrays for new values
+  restaurantsList = []; 
+  markers.length = 0;
+  loopCounter = 0;
+
   let userQuery = document.getElementById('ui-query').value;
   console.log(userQuery);
   let request = {
@@ -1021,17 +1061,11 @@ function codeAddress() {
           lat: lat,
           lng: lng
         };
-        // $('.restaurant-list').innerHTML = "";
         createMap(coords);
-        // let ul = document.querySelector('ul.restaurant-list');
-        
-        // let liElms = document.getElementsByClassName('selection');
-        // showRestaurantList();
       }
-      // myMap.setCenter(results[0].geometry.location);
     }
   });
-
+  console.log(restaurantsList);
 }
 
 // function geolocate() {

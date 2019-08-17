@@ -576,7 +576,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   ul.restaurant-list li {
     display: flex;
     flex-direction: column;
-    margin-bottom: 30px;
+    /*margin-bottom: 30px;*/
     /*box-shadow: 0 0px 5px 0 rgba(0, 0, 0, 0.2), 0 6px 5px 0 rgba(0, 0, 0, 0.19);*/
     box-shadow: 5px 5px 5px 3px rgba(0, 0, 0, 0.1); /* [h offset] [v offset] [blur radius] [spread distance] [color] */
   }
@@ -606,17 +606,16 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     height: 260px;
   }
   .swipe-wrapper {
-    /*border: 1px solid red;*/
     margin: 0 15px;
     padding: 0;
     display: flex;
     justify-content: center;
   }
   .icons-wrapper {
-    /*border: 1px solid orange;*/
     margin: 0;
     padding: 0;
     display: flex;
+    align-items: center;
   }
   .swipe-wrapper img {
     width: 100%;
@@ -901,4 +900,16 @@ h5.nr_heading {
 
 #iconIMGL {
   padding: 6px 0;
+}
+
+/*Progress Bar*/
+#myProgress {
+  width: 100%;
+  background-color: grey;
+}
+
+#myBar {
+  width: 1%;
+  height: 30px;
+  background-color: green;
 }
