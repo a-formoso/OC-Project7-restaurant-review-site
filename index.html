@@ -47,12 +47,12 @@
           <!-- <div class="geoL-wrapper">
             <div id="ui-lct" title="use current location"><i class="fa fa-lg fa-location-arrow fa-2x lct-icon"></i></div>
           </div> -->
-          <div class="ui-src-wrapper">
+          <div class="ui-src-wrapper" id="locationField">
             <label for="ui-query"><i class="fa fa-lg fa-search fa-1x src-icon"></i></label>
-            <input type="search" name="find" id="ui-query" placeholder="City or restaurant name"/>
+            <input type="text" name="find" id="ui-query" placeholder="City or restaurant name" onFocus="geolocate();" required/>
           </div>
           <div class="ui-btn-wrapper">
-            <input id="ui-btn" type="button" value="Search" onclick="codeAddress()"/>
+            <input id="ui-btn" type="button" value="Search" onclick="codeAddress();"/>
           </div>
         </div>
       </div> <!--/.row -->
@@ -80,6 +80,7 @@
             <div class="restaurants-list-wrapper">
               <ul class="restaurant-list"></ul>
             </div>
+            <div class="swipe-wrapper"></div>
           </div>
         </div>
       </section> <!-- /.midSection -->
@@ -127,8 +128,8 @@
     <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" 
       integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <!-- Google Maps JavaScript API v3, initMap() -->
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.37&key=AIzaSyCe_PRvM5yLjmgBr6tuRH5-Dv4PmhuGVvg&libraries=places,geometry&callback=initMap" async defer></script>
+    <!-- Google Maps JavaScript API v3.38, initMap() -->
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.38&key=AIzaSyCe_PRvM5yLjmgBr6tuRH5-Dv4PmhuGVvg&libraries=places,geometry&callback=initMap" async defer></script>
     <!-- JS app -->
     <script src="js/app.js"></script>    
   </body>

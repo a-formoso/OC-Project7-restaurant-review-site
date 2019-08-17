@@ -117,7 +117,7 @@ let modal = `
         <h5 style="margin: 15px 14px 25px; padding: 0;">Add a review</h5>
       </div>
       <div class="row">
-        <input type="text" id="full-name" name="full-name" placeholder="Your name" required>
+        <input type="text" id="full-name" name="full-name" placeholder="Your name"> 
       </div>
       <div class="row score-wrapper">
         <label for="score">Score</label>
@@ -141,6 +141,7 @@ let modal = `
 let distance_miles;
 let pos;
 let service;
+
 
 /*===========================================================================================================
 *  INFORMATION TO REACH API
@@ -364,11 +365,11 @@ function rest_dtls(rName, isRestOpen, getRating, xxxxxStars, getRatingsTotal, rA
   let bck, color, isItOpen;
   isItOpen = isRestOpen;
   if (isItOpen === true) {
-    isItOpen = 'Open';
+    isItOpen = 'Open now';
     bck = '#9DC95A';
     color = 'white'; /*'#4CB510';*/
   } else {
-    isItOpen = 'Closed';
+    isItOpen = 'Closed now';
     color = 'white'; /*'#561D25';*/
     bck = '#DC493A';
   }
@@ -571,7 +572,7 @@ function initMap() {
     document.querySelector('#bottomSection').style.display = 'none';
     document.querySelector('#footer').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
-    // getCurrentLocation gets device's live location
+    // getCurrentPosition gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options);
   }
 } 
@@ -582,11 +583,17 @@ let getUserLocation = function (position) {
   document.querySelector('#bottomSection').style.display = 'block';
   document.querySelector('#footer').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'none';
-  // user location coordinates
-  let lat = position.coords.latitude;
+  // user location coordinates - read-only properties (black box)
+  let lat = position.coords.latitude; // position.coords.latitude 
   let lng = position.coords.longitude;
   console.log("To get the location used for this project, please use LAT (52.6431335), and LNG (1.3342981999999999)");
   pos = { lat: lat, lng: lng };
+  createMap(pos);
+}
+
+function createMap(pos) {
+  let lat = pos.lat;
+  let lng = pos.lng;
   // map built-in controls
   mapOptions = {
     center: new google.maps.LatLng(lat, lng),
@@ -726,6 +733,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
     infowindows.forEach(infowindow => infowindow.close());
     infowindow.setContent(rPopup); 
     infowindow.open(myMap, marker);
+    myMap.setCenter({lat: rLat, lng: rLng});
   });
   infowindows.push(infowindow);
   markers.push(marker);
@@ -889,12 +897,28 @@ function myCarousel(mql) {
       // liElms[i].setAttribute('class', 'selection carousel-cell');
       liElms[i].className += ' carousel-cell';
     }
-    // Carousel is created using the css classes create above
-    
+    // Carousel is created using the css classes created above
+
+    //add swipe icons
+    // const node = document.getElementsByClassName('restaurants-list-wrapper');
+    const node = document.getElementsByClassName('swipe-wrapper');
+    //check if class 'icons-wrapper' exists (to avoid appending it twice whenever user switches to mobile view)
+    // if ($(node).hasClass('icons-wrapper')) {
+    //   console.log("Element with className of 'icons-wrapper' exists.");
+    // } else {
+      //create swipe icons
+      const iconsWrapper = document.createElement('div');
+      iconsWrapper.className = 'icons-wrapper';
+      const icons =`
+          <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='../images/swipe-L-icon.png'/></span>
+          <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='../images/swipe-R-icon.png'/></span>`;
+      $(iconsWrapper).append(icons);
+      $(node).append(iconsWrapper);
+    // }
+  }
   // else {
   //   // document.body.style.backgroundColor = 'pink';
   // }
-  }
 }
 const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
 myCarousel(mql);
@@ -933,7 +957,7 @@ function showReviews(rest_index) {
 } // .showReviews
 
 
-/** Adding a rew review
+/** Adding a new review
 *****************************************************/
 //Open modal form
 function addReview(rest_index) {
@@ -950,7 +974,8 @@ function close_ReviewForm() {
 }
 //submit review form
 function submitReview(rest_index) {
-
+  document.getElementById('full-name').required;
+  document.getElementById('user-review').required;
   // take user input 
   const user_fName = document.getElementById('full-name').value;
   const dropdown = document.getElementById('score');
@@ -972,3 +997,53 @@ function submitReview(rest_index) {
   }
   close_ReviewForm(); 
 }
+
+/** Find Place from Query
+*****************************************************/
+function codeAddress() {
+  let userQuery = document.getElementById('ui-query').value;
+  console.log(userQuery);
+  let request = {
+    query: userQuery,
+    fields: ['name', 'geometry']
+  };
+  let service = new google.maps.places.PlacesService(myMap);
+  service.findPlaceFromQuery(request, function(results, status) {
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+      for (let i = 0; i < results.length; i++) {
+        // createMarker(results[i]);
+        console.log('number of results: ' + results.length);
+        console.log(results[i]);
+        const lat = results[i].geometry.location.lat();
+        const lng = results[i].geometry.location.lng();
+        console.log('latitude: ' + lat + ', longitude: ' + lng); //undefined 
+        const coords = {
+          lat: lat,
+          lng: lng
+        };
+        // $('.restaurant-list').innerHTML = "";
+        createMap(coords);
+        // let ul = document.querySelector('ul.restaurant-list');
+        
+        // let liElms = document.getElementsByClassName('selection');
+        // showRestaurantList();
+      }
+      // myMap.setCenter(results[0].geometry.location);
+    }
+  });
+
+}
+
+// function geolocate() {
+//   // if (navigator.geolocation) {
+//   //   navigator.geolocation.getCurrentPosition(function(position) {
+//   //     const geolocation = {
+//   //       lat: position.coords.latitude,
+//   //       lng: position.coords.longitude
+//   //     };
+//   //     const circle = new google.maps.Circle(
+//   //       { center: geolocation, radius: position.coords.accuracy });
+//   //     autocomplete.setBounds(circle.getBounds());
+//   //   });
+//   // }
+// }
