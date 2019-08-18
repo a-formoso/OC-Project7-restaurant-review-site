@@ -271,8 +271,8 @@ function getDistanceInMiles(point_a, point_b) {
   return distance_in_miles.toFixed(1);
 }
 
-const markers = [];
-const infowindows = [];
+let markers = [];
+let infowindows = [];
 /** marker click event
 *****************************************************/
 function showPopup(rest_index) {
@@ -591,6 +591,8 @@ let getUserLocation = function (position) {
   createMap(pos);
 }
 
+
+
 function createMap(pos) {
   let lat = pos.lat;
   let lng = pos.lng;
@@ -654,6 +656,44 @@ function createMap(pos) {
   service.nearbySearch(request, getRestaurants); //Place Details Requests ->  service.getDetails(request, callback);
   
 };//.createMap()
+
+let currentLocation = null;
+// Search box
+function geolocate() {
+  let input = document.querySelector("input[name='find']");
+  let options = {
+    bounds: myMap.getBounds(),
+    types: ["establishment"]
+  };
+  let autocomplete = new google.maps.places.Autocomplete(input, options);
+  // Avoid paying for data that you don't need by restricting the set of place fields that are returned to just the address components.
+  // autocomplete.setFields(['address_component']); //returns portions of the address in the form of an array with several index values - ideal: formatted_address
+  // When the user selects an address from the drop-down, populate the search box
+  google.maps.event.addListener(autocomplete, "place_changed", function() { /*autocomplete.addListener('place_changed', function() {}*/
+    currentLocation = autocomplete.getPlace();
+    console.log('NEW (Place Autocomplete) SEARCH:');
+    console.log(currentLocation);
+    
+    if (!currentLocation.geometry) {
+      // User entered the name of a Place that was not suggested and pressed the Enter key, or the Place Details request failed.
+      console.log("No details available for query, '" + currentLocation.name + "'");
+      window.alert("No details available for query, '" + currentLocation.name + "'");
+      return;
+    } else {
+      // If the place has a geometry
+      const lat = currentLocation.geometry.location.lat();
+      const lng = currentLocation.geometry.location.lng();
+      console.log(lat + ', ' + lng);
+      pos = {
+        lat: lat,
+        lng: lng
+      };   
+      const SearchBtn = document.getElementById('ui-btn');
+      SearchBtn.setAttribute('onClick', `codeAddress();`);
+    }
+  });
+
+} // .geolocate()
 
 // Google Place Photos service
 function get_iw_Photo(photos, icon) {
@@ -1032,52 +1072,41 @@ function submitReview(rest_index) {
 *****************************************************/
 function codeAddress() {
   // hide any existing li elems
-  let restaurantLiEls = document.querySelectorAll(".restaurant-list li"); //returns collection
-  for (let j = 0; j < restaurantLiEls.length; j++) {
-    restaurantLiEls[j].style.display = "none";
-  }
+  // let restaurantLiEls = document.querySelectorAll(".restaurant-list li"); //returns collection
+  // for (let j = 0; j < restaurantLiEls.length; j++) {
+  //   restaurantLiEls[j].style.display = "none";
+  // } 
+  myMap.setCenter({lat: pos.lat, lng: pos.lng});
+  user_marker.setPosition(new google.maps.LatLng(pos.lat,pos.lng));
+  setTimeout(function () {
+    user_marker.setAnimation(null)
+  }, 3000);
   // prepare global arrays for new values
+  document.querySelector("ul.restaurant-list").innerHTML = ""; 
   restaurantsList = []; 
+  infowindows = [];
+  for(let i = 0; i < markers.length; i++) {
+    markers[i].setVisible(false);
+    markers[i].setMap(null);
+  }
   markers.length = 0;
-  loopCounter = 0;
-
-  let userQuery = document.getElementById('ui-query').value;
-  console.log(userQuery);
+  loopCounter = 0;  
+  //prepare map
+  myMap.setCenter({lat: pos.lat, lng: pos.lng});
+  user_marker.setPosition(new google.maps.LatLng(pos.lat,pos.lng));
+  user_marker.setAnimation(google.maps.Animation.BOUNCE);
+  setTimeout(function () {
+    user_marker.setAnimation(null)
+  }, 3000);
+  //get nearby places
   let request = {
-    query: userQuery,
-    fields: ['name', 'geometry']
+    fields: ['name', 'geometry', 'rating', 'user_ratings_total', 'photos', 'icon', 'place_id', 'opening_hours', 'permanently_closed'],
+    location: pos, //place searched
+    radius: '1500',
+    type: ['restaurant']
   };
   let service = new google.maps.places.PlacesService(myMap);
-  service.findPlaceFromQuery(request, function(results, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      for (let i = 0; i < results.length; i++) {
-        // createMarker(results[i]);
-        console.log('number of results: ' + results.length);
-        console.log(results[i]);
-        const lat = results[i].geometry.location.lat();
-        const lng = results[i].geometry.location.lng();
-        console.log('latitude: ' + lat + ', longitude: ' + lng); //undefined 
-        const coords = {
-          lat: lat,
-          lng: lng
-        };
-        createMap(coords);
-      }
-    }
-  });
+  service.nearbySearch(request, getRestaurants);
+
   console.log(restaurantsList);
 }
-
-// function geolocate() {
-//   // if (navigator.geolocation) {
-//   //   navigator.geolocation.getCurrentPosition(function(position) {
-//   //     const geolocation = {
-//   //       lat: position.coords.latitude,
-//   //       lng: position.coords.longitude
-//   //     };
-//   //     const circle = new google.maps.Circle(
-//   //       { center: geolocation, radius: position.coords.accuracy });
-//   //     autocomplete.setBounds(circle.getBounds());
-//   //   });
-//   // }
-// }
