@@ -1,15 +1,13 @@
-// ECMAScript 5 Strict Mode
 "use strict";
+
 
 /*===========================================================================================================
 *  SOME Map AND DOM ELEMENTS
 ===========================================================================================================*/
+
+let myMap, mapOptions, user_marker, distance_miles, pos, service;
 const user_geoLct = document.getElementById("ui-lct");
-let myMap;
-let mapOptions;
-let script = document.createElement('script');
 const user_mrkrIcon  = 'images/user.png';
-let user_marker;
 let errorDisplay = document.getElementById('error-display');
 let welcome_msg = `
   <div id="welcome-card">
@@ -109,7 +107,8 @@ const myMapStyles = [
 ];
 const searchBox = document.getElementById('ui-query');
 let restaurantsList = []; // collection of restaurant objects
-let foodReviews = [];
+let markers = [];
+let infowindows = [];
 let modal = `
  <div class="container form-wrapper" id="modalWrapper">
     <form class="modal-content" id="myForm">
@@ -138,15 +137,12 @@ let modal = `
       </div>
     </form>
   </div> `;
-let distance_miles;
-let pos;
-let service;
 
 
 /*===========================================================================================================
 *  INFORMATION TO REACH API
 ===========================================================================================================*/
-// const url = 'https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js';
+
 let geocoding_url = 'https://maps.googleapis.com/maps/api/geocode/json?';
 let apiKey = 'AIzaSyCe_PRvM5yLjmgBr6tuRH5-Dv4PmhuGVvg';
 const localJSON = 'js/restaurants.json';
@@ -155,6 +151,7 @@ const localJSON = 'js/restaurants.json';
 /*===========================================================================================================
 *  CALLBACK FUNCTIONS
 ===========================================================================================================*/
+
 /** Handling location errors
 *****************************************************/
 let handleErrors = function () {
@@ -163,6 +160,7 @@ let handleErrors = function () {
   console.log("Unable to retrieve your location");
   document.getElementById('msg_display').innerHTML = error_msg;
 };
+
 /** Improving device location accuracy
 *****************************************************/
 let options = {
@@ -196,9 +194,7 @@ function getMarker_No(rating) {
 ************************************************************/
 function getXstars(rating) { 
   let int = Math.floor(rating); 
-  // console.log("(rating)int: " + int);
   let decimal = (rating % 1).toFixed(1); 
-  // console.log("(rating)decimal: " + decimal);
   let allStars = '<img src="images/fStar-user-rate.png"/>';
   let counter = 0;
   if (int >= 1) {
@@ -228,8 +224,7 @@ function getXstars(rating) {
     return allStars;
   }
   else {
-    // console.log("fail - no reviews found");
-    allStars = '<img src="images/noStar-user-rate.png"/>'; // empty stars
+    allStars = '<img src="images/noStar-user-rate.png"/>';
     for (let i = 1; i < 5; i++) {
       allStars = allStars + '<img src="images/noStar-user-rate.png"/>';
     }
@@ -237,27 +232,28 @@ function getXstars(rating) {
   }   
 }; 
 
+/** Showing user score in stars format
+************************************************************/
 function getUserScore(score) { 
   let int = score; 
   let allStars = '<img src="images/fStar-user-rate.png"/>';
   let counter = 0;
   if (int >= 1) {
     for (let i = 1; i < int; i++) {
-      allStars = allStars + '<img src="images/fStar-user-rate.png"/>'; // whole stars
+      allStars = allStars + '<img src="images/fStar-user-rate.png"/>';
       counter++;
     }
     if (counter < 5) {
       let starsRemaining = 5 - counter;
       for (let i = 1; i < starsRemaining; i++) {
-        allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; // empty star(s)  
+        allStars = allStars + '<img src="images/noStar-user-rate.png"/>'; 
       }
       return allStars;
     }
     return allStars;
   }
   else {
-    // console.log("fail - no reviews found");
-    allStars = '<img src="images/noStar-user-rate.png"/>'; // empty stars
+    allStars = '<img src="images/noStar-user-rate.png"/>';
     for (let i = 1; i < 5; i++) {
       allStars = allStars + '<img src="images/noStar-user-rate.png"/>';
     }
@@ -265,15 +261,15 @@ function getUserScore(score) {
   }   
 }; 
 
+/** Computing distance between the user and establishment
+************************************************************/
 function getDistanceInMiles(point_a, point_b) {
   let distance_in_meters = google.maps.geometry.spherical.computeDistanceBetween(point_a, point_b);
   let distance_in_miles = distance_in_meters * 0.000621371; // converts meters to miles
   return distance_in_miles.toFixed(1);
 }
 
-let markers = [];
-let infowindows = [];
-/** marker click event
+/** Triggering marker click event
 *****************************************************/
 function showPopup(rest_index) {
   infowindows.forEach(infowindow => infowindow.close());
@@ -294,23 +290,6 @@ function showPopup(rest_index) {
   });
 };
 
-function getNoRating(rRating) { 
-  if (rRating == null || rRating === 'undefined') {
-    rRating = 0;
-    return getMarker_No(rRating);
-  } else {
-    return rRating;  
-  }         
-}
-
-function getNoRatingsTotal(rRatingsTotal) { 
-  if (rRatingsTotal == null || rRatingsTotal === 'undefined') {
-    rRatingsTotal = 0;
-    return rRatingsTotal;
-  } else {
-    return rRatingsTotal;  
-  }         
-}
 /** restaurant popup
 *****************************************************/  
 function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddress, rTelephone, rRestIndex) {
@@ -333,6 +312,7 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
     </div>
   </div>`;
 }
+
 /** restaurant list element
 *****************************************************/  
 function rest_liElem(rRestIndex, rPhoto, rName, getRating, xxxxxStars, getRatingsTotal, distanceInMiles, displayLi) {
@@ -359,6 +339,7 @@ function rest_liElem(rRestIndex, rPhoto, rName, getRating, xxxxxStars, getRating
     </a>
   </li>`;
 }
+
 /** restaurant brief
 *****************************************************/ 
 function rest_dtls(rName, isRestOpen, getRating, xxxxxStars, getRatingsTotal, rAddress, rTelephone, rWebsite) {
@@ -367,10 +348,10 @@ function rest_dtls(rName, isRestOpen, getRating, xxxxxStars, getRatingsTotal, rA
   if (isItOpen === true) {
     isItOpen = 'Open now';
     bck = '#9DC95A';
-    color = 'white'; /*'#4CB510';*/
+    color = 'white';
   } else {
     isItOpen = 'Closed now';
-    color = 'white'; /*'#561D25';*/
+    color = 'white'; 
     bck = '#DC493A';
   }
   return `
@@ -394,7 +375,8 @@ function rest_dtls(rName, isRestOpen, getRating, xxxxxStars, getRatingsTotal, rA
     </div> 
   </div>`;
 }
-/** list restaurant reviews
+
+/** restaurant reviews
 *****************************************************/
 function newRestReview(user, time, score, comment) {
   return `
@@ -409,7 +391,121 @@ function newRestReview(user, time, score, comment) {
     </div>
   </div>`;
 };
-/** Adding New Restaurant on the map
+
+let currentLocation = null;
+
+/** Place autocomplete feature
+*****************************************************/
+function geolocate() {
+  let input = document.querySelector("input[name='find']");
+  let options = {
+    bounds: myMap.getBounds(),
+    types: ["establishment"] /* overview @ https://developers.google.com/maps/documentation/javascript/places */
+  };
+  let autocomplete = new google.maps.places.Autocomplete(input, options);
+  google.maps.event.addListener(autocomplete, "place_changed", function() { 
+    currentLocation = autocomplete.getPlace();
+    console.log('NEW (Place Autocomplete) SEARCH:');
+    console.log(currentLocation);
+    if (!currentLocation.geometry) {
+      // User entered the name of a Place that was not suggested and pressed the Enter key, or the Place Details request failed.
+      console.log("No details available for query, '" + currentLocation.name + "'");
+      window.alert("No details available for query, '" + currentLocation.name + "'");
+      return;
+    } else {
+      // If result comes back with property, "geometry"
+      const lat = currentLocation.geometry.location.lat();
+      const lng = currentLocation.geometry.location.lng();
+      console.log(lat + ', ' + lng);
+      pos = {
+        lat: lat,
+        lng: lng
+      };   
+      const SearchBtn = document.getElementById('ui-btn');
+      SearchBtn.setAttribute('onClick', `codeAddress();`);
+    }
+  });
+
+} //.geolocate()
+
+/** Google Place Photos service
+*****************************************************/
+function get_iw_Photo(photos, icon) {
+  if (photos) {
+    let photoURL = photos[0].getUrl({
+      maxWidth: 200,
+      maxHeight: 100
+    });
+    const restIMG = `<img src='${photoURL}' style='width: 100%; height: 100%;'/>`;
+    return restIMG;
+  } 
+  else {
+    const restIMG = `<img src='${icon}' style='width: 100%; height: 100%;'/>`;
+    return restIMG;
+  }
+}
+
+/** Google Place Photos service
+*****************************************************/
+function get_LI_Photo(photos, icon) {
+  if (photos) {
+    let photoURL = photos[0].getUrl({
+      maxWidth: 200,
+      maxHeight: 100
+    });
+    console.log('Photo Reference: \n' + photoURL);
+    const restIMG = `<img id="photoURL" src='${photoURL}' id="get_LI_Photo"/>`;
+    return restIMG;
+  } 
+  else {
+    const restIMG = `<img id="iconIMG" src='${icon}' id="get_LI_Icon"/>`;
+    return restIMG;
+  }
+}
+
+let showRated = [0, 1, 2, 3, 4, 5];
+
+/** Show restaurants by user selection
+*****************************************************/
+function getSelect(selectEl) {
+  infowindows.forEach(infowindow => infowindow.close());
+  console.log(selectEl);
+  showRated = JSON.parse(selectEl.value);
+  for(let i = 0; i < markers.length; i++) {
+    if (showRated.indexOf(markers[i].restaurantRating) < 0) {
+      markers[i].setVisible(false);
+    } else {
+      markers[i].setVisible(true);
+    }
+  }
+  let restaurantLiEls = document.querySelectorAll(".restaurant-list li"); //returns collection
+  for (let j = 0; j < restaurantLiEls.length; j++) {
+    let avgRating = parseInt(restaurantLiEls[j].getAttribute("data-avgrating"));
+    if (showRated.indexOf(avgRating) < 0) {
+      restaurantLiEls[j].style.display = "none";
+    } else {
+      restaurantLiEls[j].style.display = "list-item"; //"list-item"
+    }
+  }
+}
+
+function getNoRating(rRating) { 
+  if (rRating == null || rRating === 'undefined') {
+    rRating = 0;
+    return getMarker_No(rRating);
+  } else {
+    return rRating;  
+  }         
+}
+function getNoRatingsTotal(rRatingsTotal) { 
+  if (rRatingsTotal == null || rRatingsTotal === 'undefined') {
+    rRatingsTotal = 0;
+    return rRatingsTotal;
+  } else {
+    return rRatingsTotal;  
+  }         
+}
+/** Adding a new restaurant on the map
 *****************************************************/
 function createNewRestaurant(location) {
     // add new restaurant marker and taking marker's coordinates
@@ -434,9 +530,7 @@ function createNewRestaurant(location) {
           if (results[0]) {
             myMap.setCenter(rest_coordinates);
             new_rest_marker.setPosition(rest_coordinates);  
-            // nRest_address = results[0].formatted_address;
-            // console.log(nRest_address);
-            // FORM HTML FOR NEW RESTAURANT
+            // NEW RESTAURANT FORM
             // Containers (div)
             let newRest_form = document.createElement('div');
             newRest_form.setAttribute('class', 'nr_popup_wrapper');
@@ -492,14 +586,14 @@ function createNewRestaurant(location) {
             nr_inner_div.appendChild(nr_restBtn);
             newRest_form.appendChild(nr_inner_div);
             
-            // infowindow object houses New Restaurant form
+            // infowindow
             const iw_restDtls = new google.maps.InfoWindow({
               position: rest_coordinates,
-              content: newRest_form
+              content: newRest_form //new restaurant form
             });
             iw_restDtls.open(myMap, new_rest_marker);
 
-            // onClick function - add new restaurant on the map
+            // onClick function - adds new restaurant on the page (marker and list elem)
             function addNewRestaurant() {
               // create new restaurant object based on user input
               let restName, selRestAddress, restTelephone, restWebsite, nrRating, nrTotalRatings, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos, isRestOpen;
@@ -520,7 +614,7 @@ function createNewRestaurant(location) {
               ** A more viable way to add photos when creating a new restaurant would be to give the user the option 
               ** to add their own photo by accessing the file either on their local machine or on their mobile phones.
               ** 
-              ** To achieve this I'd we could integrate the >> HTML5 File API + AJAX + Backend PHP (or other language) << 
+              ** To achieve this we could integrate the >> HTML5 File API + AJAX + Backend PHP (or other) << 
               ** to send data to the backend and return it on the page once the user submits the form.
               ******************************************************************************************************************************/
               nrPhotos = [
@@ -531,7 +625,7 @@ function createNewRestaurant(location) {
                 //   width: 2592, 
                 //   customised property - because 
                   getUrl: function() {
-                    return nrIcon; // processed in get_iw_Photo(photos, icon)
+                    return nrIcon; // see get_iw_Photo(photos, icon)
                   }
                 } 
               ];
@@ -547,7 +641,7 @@ function createNewRestaurant(location) {
               iw_restDtls.close(myMap, restaurant.marker);
               showPopup(nrIndexPos);
               showRestaurantList();
-            } // .addNewRestaurant()
+            } //.addNewRestaurant()
           } else {
             window.alert('No results found');  
           }
@@ -562,6 +656,7 @@ function createNewRestaurant(location) {
 /*===========================================================================================================
 *  INITIALISING GOOGLE MAPS
 ===========================================================================================================*/
+
 function initMap() {
   // Geolocation API
   if (!navigator.geolocation) { // if user's browser does not support Navigator.geolocation object
@@ -591,8 +686,8 @@ let getUserLocation = function (position) {
   createMap(pos);
 }
 
-
-
+/** Create map and display user' posittion
+*****************************************************/
 function createMap(pos) {
   let lat = pos.lat;
   let lng = pos.lng;
@@ -632,7 +727,7 @@ function createMap(pos) {
     user_marker.setAnimation(null)
   }, 3000);
 
-  // Adding new restaurant by clicking on the map
+  // callback for adding new restaurant on the map
   google.maps.event.addListener(myMap, 'rightclick', function(event) {
     createNewRestaurant(event.latLng);
   });
@@ -653,115 +748,9 @@ function createMap(pos) {
     </div>
   </div>`;
   document.getElementById('msg_display').innerHTML = loading_status;
-  service.nearbySearch(request, getRestaurants); //Place Details Requests ->  service.getDetails(request, callback);
+  service.nearbySearch(request, getRestaurants);
   
 };//.createMap()
-
-let currentLocation = null;
-// Search box
-function geolocate() {
-  let input = document.querySelector("input[name='find']");
-  let options = {
-    bounds: myMap.getBounds(),
-    types: ["establishment"] /* overview @ https://developers.google.com/maps/documentation/javascript/places */
-  };
-  let autocomplete = new google.maps.places.Autocomplete(input, options);
-  // Avoid paying for data that you don't need by restricting the set of place fields that are returned to just the address components.
-  // autocomplete.setFields(['address_component']); //returns portions of the address in the form of an array with several index values - ideal: formatted_address
-  // When the user selects an address from the drop-down, populate the search box
-  google.maps.event.addListener(autocomplete, "place_changed", function() { /*autocomplete.addListener('place_changed', function() {}*/
-    currentLocation = autocomplete.getPlace();
-    console.log('NEW (Place Autocomplete) SEARCH:');
-    console.log(currentLocation);
-    
-    if (!currentLocation.geometry) {
-      // User entered the name of a Place that was not suggested and pressed the Enter key, or the Place Details request failed.
-      // console.log("No details available for query, '" + currentLocation.name + "'");
-      // window.alert("No details available for query, '" + currentLocation.name + "'");
-      let noRestFound_msg =`
-      <div id="error-card">
-        <div id="msg-wrapper">
-          <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="no restaurants"/> </div>
-          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h4>
-        </div>
-      </div>`;
-    document.getElementById('msg_display').innerHTML = noRestFound_msg;
-    console.log('No restaurants found at this location. Please search a different place.');
-      return;
-    } else {
-      // If the place has a geometry
-      const lat = currentLocation.geometry.location.lat();
-      const lng = currentLocation.geometry.location.lng();
-      console.log(lat + ', ' + lng);
-      pos = {
-        lat: lat,
-        lng: lng
-      };   
-      const SearchBtn = document.getElementById('ui-btn');
-      SearchBtn.setAttribute('onClick', `codeAddress();`);
-    }
-  });
-
-} // .geolocate()
-
-// Google Place Photos service
-function get_iw_Photo(photos, icon) {
-  if (photos) {
-    let photoURL = photos[0].getUrl({
-      maxWidth: 200,
-      maxHeight: 100
-    });
-    const restIMG = `<img src='${photoURL}' style='width: 100%; height: 100%;'/>`;
-    return restIMG;
-  } 
-  else {
-    const restIMG = `<img src='${icon}' style='width: 100%; height: 100%;'/>`;
-    return restIMG;
-  }
-}
-
-// Google Place Photos service
-function get_LI_Photo(photos, icon) {
-  if (photos) {
-    let photoURL = photos[0].getUrl({
-      maxWidth: 200,
-      maxHeight: 100
-    });
-    console.log('Photo Reference: \n' + photoURL);
-    const restIMG = `<img id="photoURL" src='${photoURL}' id="get_LI_Photo"/>`;
-    return restIMG;
-  } 
-  else {
-    const restIMG = `<img id="iconIMG" src='${icon}' id="get_LI_Icon"/>`;
-    return restIMG;
-  }
-}
-
-/** Sort By: show restaurants by user selection
-*****************************************************/
-let showRated = [0, 1, 2, 3, 4, 5];
-
-function getSelect(selectEl) {
-  infowindows.forEach(infowindow => infowindow.close());
-  console.log(selectEl);
-  showRated = JSON.parse(selectEl.value);
-  for(let i = 0; i < markers.length; i++) {
-    if (showRated.indexOf(markers[i].restaurantRating) < 0) {
-      markers[i].setVisible(false);
-    } else {
-      markers[i].setVisible(true);
-    }
-  }
-  let restaurantLiEls = document.querySelectorAll(".restaurant-list li"); //returns collection
-  for (let j = 0; j < restaurantLiEls.length; j++) {
-    let avgRating = parseInt(restaurantLiEls[j].getAttribute("data-avgrating"));
-    if (showRated.indexOf(avgRating) < 0) {
-      restaurantLiEls[j].style.display = "none";
-    } else {
-      restaurantLiEls[j].style.display = "list-item"; //"list-item"
-    }
-  }
-}
 
 /** Factory function
 ************************************************************/
@@ -827,7 +816,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
         let elems = document.querySelectorAll('.selection.selected');
         for (let i = 0; i < elems.length; i++) {
           elems[i].classList.remove('selected');
-          elems[i].style.backgroundColor = '#fff'; // overrides previous (green) 
+          elems[i].style.backgroundColor = '#fff'; 
         }
         $(this).addClass('selected');
         let selected = document.querySelector('.selected');
@@ -837,9 +826,9 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
 
     },
     brief: function() {
-      // show restaurant brief
+      // brief info about the restaurant
       document.querySelector('#rest-brief').innerHTML = rBrief;
-       // show Street View panorama
+       // Street View picture
       let panorama = new google.maps.StreetViewPanorama(document.getElementById('street-view'), {
         position: {lat: rLat, lng: rLng},
         pov: {heading: 270, pitch: 10},
@@ -849,7 +838,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
         panControl: false,
         zoom: 0
       });
-    }, // .brief
+    }, //.brief
     reviews: function() {
       let rvwsList = '<ul>';
       if (!rReviews) {
@@ -868,22 +857,23 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
       }
       rvwsList += '</ul>';
       document.querySelector('#rest-reviews').innerHTML = rvwsList; 
-    }, // .reviews
+    }, //.reviews
     housing: function(newReview) {
       console.log('user: ' + newReview.author_name + '\nscore: ' + newReview.rating + '\nreview: \n' + newReview['text']);
       rReviews.unshift(newReview);
     }
-  }; // .iefe
-} // .restPlace
+  }; //.iefe
+} //.restPlace
 
+/** nearBy Search
+************************************************************/
 function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesServiceStatus, PlaceSearchPagination)
-
   if (status == google.maps.places.PlacesServiceStatus.OK) {
     // console.log('NEARBY RESULTS'); 
     // console.info(JSON.stringify(results); //console.info(JSON.stringify(results, null, ' '));
     console.log('NEARBY DETAILED RESULTS'); 
-
-    getRestaurants_details(results);
+    
+    getRestaurants_details(results); //getDetails
 
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
     let noRestFound_msg =`
@@ -895,7 +885,6 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
       </div>`;
     document.getElementById('msg_display').innerHTML = noRestFound_msg;
     console.log('No restaurants found at this location. Please search a different place.');
-
   } else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
     console.log('The app\'s exceeded its request usage limits. Give it a few seconds or try within the next 24 hours.'); // error code 403 or 429
   } else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
@@ -915,7 +904,8 @@ function showRestaurantList() {
     restaurantsList[i].list();
   }
 }
-
+/** getDetails Search
+************************************************************/
 function getRestaurants_details(restPlaces) {
   // When we reach the end of the loop
   if (restPlaces.length < 1 && currentRestaurant == null) {
@@ -924,7 +914,6 @@ function getRestaurants_details(restPlaces) {
   }
   // While in the loop, get current restaurant
   currentRestaurant = currentRestaurant == null ? restPlaces.splice(0, 1)[0] : currentRestaurant;
-
   // Place Details Requests - to get place reviews, regionally converted phone numbers, website, etc
   var request = {
     placeId : currentRestaurant.place_id,
@@ -970,44 +959,33 @@ function getRestaurants_details(restPlaces) {
 ************************************************************/
 function myCarousel(mql) {
   if (mql.matches) { // If media query matches
-    // document.body.style.backgroundColor = 'yellow';
+    // else { document.body.style.backgroundColor = 'yellow'; }
 
     // Container carousel and cell elems
     let ulElm = document.querySelector('ul.restaurant-list');
     let liElms = document.getElementsByClassName('selection');
     ulElm.className += ' main-carousel'; // adds new class, "main-carousel"
     for (let i = 0; i < liElms.length; i++) {
-      // liElms[i].setAttribute('class', 'selection carousel-cell');
       liElms[i].className += ' carousel-cell';
     }
     // Carousel is created using the css classes created above
 
     //add swipe icons
-    // const node = document.getElementsByClassName('restaurants-list-wrapper');
-    const node = document.getElementsByClassName('swipe-wrapper');
-    //check if class 'icons-wrapper' exists (to avoid appending it twice whenever user switches to mobile view)
-    // if ($(node).hasClass('icons-wrapper')) {
-    //   console.log("Element with className of 'icons-wrapper' exists.");
-    // } else {
-      //create swipe icons
-      const iconsWrapper = document.createElement('div');
-      iconsWrapper.className = 'icons-wrapper';
-      const icons =`
-          <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='../images/swipe-L-icon.png'/></span>
-          <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='../images/swipe-R-icon.png'/></span>`;
-      $(iconsWrapper).append(icons);
-      $(node).append(iconsWrapper);
-    // }
+    const node = document.getElementsByClassName('swipe-wrapper'); 
+    //create swipe icons
+    const iconsWrapper = document.createElement('div');
+    iconsWrapper.className = 'icons-wrapper';
+    const icons =`
+        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='../images/swipe-L-icon.png'/></span>
+        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='../images/swipe-R-icon.png'/></span>`;
+    $(iconsWrapper).append(icons);
+    $(node).append(iconsWrapper);
   }
-  // else {
-  //   // document.body.style.backgroundColor = 'pink';
-  // }
+  // else { document.body.style.backgroundColor = 'pink'; }
 }
 const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
 myCarousel(mql);
 mql.addListener(myCarousel); // Attach listener function on state changes
-
-
 
 /** Showing Restaurant reviews
 *****************************************************/
@@ -1037,7 +1015,7 @@ function showReviews(rest_index) {
   //passing onClick function to a button
   const modalBtn = document.getElementById('leave-review');
   modalBtn.setAttribute('onClick', `addReview(${rest_index});`);
-} // .showReviews
+} //.showReviews
 
 
 /** Adding a new review
@@ -1079,7 +1057,7 @@ function submitReview(rest_index) {
   const newReview = { 
     author_name: user_fName,
     rating: user_score, 
-    relative_time_description: 'added today', // setInterval,
+    relative_time_description: 'added today', // setInterval
     text: user_comment
   }
   for (let i = 0; i < restaurantsList.length; i++) {
@@ -1094,12 +1072,7 @@ function submitReview(rest_index) {
 
 /** Find Place from Query
 *****************************************************/
-function codeAddress() {
-  // hide any existing li elems
-  // let restaurantLiEls = document.querySelectorAll(".restaurant-list li"); //returns collection
-  // for (let j = 0; j < restaurantLiEls.length; j++) {
-  //   restaurantLiEls[j].style.display = "none";
-  // } 
+function codeAddress() { 
   myMap.setCenter({lat: pos.lat, lng: pos.lng});
   user_marker.setPosition(new google.maps.LatLng(pos.lat,pos.lng));
   setTimeout(function () {
