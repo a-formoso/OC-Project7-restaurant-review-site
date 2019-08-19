@@ -609,7 +609,7 @@ function createNewRestaurant(location) {
               const nr_getRatingsTotal = getNoRatingsTotal(nrTotalRatings);
               nrReviews = []; // {author_name: __, rating: __, text: ___},
               // nrIcon = "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png"; // ...mapfiles/place_api/icons/shopping-71.png
-              nrIcon = '../images/restaurant.png';
+              nrIcon = "../images/restaurant.png";
               /** ****************************************************************************************************************************
               ** A more viable way to add photos when creating a new restaurant would be to give the user the option 
               ** to add their own photo by accessing the file either on their local machine or on their mobile phones.
@@ -976,8 +976,8 @@ function myCarousel(mql) {
     const iconsWrapper = document.createElement('div');
     iconsWrapper.className = 'icons-wrapper';
     const icons =`
-        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='../images/swipe-L-icon.png'/></span>
-        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='../images/swipe-R-icon.png'/></span>`;
+        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src="../images/swipe-L-icon.png"/></span>
+        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src="../images/swipe-R-icon.png"/></span>`;
     $(iconsWrapper).append(icons);
     $(node).append(iconsWrapper);
   }
