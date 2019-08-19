@@ -586,7 +586,7 @@ let getUserLocation = function (position) {
   // user location coordinates - read-only properties (black box)
   let lat = position.coords.latitude; // position.coords.latitude 
   let lng = position.coords.longitude;
-  console.log("To get the location used for this project, please use LAT (52.6431335), and LNG (1.3342981999999999)");
+  console.log("Google Maps API, version " + google.maps.version);
   pos = { lat: lat, lng: lng };
   createMap(pos);
 }
@@ -663,7 +663,7 @@ function geolocate() {
   let input = document.querySelector("input[name='find']");
   let options = {
     bounds: myMap.getBounds(),
-    types: ["establishment"]
+    types: ["establishment"] /* overview @ https://developers.google.com/maps/documentation/javascript/places */
   };
   let autocomplete = new google.maps.places.Autocomplete(input, options);
   // Avoid paying for data that you don't need by restricting the set of place fields that are returned to just the address components.
@@ -676,8 +676,17 @@ function geolocate() {
     
     if (!currentLocation.geometry) {
       // User entered the name of a Place that was not suggested and pressed the Enter key, or the Place Details request failed.
-      console.log("No details available for query, '" + currentLocation.name + "'");
-      window.alert("No details available for query, '" + currentLocation.name + "'");
+      // console.log("No details available for query, '" + currentLocation.name + "'");
+      // window.alert("No details available for query, '" + currentLocation.name + "'");
+      let noRestFound_msg =`
+      <div id="error-card">
+        <div id="msg-wrapper">
+          <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="no restaurants"/> </div>
+          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h4>
+        </div>
+      </div>`;
+    document.getElementById('msg_display').innerHTML = noRestFound_msg;
+    console.log('No restaurants found at this location. Please search a different place.');
       return;
     } else {
       // If the place has a geometry
@@ -843,6 +852,9 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
     }, // .brief
     reviews: function() {
       let rvwsList = '<ul>';
+      if (!rReviews) {
+        document.getElementById('rest-reviews').innerHTML = 'No reviews found';
+      }
       for (let i = 0; i < rReviews.length; i++) {
         console.log('User: ' + rReviews[i].author_name + '\nReview Time: ' 
           + rReviews[i].relative_time_description + '\nRating: ' + rReviews[i].rating + '\nReview: ' + rReviews[i].text);
@@ -878,11 +890,12 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
       <div id="error-card">
         <div id="msg-wrapper">
           <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="no restaurants"/> </div>
-          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at your current location</h4>
+          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h4>
         </div>
       </div>`;
     document.getElementById('msg_display').innerHTML = noRestFound_msg;
-    console.log('No restaurants found at your current location');
+    console.log('No restaurants found at this location. Please search a different place.');
+
   } else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
     console.log('The app\'s exceeded its request usage limits. Give it a few seconds or try within the next 24 hours.'); // error code 403 or 429
   } else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
@@ -999,7 +1012,7 @@ mql.addListener(myCarousel); // Attach listener function on state changes
 /** Showing Restaurant reviews
 *****************************************************/
 function showReviews(rest_index) {
-  document.querySelector('#bottomSection').style.display = 'block';
+  const bottomSection = document.querySelector('#bottomSection').style.display = 'block';
   // show restaurant brief and Street View
   for (let i = 0; i < restaurantsList.length; i++) {
     if (i === rest_index) {
@@ -1032,7 +1045,9 @@ function showReviews(rest_index) {
 //Open modal form
 function addReview(rest_index) {
   document.getElementById('review_dialog-box').innerHTML = modal;
-  //passing onClick function to a button
+  //passing new attributes to form elems
+  // const nameInput = document.getElementById('full-name');
+  // nameInput.setAttribute('required', '');
   let modal_addReviewBtn = document.getElementById('add-review-btn');
   modal_addReviewBtn.setAttribute('onClick', `submitReview(${rest_index});`);
 }
@@ -1044,14 +1059,22 @@ function close_ReviewForm() {
 }
 //submit review form
 function submitReview(rest_index) {
-  document.getElementById('full-name').required;
-  document.getElementById('user-review').required;
   // take user input 
   const user_fName = document.getElementById('full-name').value;
+  // user name validation
+  if (user_fName == "") {
+    alert("Please include your name");
+    return false;
+  }
   const dropdown = document.getElementById('score');
   const score = dropdown.options[dropdown.selectedIndex].text;
   let user_score = parseInt(score, 10);
   const user_comment = document.getElementById('user-review').value;
+  // user review validation
+  if (user_comment == "") {
+    alert("Please add a review.");
+    return false;
+  }
   // add review to restaurantsList array
   const newReview = { 
     author_name: user_fName,
@@ -1066,6 +1089,7 @@ function submitReview(rest_index) {
     }
   }
   close_ReviewForm(); 
+  console.log('Thank you! Your review will help other people find the best places to go.');
 }
 
 /** Find Place from Query
@@ -1110,3 +1134,4 @@ function codeAddress() {
 
   console.log(restaurantsList);
 }
+
