@@ -597,6 +597,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     scroll-snap-type: mandatory;
     padding: 0;
     margin: 0;
+    list-style-type: none;
   }
   .main-carousel > li {
     /* make sure the width is honored */

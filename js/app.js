@@ -366,10 +366,10 @@ function rest_dtls(rName, isRestOpen, getRating, xxxxxStars, getRatingsTotal, rA
         <span id="noRev" style="font-size: 15px; padding-top: 5px; margin-left: 3px;">(${getRatingsTotal} reviews)</span>
       </p>
       <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px;">${rAddress}</p>
-      <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${rTelephone}"><img src="../images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${rTelephone}</a> </p>
+      <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${rTelephone}"><img src="telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${rTelephone}</a> </p>
       <p id="bt-align-x" style="font-size: 18px; padding: 18px 0; margin: 0 0 4px;">
         <a id="site-btn" href="${rWebsite}" target="_blank" style="text-decoration: none;">
-          <img src="../images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
+          <img src="images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
         </a>
       </p>
     </div> 
@@ -609,7 +609,7 @@ function createNewRestaurant(location) {
               const nr_getRatingsTotal = getNoRatingsTotal(nrTotalRatings);
               nrReviews = []; // {author_name: __, rating: __, text: ___},
               // nrIcon = "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png"; // ...mapfiles/place_api/icons/shopping-71.png
-              nrIcon = "../images/restaurant.png";
+              nrIcon = 'images/restaurant.png';
               /** ****************************************************************************************************************************
               ** A more viable way to add photos when creating a new restaurant would be to give the user the option 
               ** to add their own photo by accessing the file either on their local machine or on their mobile phones.
@@ -693,6 +693,7 @@ function createMap(pos) {
   let lng = pos.lng;
   // map built-in controls
   mapOptions = {
+    draggable: false,
     center: new google.maps.LatLng(lat, lng),
     zoom: 14.5,
     styles: myMapStyles,
@@ -714,6 +715,7 @@ function createMap(pos) {
     },
     streetViewControl: false
   }
+  // map object
   myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
   // user marker
   user_marker = new google.maps.Marker({ 
@@ -976,8 +978,8 @@ function myCarousel(mql) {
     const iconsWrapper = document.createElement('div');
     iconsWrapper.className = 'icons-wrapper';
     const icons =`
-        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src="../images/swipe-L-icon.png"/></span>
-        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src="../images/swipe-R-icon.png"/></span>`;
+        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='images/swipe-L-icon.png'/></span>
+        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='images/swipe-R-icon.png'/></span>`;
     $(iconsWrapper).append(icons);
     $(node).append(iconsWrapper);
   }
@@ -1107,4 +1109,3 @@ function codeAddress() {
 
   console.log(restaurantsList);
 }
-

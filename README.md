@@ -7,7 +7,7 @@
 * A Google Maps map loaded with the Google Maps API 
 * The Google Maps map will focus immediately on the position of the user
 * Load POIs on the map, list corresponding restaurants on the side of the map
-* When the user clicks "See reviews", restaurant reviews should be shown, including the Street View picture
+* When you click on a restaurant, the list of reviews should be shown
 * A filter tool allows the display of restaurants that have between X and Y stars
 * Add a restaurant by right-clicking on a specific place on the map
 * Add a review about an existing restaurant
