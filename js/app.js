@@ -691,9 +691,11 @@ let getUserLocation = function (position) {
 function createMap(pos) {
   let lat = pos.lat;
   let lng = pos.lng;
+  // If width > 480px then isDraggable = true, else isDraggable = false
+  let isDraggable = $(document).width() > 480 ? true : false; //  draggable: !("ontouchend" in document) 
   // map built-in controls
   mapOptions = {
-    draggable: false,
+    draggable: isDraggable,
     center: new google.maps.LatLng(lat, lng),
     zoom: 14.5,
     styles: myMapStyles,
@@ -701,7 +703,7 @@ function createMap(pos) {
     scaleControl: false,
     mapTypeControl: true,
     mapTypeControlOptions: {
-      mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID/*, google.maps.MapTypeId.SATELLITE, google.maps.MapTypeId.TERRAIN*/],
+      mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID/*, google.maps.MapTypeId.SATELLITE, O*/],
       style: google.maps.MapTypeControlStyle.DROPDOWN_MENU /*.DEFAULT or HORIZONTAL_BAR*/
     },
     zoomControl: true,
