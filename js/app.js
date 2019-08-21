@@ -745,13 +745,6 @@ function createMap(pos) {
   };
   // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
-  let loading_status =`
-  <div class="loading_status" style="background-color: #201D19;">
-    <div id="msg-wrapper">
-      <div style="width: 220px; height: 70px; display: block;"> <img src="images/logo-01.png" style="width: 100%; height: 100%;"/> </div>
-    </div>
-  </div>`;
-  document.getElementById('msg_display').innerHTML = loading_status;
   service.nearbySearch(request, getRestaurants);
   
 };//.createMap()
@@ -880,20 +873,48 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     getRestaurants_details(results); //getDetails
 
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-    let noRestFound_msg =`
+    let noResults =`
       <div id="error-card">
         <div id="msg-wrapper">
           <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="no restaurants"/> </div>
-          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h4>
+          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No Results</h4>
+          <h6 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h6>
         </div>
       </div>`;
-    document.getElementById('msg_display').innerHTML = noRestFound_msg;
+    document.getElementById('msg_display').innerHTML = noResults;
     console.log('No restaurants found at this location. Please search a different place.');
-  } else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
-    console.log('The app\'s exceeded its request usage limits. Give it a few seconds or try within the next 24 hours.'); // error code 403 or 429
-  } else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
+  } 
+  else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+    let overQueryLimit = `
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Quota Exceeded</h4>
+          <h6 style="color: #B3B1AF;">The app\'s exceeded its request usage limits. Give it a minute or try within the next 24 hours</h6>
+        </div>
+      </div>`;
+    document.getElementById('map').innerHTML = overQueryLimit;
+    console.log('The app\'s exceeded its request usage limits. Give it a minute or try within the next 24 hours'); // error code 403 or 429
+  } 
+  else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
+    let requestDenied = `
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Request Denied</h4>
+          <h6 style="color: #B3B1AF;">Request query parameter(s) either invalid or missing</h6>
+        </div>
+      </div>`;
+    document.getElementById('map').innerHTML = requestDenied;
     console.log('Request denied. Request query parameter(s) either invalid or missing.');
-  } else {
+  } 
+  else {
+    let requestDenied = `
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Server-side Error</h4>
+          <h6 style="color: #B3B1AF;">Your request could not be processed due to a server error. The request may succeed if you try again.</h6>
+        </div>
+      </div>`;
+    document.getElementById('map').innerHTML = requestDenied;
     console.log('Server-side error. Please try again.'); // UNKNOWN_ERROR
   }
 }
