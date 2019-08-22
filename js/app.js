@@ -155,7 +155,6 @@ const localJSON = 'js/restaurants.json';
 /** Handling location errors
 *****************************************************/
 let handleErrors = function () {
-  document.querySelector('#main-content').style.display = 'none';
   console.log("Unable to retrieve your location");
   document.getElementById('map').innerHTML = error_msg;
 };
