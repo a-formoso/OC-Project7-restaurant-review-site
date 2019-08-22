@@ -13,7 +13,7 @@ let welcome_msg = `
   <div id="welcome-card">
     <div id="welcome-msg-wrapper">
       <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Location-based Experience</h4>
-      <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurants around you.</h6>
+      <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurants places for you.</h6>
     </div>
   </div>`;
 let error_msg =`
@@ -156,18 +156,17 @@ const localJSON = 'js/restaurants.json';
 *****************************************************/
 let handleErrors = function () {
   document.querySelector('#main-content').style.display = 'none';
-  const msg_wrapper = document.getElementById('msg_Display');
   console.log("Unable to retrieve your location");
-  document.getElementById('msg_display').innerHTML = error_msg;
+  document.getElementById('map').innerHTML = error_msg;
 };
 
 /** Improving device location accuracy
 *****************************************************/
-let options = {
-  timeout: 5000,
-  maximumage: 3000, // how long until we update position for more information (restaurants) 
-  enableHighAccuracy: true // for best possible location results
-}
+// let options = {
+//   timeout: 5000,
+//   maximumage: 3000, // how long until we update position for more information (restaurants) 
+//   enableHighAccuracy: true // for best possible location results
+// }
 
 /** Computing the average for markers (star no)
 ************************************************************/
@@ -293,6 +292,11 @@ function showPopup(rest_index) {
 /** restaurant popup
 *****************************************************/  
 function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddress, rTelephone, rRestIndex) {
+  //getting only the first line of an address
+  const fullAddress = rAddress; //comma-separated
+  const addrArr = fullAddress.split(",");
+  const firstLineAddr = addrArr.splice(0,1).join("");
+  console.log(firstLineAddr);
   return `
   <div class="popup_cttWrapper" style="width: 220px;">
     <div style="margin: auto; width: 200px; height: 100px;">${rPhoto}</div>
@@ -302,7 +306,7 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
         <span style="margin-left: 3px;">${xxxxxStars}</span><span id="noRev" style="margin-left: 3px;">(${getRatingsTotal} reviews)</span>
       </p>
       <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${rName}">${rName}</h5>
-      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${rAddress}</p>
+      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${firstLineAddr}</p>
       <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${rTelephone}"><img src="images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${rTelephone}</a> </p>
     </div>
     <div style="display: flex; justify-content: center; padding: 0px;">
@@ -668,7 +672,7 @@ function initMap() {
     document.querySelector('#footer').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
-    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options);
+    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors);
   }
 } 
 /** if user's browser supports Geolocation
@@ -692,15 +696,16 @@ function createMap(pos) {
   let lat = pos.lat;
   let lng = pos.lng;
   // If width > 480px then isDraggable = true, else isDraggable = false
-  let isDraggable = $(document).width() > 480 ? true : false; //  draggable: !("ontouchend" in document) 
+  // let isDraggable = $(document).width() > 480 ? true : false; 
+   // draggable: !("ontouchend" in document) 
   // map built-in controls
   mapOptions = {
-    draggable: isDraggable,
+    // draggable: !("ontouchend" in document), //isDraggable,
     center: new google.maps.LatLng(lat, lng),
     zoom: 14.5,
     styles: myMapStyles,
     panControl: true,
-    scaleControl: false,
+    // scaleControl: false,
     mapTypeControl: true,
     mapTypeControlOptions: {
       mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID/*, google.maps.MapTypeId.SATELLITE, O*/],
@@ -877,7 +882,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
       <div id="error-card">
         <div id="msg-wrapper">
           <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="no restaurants"/> </div>
-          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No Results</h4>
+          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No results</h4>
           <h6 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h6>
         </div>
       </div>`;
@@ -888,7 +893,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     let overQueryLimit = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
-          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Quota Exceeded</h4>
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Quota exceeded</h4>
           <h6 style="color: #B3B1AF;">The app\'s exceeded its request usage limits. Give it a minute or try within the next 24 hours</h6>
         </div>
       </div>`;
@@ -899,7 +904,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     let requestDenied = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
-          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Request Denied</h4>
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Request denied</h4>
           <h6 style="color: #B3B1AF;">Request query parameter(s) either invalid or missing</h6>
         </div>
       </div>`;
@@ -910,7 +915,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     let requestDenied = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
-          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Server-side Error</h4>
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Server-side error</h4>
           <h6 style="color: #B3B1AF;">Your request could not be processed due to a server error. The request may succeed if you try again.</h6>
         </div>
       </div>`;
@@ -985,7 +990,7 @@ function getRestaurants_details(restPlaces) {
 function myCarousel(mql) {
   if (mql.matches) { // If media query matches
     // else { document.body.style.backgroundColor = 'yellow'; }
-
+    mapOptions.draggable = false;
     // Container carousel and cell elems
     let ulElm = document.querySelector('ul.restaurant-list');
     let liElms = document.getElementsByClassName('selection');
