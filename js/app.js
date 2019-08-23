@@ -16,12 +16,12 @@ let welcome_msg = `
       <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurant places for you</h6>
     </div>
   </div>`;
-let error_msg =`
+let locationError =`
   <div id="error-card">
     <div id="msg-wrapper">
-      <h4 style="color: #2E2A24; font-weight: 600; margin: 15px 0;">Enable your location</h4>
-      <h6>Share your location by following instructions for your device. When you're done, refresh your browser for changes to take effect.</h6>
-            
+      <h4 style="color: #DC493A; font-weight: 600; margin: 15px 0;">Enable location</h4>
+      <h6>Share your location by following instructions for your device. When you're done, refresh the page.
+      Still stuck? clear browser history and refresh the page.</h6>      
       <div class="tab geo-info-tabs">
         <button class="tablinks" onclick="openDeviceTab(event, 'apple')">iPhone</button>
         <button class="tablinks" onclick="openDeviceTab(event, 'android')">Android</button>
@@ -143,7 +143,7 @@ let restaurantsList = []; // collection of restaurant objects
 let markers = [];
 let infowindows = [];
 let modal = `
- <div class="container form-wrapper" id="modalWrapper">
+ <div class="container form-wrapper modalWrapper">
     <form class="modal-content" id="myForm">
       <div class="row">
         <h5 style="margin: 15px 14px 25px; padding: 0;">Add a review</h5>
@@ -189,7 +189,7 @@ const localJSON = 'js/restaurants.json';
 *****************************************************/
 let handleErrors = function () {
   console.log("Unable to retrieve your location");
-  document.getElementById('map').innerHTML = error_msg;
+  document.getElementById('map').innerHTML = locationError;
 };
 
 /** Improving device location accuracy
@@ -328,9 +328,7 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
   const fullAddress = rAddress; //comma-separated
   const addrArr = fullAddress.split(",");
   const firstLineAddr = addrArr.splice(0,1).join("");
-  const secLineAddr = addrArr[0];
-  const firstNsecLinesOfAddr = firstLineAddr + ', ' + secLineAddr;
-  console.log(addrArr);
+  // console.log(addrArr);
   return `
   <div class="popup_cttWrapper" style="width: 220px;">
     <div style="margin: auto; width: 200px; height: 100px;">${rPhoto}</div>
@@ -340,7 +338,7 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
         <span style="margin-left: 3px;">${xxxxxStars}</span><span id="noRev" style="margin-left: 3px;">(${getRatingsTotal} reviews)</span>
       </p>
       <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${rName}">${rName}</h5>
-      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${firstNsecLinesOfAddr}</p>
+      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${rAddress}</p>
       <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${rTelephone}"><img src="images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${rTelephone}</a> </p>
     </div>
     <div style="display: flex; justify-content: center; padding: 0px;">
@@ -703,7 +701,7 @@ function initMap() {
   } else {
     document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
-    // document.querySelector('#footer').style.display = 'none';
+    document.querySelector('#footer').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors);
@@ -730,11 +728,11 @@ function createMap(pos) {
   let lat = pos.lat;
   let lng = pos.lng;
   // If width > 480px then isDraggable = true, else isDraggable = false
-  let isDraggable = $(document).width() > 480 ? true : false; 
+  // let isDraggable = $(document).width() > 480 ? true : false; 
    // draggable: !("ontouchend" in document) 
   // map built-in controls
   mapOptions = {
-    draggable: true,
+    draggable: false,
     // draggable: !("ontouchend" in document), //isDraggable,
     center: new google.maps.LatLng(lat, lng),
     zoom: 14.5,
@@ -757,42 +755,6 @@ function createMap(pos) {
     },
     streetViewControl: false
   }
-  //disable scrol on the map on mobile view
-  /** Mobile-only Carousel
-  ************************************************************/
-  function myCarousel(mql, myMap, mapOptions) {
-    if (mql.matches) { // If media query matches
-      // else { document.body.style.backgroundColor = 'yellow'; }
-      console.log(mapOptions);
-
-      mapOptions.draggable = false;
-      // myMap = new google.maps.Map(document.getElementById('map'), myOptions);
-      // Container carousel and cell elems
-      let ulElm = document.querySelector('ul.restaurant-list');
-      let liElms = document.getElementsByClassName('selection');
-      ulElm.className += ' main-carousel'; // adds new class, "main-carousel"
-      for (let i = 0; i < liElms.length; i++) {
-        liElms[i].className += ' carousel-cell';
-      }
-      // Carousel is created using the css classes created above
-
-      //add swipe icons
-      const node = document.getElementsByClassName('swipe-wrapper'); 
-      //create swipe icons
-      const iconsWrapper = document.createElement('div');
-      iconsWrapper.className = 'icons-wrapper';
-      const icons =`
-          <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='images/swipe-L-icon.png'/></span>
-          <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='images/swipe-R-icon.png'/></span>`;
-      $(iconsWrapper).append(icons);
-      $(node).append(iconsWrapper);
-    }
-    // else { document.body.style.backgroundColor = 'pink'; }
-  }
-  const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
-  myCarousel(mql);
-  mql.addListener(myCarousel); // Attach listener function on state changes
-
   // map object
   myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
   // user marker
@@ -949,15 +911,14 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     getRestaurants_details(results); //getDetails
 
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-    let noResults =`
-      <div id="error-card">
-        <div id="msg-wrapper">
-          <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="no restaurants"/> </div>
-          <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No results</h4>
-          <h6 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h6>
+    let noResultsts = `
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found</h4>
+          <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place</h6>
         </div>
       </div>`;
-    document.getElementById('map').innerHTML = noResults;
+    document.getElementById('map').innerHTML = noResultsts;
     console.log('No restaurants found at this location. Please search a different place.');
   } 
   else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
@@ -965,7 +926,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Quota exceeded</h4>
-          <h6 style="color: #B3B1AF;">The app\'s exceeded its request usage limits. Give it a minute or try within the next 24 hours</h6>
+          <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place</h6>
         </div>
       </div>`;
     document.getElementById('map').innerHTML = overQueryLimit;
@@ -1056,6 +1017,37 @@ function getRestaurants_details(restPlaces) {
   }); 
 }
 
+/** Mobile-only Carousel
+************************************************************/
+function myCarousel(mql) {
+  if (mql.matches) { // If media query matches
+    // else { document.body.style.backgroundColor = 'yellow'; }
+
+    // Container carousel and cell elems
+    let ulElm = document.querySelector('ul.restaurant-list');
+    let liElms = document.getElementsByClassName('selection');
+    ulElm.className += ' main-carousel'; // adds new class, "main-carousel"
+    for (let i = 0; i < liElms.length; i++) {
+      liElms[i].className += ' carousel-cell';
+    }
+    // Carousel is created using the css classes created above
+
+    //add swipe icons
+    const node = document.getElementsByClassName('swipe-wrapper'); 
+    //create swipe icons
+    const iconsWrapper = document.createElement('div');
+    iconsWrapper.className = 'icons-wrapper';
+    const icons =`
+        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='images/swipe-L-icon.png'/></span>
+        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='images/swipe-R-icon.png'/></span>`;
+    $(iconsWrapper).append(icons);
+    $(node).append(iconsWrapper);
+  }
+  // else { document.body.style.backgroundColor = 'pink'; }
+}
+const mql = window.matchMedia('(max-width: 480px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
+myCarousel(mql);
+mql.addListener(myCarousel); // Attach listener function on state changes
 
 
 /** Showing Restaurant reviews
@@ -1103,7 +1095,7 @@ function addReview(rest_index) {
 //Close review form
 let close_ReviewBtn = document.getElementById('close-review-btn');
 function close_ReviewForm() {
-  let modal = document.getElementById('close-review-btn').closest('#modalWrapper');
+  let modal = document.getElementById('close-review-btn').closest('.modalWrapper');
   modal.style.display = "none";
 }
 //submit review form
@@ -1144,6 +1136,7 @@ function submitReview(rest_index) {
 /** Find Place from Query
 *****************************************************/
 function codeAddress() { 
+  document.querySelector('#bottomSection').style.display = 'none';
   myMap.setCenter({lat: pos.lat, lng: pos.lng});
   user_marker.setPosition(new google.maps.LatLng(pos.lat,pos.lng));
   setTimeout(function () {
@@ -1179,10 +1172,7 @@ function codeAddress() {
   console.log(restaurantsList);
 }
 
-
-
-
-//
+// Information tabs
 function openDeviceTab(e, deviceName) {
   let i, tabContent, tabLinks;
   tabContent = document.getElementsByClassName("tabcontent");

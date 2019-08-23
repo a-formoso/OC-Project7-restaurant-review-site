@@ -478,13 +478,12 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
 }
 
 /*FOOTER*/
-/*#footer {
-  left: 0;
+#footer {
+/*  left: 0;
   bottom: 0;
   height: 59px;
   width: 100%;
   position: absolute;*/
-
   display: flex;
   justify-content: center; /*x*/
   align-items: center; /*y*/
@@ -669,7 +668,9 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     width: 90%;
     border: none;
   }
-
+  input#ui-query {
+    border-radius: 0;
+  }
 }
 
 @media (min-width: 768px) { 
@@ -857,7 +858,7 @@ h5.nr_heading {
   opacity: 1;
 }
 /* The Modal (background) */
-#modalWrapper {  
+.modalWrapper {  
   left: 0;
   top: 0;
   display: none;
