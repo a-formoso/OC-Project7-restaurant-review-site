@@ -13,16 +13,49 @@ let welcome_msg = `
   <div id="welcome-card">
     <div id="welcome-msg-wrapper">
       <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Location-based Experience</h4>
-      <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurants places for you.</h6>
+      <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurant places for you</h6>
     </div>
   </div>`;
 let error_msg =`
   <div id="error-card">
     <div id="msg-wrapper">
-      <div class="logo-wrapper"> <img src="images/no-location-marker.png" alt="user location"/> </div>
-      <h4 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">Enable your location</h4>
-      <h6>To enable location, please refresh your browser and respond to the prompt.</h6>
-      <h6>Alternatively, see <a style="text-decoration: underline;" target="_blank" href="https://www.google.com/search?rlz=1C1CHBD_en-GBGB755GB755&ei=y4EJXZO3K9GEhbIPjNS80AU&q=how+to+enable+geolocation+&oq=how+to+enable+geolocation+&gs_l=psy-ab.3..0l10.16403.27912..28314...4.0..0.106.1961.29j1......0....1..gws-wiz.....6..0i71j35i39j0i67j0i131i67j0i131j0i10i67j0i20i263.IB3pk3dkMoY">how to enable Geolocation</a></h6> 
+      <h4 style="color: #2E2A24; font-weight: 600; margin: 15px 0;">Enable your location</h4>
+      <h6>Share your location by following instructions for your device. When you're done, refresh your browser for changes to take effect.</h6>
+            
+      <div class="tab geo-info-tabs">
+        <button class="tablinks" onclick="openDeviceTab(event, 'apple')">iPhone</button>
+        <button class="tablinks" onclick="openDeviceTab(event, 'android')">Android</button>
+        <button class="tablinks" onclick="openDeviceTab(event, 'desktop')">Computer</button>
+      </div>
+
+      <div id="apple" class="tabcontent">
+        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
+          <li>Open Settings > Privacy > <strong>Location</strong> Services</li>
+            <ul><li>Make sure Location Services are enabled</li></ul>
+          <li>Find and tap your app/browser (e.g.: <strong>Chrome</strong>)</li>
+          <li>Select <strong>While Using the App</strong></li>
+        </ol>
+      </div>
+
+      <div id="android" class="tabcontent">
+        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
+          <li>Open the <strong>Chrome</strong> app</li>
+          <li>At the top right, tap <em>More</em> > <strong>Settings</strong></li>
+          <li>Tap <strong>Site settings</strong> > <strong>Location</strong></li>
+          <li>Turn <strong>Location</strong> on or off</li>
+        </ol>
+      </div>
+
+      <div id="desktop" class="tabcontent">
+        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
+          <li>Open the <strong>Chrome</strong> app</li>
+          <li>At the top right, click <em>More</em> > <strong>Settings</strong></li>
+          <li>At the bottom, click <strong>Advanced</strong>
+          <li>Under "Privacy and security," click <strong>Site settings</strong></li>
+          <li>Click <strong>Location</strong> > turn <strong>Ask before accessing</strong> on or off</li>
+        </ol>
+      </div>
+
     </div>
   </div>`;
 const myMapStyles = [
@@ -295,7 +328,9 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
   const fullAddress = rAddress; //comma-separated
   const addrArr = fullAddress.split(",");
   const firstLineAddr = addrArr.splice(0,1).join("");
-  console.log(firstLineAddr);
+  const secLineAddr = addrArr[0];
+  const firstNsecLinesOfAddr = firstLineAddr + ', ' + secLineAddr;
+  console.log(addrArr);
   return `
   <div class="popup_cttWrapper" style="width: 220px;">
     <div style="margin: auto; width: 200px; height: 100px;">${rPhoto}</div>
@@ -305,7 +340,7 @@ function rest_popup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddr
         <span style="margin-left: 3px;">${xxxxxStars}</span><span id="noRev" style="margin-left: 3px;">(${getRatingsTotal} reviews)</span>
       </p>
       <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${rName}">${rName}</h5>
-      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${firstLineAddr}</p>
+      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${firstNsecLinesOfAddr}</p>
       <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${rTelephone}"><img src="images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${rTelephone}</a> </p>
     </div>
     <div style="display: flex; justify-content: center; padding: 0px;">
@@ -668,7 +703,7 @@ function initMap() {
   } else {
     document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
-    document.querySelector('#footer').style.display = 'none';
+    // document.querySelector('#footer').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors);
@@ -679,7 +714,7 @@ function initMap() {
 let getUserLocation = function (position) {
   document.querySelector('#rattings-wrapper').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'block';
-  document.querySelector('#footer').style.display = 'block';
+  // document.querySelector('#footer').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'none';
   // user location coordinates - read-only properties (black box)
   let lat = position.coords.latitude; // position.coords.latitude 
@@ -695,10 +730,11 @@ function createMap(pos) {
   let lat = pos.lat;
   let lng = pos.lng;
   // If width > 480px then isDraggable = true, else isDraggable = false
-  // let isDraggable = $(document).width() > 480 ? true : false; 
+  let isDraggable = $(document).width() > 480 ? true : false; 
    // draggable: !("ontouchend" in document) 
   // map built-in controls
   mapOptions = {
+    draggable: true,
     // draggable: !("ontouchend" in document), //isDraggable,
     center: new google.maps.LatLng(lat, lng),
     zoom: 14.5,
@@ -721,6 +757,42 @@ function createMap(pos) {
     },
     streetViewControl: false
   }
+  //disable scrol on the map on mobile view
+  /** Mobile-only Carousel
+  ************************************************************/
+  function myCarousel(mql, myMap, mapOptions) {
+    if (mql.matches) { // If media query matches
+      // else { document.body.style.backgroundColor = 'yellow'; }
+      console.log(mapOptions);
+
+      mapOptions.draggable = false;
+      // myMap = new google.maps.Map(document.getElementById('map'), myOptions);
+      // Container carousel and cell elems
+      let ulElm = document.querySelector('ul.restaurant-list');
+      let liElms = document.getElementsByClassName('selection');
+      ulElm.className += ' main-carousel'; // adds new class, "main-carousel"
+      for (let i = 0; i < liElms.length; i++) {
+        liElms[i].className += ' carousel-cell';
+      }
+      // Carousel is created using the css classes created above
+
+      //add swipe icons
+      const node = document.getElementsByClassName('swipe-wrapper'); 
+      //create swipe icons
+      const iconsWrapper = document.createElement('div');
+      iconsWrapper.className = 'icons-wrapper';
+      const icons =`
+          <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='images/swipe-L-icon.png'/></span>
+          <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='images/swipe-R-icon.png'/></span>`;
+      $(iconsWrapper).append(icons);
+      $(node).append(iconsWrapper);
+    }
+    // else { document.body.style.backgroundColor = 'pink'; }
+  }
+  const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
+  myCarousel(mql);
+  mql.addListener(myCarousel); // Attach listener function on state changes
+
   // map object
   myMap = new google.maps.Map(document.getElementById('map'), mapOptions);
   // user marker
@@ -885,7 +957,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
           <h6 style="color: #2E2A24; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found at this location. Please search a different place.</h6>
         </div>
       </div>`;
-    document.getElementById('msg_display').innerHTML = noResults;
+    document.getElementById('map').innerHTML = noResults;
     console.log('No restaurants found at this location. Please search a different place.');
   } 
   else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
@@ -927,7 +999,7 @@ let currentRestaurant = null;
 let loopCounter = 0;
 
 function showRestaurantList() {
-  document.getElementById('msg_display').style.display = 'none';
+  // document.getElementById('msg_display').style.display = 'none';
   console.log("All restaurants have been processed. Dumping restaurantsList below:");
   for (let i = 0; i < restaurantsList.length; i++) {
     restaurantsList[i].list();
@@ -984,37 +1056,7 @@ function getRestaurants_details(restPlaces) {
   }); 
 }
 
-/** Mobile-only Carousel
-************************************************************/
-function myCarousel(mql) {
-  if (mql.matches) { // If media query matches
-    // else { document.body.style.backgroundColor = 'yellow'; }
-    mapOptions.draggable = false;
-    // Container carousel and cell elems
-    let ulElm = document.querySelector('ul.restaurant-list');
-    let liElms = document.getElementsByClassName('selection');
-    ulElm.className += ' main-carousel'; // adds new class, "main-carousel"
-    for (let i = 0; i < liElms.length; i++) {
-      liElms[i].className += ' carousel-cell';
-    }
-    // Carousel is created using the css classes created above
 
-    //add swipe icons
-    const node = document.getElementsByClassName('swipe-wrapper'); 
-    //create swipe icons
-    const iconsWrapper = document.createElement('div');
-    iconsWrapper.className = 'icons-wrapper';
-    const icons =`
-        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='images/swipe-L-icon.png'/></span>
-        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='images/swipe-R-icon.png'/></span>`;
-    $(iconsWrapper).append(icons);
-    $(node).append(iconsWrapper);
-  }
-  // else { document.body.style.backgroundColor = 'pink'; }
-}
-const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
-myCarousel(mql);
-mql.addListener(myCarousel); // Attach listener function on state changes
 
 /** Showing Restaurant reviews
 *****************************************************/
@@ -1135,4 +1177,22 @@ function codeAddress() {
   service.nearbySearch(request, getRestaurants);
 
   console.log(restaurantsList);
+}
+
+
+
+
+//
+function openDeviceTab(e, deviceName) {
+  let i, tabContent, tabLinks;
+  tabContent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabContent.length; i++) {
+    tabContent[i].style.display = "none";
+  }
+  tabLinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tabLinks.length; i++) {
+    tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+  }
+  document.getElementById(deviceName).style.display = "block";
+  e.currentTarget.className += " active";
 }
