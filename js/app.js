@@ -16,48 +16,6 @@ let welcome_msg = `
       <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurant places for you</h6>
     </div>
   </div>`;
-let locationError =`
-  <div id="error-card">
-    <div id="msg-wrapper">
-      <h4 style="color: #DC493A; font-weight: 600; margin: 15px 0;">Enable location</h4>
-      <h6>Share your location by following instructions for your device. When you're done, refresh the page.
-      Still stuck? clear browser history and refresh the page.</h6>      
-      <div class="tab geo-info-tabs">
-        <button class="tablinks" onclick="openDeviceTab(event, 'apple')">iPhone</button>
-        <button class="tablinks" onclick="openDeviceTab(event, 'android')">Android</button>
-        <button class="tablinks" onclick="openDeviceTab(event, 'desktop')">Computer</button>
-      </div>
-
-      <div id="apple" class="tabcontent">
-        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
-          <li>Open Settings > Privacy > <strong>Location</strong> Services</li>
-            <ul><li>Make sure Location Services are enabled</li></ul>
-          <li>Find and tap your app/browser (e.g.: <strong>Chrome</strong>)</li>
-          <li>Select <strong>While Using the App</strong></li>
-        </ol>
-      </div>
-
-      <div id="android" class="tabcontent">
-        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
-          <li>Open the <strong>Chrome</strong> app</li>
-          <li>At the top right, tap <em>More</em> > <strong>Settings</strong></li>
-          <li>Tap <strong>Site settings</strong> > <strong>Location</strong></li>
-          <li>Turn <strong>Location</strong> on or off</li>
-        </ol>
-      </div>
-
-      <div id="desktop" class="tabcontent">
-        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
-          <li>Open the <strong>Chrome</strong> app</li>
-          <li>At the top right, click <em>More</em> > <strong>Settings</strong></li>
-          <li>At the bottom, click <strong>Advanced</strong>
-          <li>Under "Privacy and security," click <strong>Site settings</strong></li>
-          <li>Click <strong>Location</strong> > turn <strong>Ask before accessing</strong> on or off</li>
-        </ol>
-      </div>
-
-    </div>
-  </div>`;
 const myMapStyles = [
   {elementType: 'geometry', stylers: [{color: '#242f3e'}]},
   {elementType: 'labels.text.stroke', stylers: [{color: '#242f3e'}]},
@@ -187,18 +145,63 @@ const localJSON = 'js/restaurants.json';
 
 /** Handling location errors
 *****************************************************/
-let handleErrors = function () {
-  console.log("Unable to retrieve your location");
+let handleErrors = function (error) {
+  let locationError =`
+  <div id="error-card">
+    <div id="msg-wrapper">
+      <h4 style="color: #DC493A; font-weight: 600; margin: 15px 0;">Enable location</h4>
+      <h6>Unable to retrieve your location due to ${error.message}. Please see instructions 
+      for sharing location on your device. When you're done, refresh the page.</h6>    
+      <div class="tab geo-info-tabs">
+        <button class="tablinks" onclick="openDeviceTab(event, 'apple')">iPhone</button>
+        <button class="tablinks" onclick="openDeviceTab(event, 'android')">Android</button>
+        <button class="tablinks" onclick="openDeviceTab(event, 'desktop')">Computer</button>
+      </div>
+
+      <div id="apple" class="tabcontent">
+        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
+          <li>Open Settings > Privacy > <strong>Location</strong> Services</li>
+            <ul><li>Make sure Location Services are enabled</li></ul>
+          <li>Find and tap your app (e.g.: <strong>Chrome</strong>)</li>
+          <li>Select <strong>While Using the App</strong></li>
+        </ol>
+      </div>
+
+      <div id="android" class="tabcontent">
+        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
+          <li>Settings > Security & privacy > <strong>Location</strong> Services</li>
+            <ul><li>Make sure Location Services are enabled</li></ul>
+          <li>Open the <strong>Chrome</strong> app</li>
+          <li>At the top right, tap <em>More</em> > <strong>Settings</strong></li>
+          <li>Tap <strong>Site settings</strong> > <strong>Location</strong></li>
+          <li>Tap to turn location <strong>on</strong></li>
+            <ul><li><strong>Blocked</strong> - Make site URL is not listed here</li></ul>
+        </ol>
+      </div>
+
+      <div id="desktop" class="tabcontent">
+        <ol style="display: flex; flex-direction: column; align-items: flex-start; color: #666;">
+          <li>Open the <strong>Chrome</strong> app</li>
+          <li>At the top right, click <em>More</em> > <strong>Settings</strong></li>
+          <li>At the bottom, click <strong>Advanced</strong>
+          <li>Under "Privacy and security," click <strong>Site settings</strong></li>
+          <li>Click <strong>Location</strong> > turn <strong>Ask before accessing</strong> on or off</li>
+        </ol>
+      </div>
+
+    </div>
+  </div>`;
+  console.log(`${error.code}: Unable to retrieve your location due to ${error.message}.`);
   document.getElementById('map').innerHTML = locationError;
 };
 
 /** Improving device location accuracy
 *****************************************************/
-// let options = {
-//   timeout: 5000,
-//   maximumage: 3000, // how long until we update position for more information (restaurants) 
-//   enableHighAccuracy: true // for best possible location results
-// }
+let geoOptions = {
+  timeout: 27000,
+  maximumage: 30000, // how long until we update position for more information (restaurants) 
+  enableHighAccuracy: true // for best possible location results
+}
 
 /** Computing the average for markers (star no)
 ************************************************************/
@@ -704,7 +707,7 @@ function initMap() {
     document.querySelector('#footer').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
-    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors);
+    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, geoOptions);
   }
 } 
 /** if user's browser supports Geolocation
