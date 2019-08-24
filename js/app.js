@@ -175,7 +175,7 @@ let handleErrors = function (error) {
           <li>At the top right, tap <em>More</em> > <strong>Settings</strong></li>
           <li>Tap <strong>Site settings</strong> > <strong>Location</strong></li>
           <li>Tap to turn location <strong>on</strong></li>
-            <ul><li><strong>Blocked</strong> - Make site URL is not listed here</li></ul>
+            <ul><li><strong>Blocked</strong> - Make sure site URL is not listed here</li></ul>
         </ol>
       </div>
 
@@ -185,7 +185,8 @@ let handleErrors = function (error) {
           <li>At the top right, click <em>More</em> > <strong>Settings</strong></li>
           <li>At the bottom, click <strong>Advanced</strong>
           <li>Under "Privacy and security," click <strong>Site settings</strong></li>
-          <li>Click <strong>Location</strong> > turn <strong>Ask before accessing</strong> on or off</li>
+          <li>Click <strong>Location</strong> > turn <strong>Ask before accessing</strong> on</li>
+            <ul><li><strong>Blocked</strong> - Make sure site URL is not listed here</li></ul>
         </ol>
       </div>
 
@@ -730,13 +731,10 @@ let getUserLocation = function (position) {
 function createMap(pos) {
   let lat = pos.lat;
   let lng = pos.lng;
-  // If width > 480px then isDraggable = true, else isDraggable = false
-  // let isDraggable = $(document).width() > 480 ? true : false; 
-   // draggable: !("ontouchend" in document) 
-  // map built-in controls
   mapOptions = {
-    draggable: false,
-    // draggable: !("ontouchend" in document), //isDraggable,
+    // draggable: false,
+    gestureHandling: 'cooperative', /* other values: 'greedy', 'none', 'auto' */
+    fullscreenControl: true, /*default settings: 'true' on mobile browsers, 'false' on desktop browsers*/
     center: new google.maps.LatLng(lat, lng),
     zoom: 14.5,
     styles: myMapStyles,
