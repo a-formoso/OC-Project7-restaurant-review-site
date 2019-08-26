@@ -154,20 +154,22 @@ i.lct-icon:hover, input#ui-btn:hover {
 
 /*BODY*/
 #main-content {
-  margin: 0 0 30px;
+  /*margin: 0 0 30px;*/
+  height: calc(100vh - 30px - 70px - 75px);
   padding: 0;
 }
 section#midSection {
   margin: 0;
-  height: auto;
+  height: 100%;
   background-color: #F6F6F6;
   padding: 0;
 }
 .mid-content {
-  margin-bottom: 30px;
+  /*margin-bottom: 30px;*/
+  height: 100%;
 }
 div#map-wrapper {
-  height: 500px;
+  height: 100%;
   background-color: #F6F6F6;
   padding: 0;
 }
@@ -408,6 +410,32 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
 }
 
 /*FOOTER*/
+.footer {
+  margin-top: 30px;
+  width: 100%;
+  display: flex;
+  justify-content: left; /*x*/
+  align-items: center; /*y*/
+  color: #2E2A24;
+  background-color: #F9D094;
+  border: 2px solid #F9D094;
+  padding: 30px 15px 22px;
+  letter-spacing: 1px;
+  word-spacing: 1px;
+}
+.footer h6 {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+.footer a {
+  color: #2E2A24;
+  font-weight: 600;
+}
+.footer a:hover {
+  color: #E6842B;
+  text-decoration: none;
+}
 #site-btn {
   background-color: #D9FEA2;
   padding: 10px 15px;
@@ -608,7 +636,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     width: 100%;
     padding: 0;
     margin: 0 auto;
-    height: 420px;
+    height: calc(100vh - 70px - 30px - 75px - 50px - 30px);
     overflow: auto; 
     margin-bottom: 0px;
   }

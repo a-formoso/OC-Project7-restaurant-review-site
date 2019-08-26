@@ -1032,6 +1032,17 @@ function mobileCarousel(mql) {
     for (let i = 0; i < liElms.length; i++) {
       liElms[i].className += ' carousel-cell';
     }
+    document.querySelector('.footer').style.display = 'none';
+    document.querySelector('.restaurants-list-wrapper').style.marginBottom = '30px';
+    //create footer
+    const node = document.querySelector('#restaurants-wrapper');
+    const footer = document.createElement('div');
+    footer.className += 'footer';
+    const footerContent = `
+      <h6><em>Designed by <a href="https://aformoso.dev">Alexandre Formoso</em></a></h6>
+    `;
+    $(footer).append(footerContent);
+    $(node).append(footer); 
   }
   //else
 }
