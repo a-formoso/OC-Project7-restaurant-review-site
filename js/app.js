@@ -781,6 +781,13 @@ function createMap(pos) {
   };
   // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
+  let loading =`
+  <div class="loading_status" style="background-color: #201D19;">
+    <div id="msg-wrapper">
+      <div style="width: 220px; height: 70px; display: block;"> <img src="images/logo-01.png" style="width: 100%; height: 100%;"/> </div>
+    </div>
+  </div>`;
+  document.getElementById('msg_display').innerHTML = loading;
   service.nearbySearch(request, getRestaurants);
   
 }; //.createMap()
@@ -957,6 +964,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
 function showRestaurantList() {
   // document.getElementById('msg_display').style.display = 'none';
   console.log("All restaurants have been processed. Dumping restaurantsList below:");
+  document.querySelector('.loading_status').style.display = 'none';
   for (let i = 0; i < restaurantsList.length; i++) {
     restaurantsList[i].list();
   }
@@ -1024,16 +1032,6 @@ function mobileCarousel(mql) {
     for (let i = 0; i < liElms.length; i++) {
       liElms[i].className += ' carousel-cell';
     }
-    //add swipe icons
-    const node = document.getElementsByClassName('swipe-wrapper'); 
-    //create swipe icons
-    const iconsWrapper = document.createElement('div');
-    iconsWrapper.className = 'icons-wrapper';
-    const icons =`
-        <span style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-L-icon"><img src='images/swipe-L-icon.png'/></span>
-        <span  style='display: border: 1px solid green; width: 40px; height: 40px;' class="swipe-R-icon"><img src='images/swipe-R-icon.png'/></span>`;
-    $(iconsWrapper).append(icons);
-    $(node).append(iconsWrapper);
   }
   //else
 }

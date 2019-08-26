@@ -11,7 +11,7 @@ html, body {
   background-color: #F6F6F6;
 }
 /*WELCOME CARD*/
-#error-card, #welcome-card {
+#error-card, #welcome-card, .loading_status {
   top: 0;
   left: 0;
   position: absolute;
@@ -546,21 +546,11 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     margin-right: 15px;
     height: 260px;
   }
-  .swipe-wrapper {
-    margin: 0 15px;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-  }
   .icons-wrapper {
     margin: 0;
     padding: 0;
     display: flex;
     align-items: center;
-  }
-  .swipe-wrapper img {
-    width: 100%;
-    height: 100%;
   }
   .restaurant-list li:last-child {
     margin-bottom: 0px;
@@ -674,9 +664,6 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
     padding: 20px;
     border: none;
     width: 60%; 
-  } 
-  .swipe-wrapper {
-    display: none;
   } 
 }
 
