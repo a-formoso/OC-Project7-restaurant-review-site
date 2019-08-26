@@ -408,31 +408,6 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
 }
 
 /*FOOTER*/
-#footer {
-  /*bottom: 0;*/
-  position: absolute;
-  display: flex;
-  justify-content: center; /*x*/
-  align-items: center; /*y*/
-  height: 10%;
-  width: 100%;
-  padding: 20px;
-  position: relative;
-  color: #2E2A24;
-  background-color: #F9D094;
-  letter-spacing: 1px;
-  word-spacing: 1px;
-}
-#footer h6 {
-  text-align: center;
-  padding: 0;
-  margin: 0;
-  /*text-shadow: -0.5px 0 white;*/
-}
-#footer a {
-  color: #2E2A24;
-  font-weight: 600;
-}
 #site-btn {
   background-color: #D9FEA2;
   padding: 10px 15px;
@@ -494,8 +469,10 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   header {
     padding: 0 0 15px;
   }
-  #ui-btn-wrapper, input#ui-btn, input#full-name, select#score, textarea#user-review, input#close-review-btn, input#add-review-btn {
-    border-radius: none;
+  input#ui-query, input#ui-btn, 
+  input#full-name, select#score, textarea#user-review, 
+  input#close-review-btn, input#add-review-btn {
+    border-radius: 0;
   }
   #map-wrapper {
     padding: 15px;
@@ -579,9 +556,6 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   .modal-content {
     width: 90%;
     border: none;
-  }
-  input#ui-query {
-    border-radius: 0;
   }
 }
 
