@@ -31,15 +31,17 @@
 ===========================================================================================================*/
 
 function initMap() {
-  // if user's browser does not support Navigator.geolocation object
-  if (!navigator.geolocation) {
+  // Geolocation API - if user's browser does not support Navigator.geolocation object
+  if (!navigator.geolocation) { 
+    console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
-    document.querySelector('#rattings-wrapper').style.display = 'none';
+    document.querySelector('#rattings-column').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
-    document.querySelector('#footer').style.display = 'none';
-    // getCurrentLocation gets the current location of the user's device
-    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, options);
+    document.querySelector('.footer').style.display = 'none';
+    document.getElementById('map').innerHTML = welcomeMsg;
+    // getCurrentPosition gets device's live location
+    navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, geoOptions);
   }
 }
 
