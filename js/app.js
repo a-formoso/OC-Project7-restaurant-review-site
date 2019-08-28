@@ -9,9 +9,9 @@ let myMap, mapOptions, userMarker, pos, service;
 const user_geoLct = document.getElementById("ui-lct");
 const user_mrkrIcon  = 'images/user.png';
 let errorDisplay = document.getElementById('error-display');
-let welcomeMsg = `
-  <div class="welcomeMsg userFeedback">
-    <div class="msgWrapper">
+let welcome_msg = `
+  <div id="welcome-card">
+    <div id="welcome-msg-wrapper">
       <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Location-based Experience</h4>
       <h6 style="color: #B3B1AF;"><strong>Food Spot</strong> uses location to find restaurant places for you</h6>
     </div>
@@ -96,21 +96,22 @@ const myMapStyles = [
     stylers: [{color: '#17263c'}]
   }
 ];
+const searchBox = document.getElementById('ui-query');
 let restaurantsList = []; // collection of restaurant objects
 let markers = [];
 let infowindows = [];
 let modal = `
  <div class="container form-wrapper modalWrapper">
-    <form class="form modal-content" id="myForm">
+    <form class="modal-content" id="myForm">
       <div class="row">
         <h5 style="margin: 15px 14px 25px; padding: 0;">Add a review</h5>
       </div>
       <div class="row">
-        <input type="text" id="full-name" class="form__fullName modalForm-item noBorderRadius" name="full-name" placeholder="Your name"> 
+        <input type="text" id="full-name" name="full-name" placeholder="Your name"> 
       </div>
       <div class="row score-wrapper">
-        <label class="form__label" for="score">Score</label>
-        <select id="score" class="form__scoreSelect noBorderRadius" name="score">
+        <label for="score">Score</label>
+        <select id="score" name="score">
           <option value="one">1</option>
           <option value="two">2</option>
           <option value="three">3</option>
@@ -119,11 +120,11 @@ let modal = `
         </select>
       </div>
       <div class="row">
-        <textarea id="user-review" class="form__textarea noBorderRadius" name="user-review" placeholder="Share your experience" style="height:120px;"></textarea>
+        <textarea id="user-review" name="user-review" placeholder="Share your experience" style="height:120px;"></textarea>
       </div>
       <div class="row" style="display: flex; justify-content: flex-end;">
-        <input type="button" id="close-review-btn" class="form__closeReview-Btn noBorderRadius btn-Opacity" onClick="closeReviewForm();" value="Close" />
-        <input type="reset" id="add-review-btn" class="form__addReview-Btn noBorderRadius btn-Opacity" value="Add Review"/>
+        <input id="close-review-btn" type="button" onClick="closeReviewForm();" value="Close" />
+        <input  id="add-review-btn" type="reset" value="Add Review"/>
       </div>
     </form>
   </div> `;
@@ -150,8 +151,8 @@ const localJSON = 'js/restaurants.json';
 *****************************************************/
 let handleErrors = function (error) {
   let locationError =`
-  <div class="locationError userFeedback">
-    <div class="msgWrapper">
+  <div id="error-card">
+    <div id="msg-wrapper">
       <h4 style="color: #DC493A; font-weight: 600; margin: 15px 0;">Enable location</h4>
       <h6>Unable to retrieve your location - ${error.message}. Please see instructions 
       for sharing location on your device. When you're done, refresh the page.</h6>    
@@ -331,25 +332,25 @@ function showPopup(rest_index) {
 /** restaurant popup
 *****************************************************/  
 function restPopup(rPhoto, getRating, xxxxxStars, getRatingsTotal, rName, rAddress, rTelephone, rRestIndex) {
-  // getting only the first line of an address
-  const fullAddress = rAddress; //comma-separated
-  const addrArr = fullAddress.split(",");
-  const firstLineAddr = addrArr.splice(0,1).join("");
+  //getting only the first line of an address
+  // const fullAddress = rAddress; //comma-separated
+  // const addrArr = fullAddress.split(",");
+  // const firstLineAddr = addrArr.splice(0,1).join("");
   return `
   <div class="popup_cttWrapper" style="width: 220px;">
-    <div style="margin: auto; width: 200px; height: 80px;">${rPhoto}</div>
+    <div style="margin: auto; width: 200px; height: 100px;">${rPhoto}</div>
     <div>
       <p style="margin: 4px 0 12px; padding: 0; display: flex; justify-content: center;">
         <span style="font-size: 13px; font-weight: 600; color: #E7711B; padding-top: 2px;">${getRating.toFixed(1)}</span> 
         <span style="margin-left: 3px;">${xxxxxStars}</span><span id="noRev" style="margin-left: 3px;">(${getRatingsTotal} reviews)</span>
       </p>
       <h5 style="font-size: 1rem; margin: 0 0 4px; font-weight: 600; color: #91CA00; display: block;" data-marker-title="${rName}">${rName}</h5>
-      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${firstLineAddr}</p>
+      <p style=" width: 200px; display: flex; margin: 0 0 4px;">${rAddress}</p>
       <p style="font-size: 13px; margin: 0 0 4px;"> <a href="tel:${rTelephone}"><img src="images/telephone.png" style="width: 16px; padding-bottom: 3px; height: 16px; margin-right: 3px;"/> ${rTelephone}</a> </p>
     </div>
     <div style="display: flex; justify-content: center; padding: 0px;">
       <p style="font-size: 15px; font-weight: 400; padding: 0px; margin: 16px 0px">
-        <a class="see-reviews-btn btn-Opacity" href="#bottomSection" onClick="showReviews(${rRestIndex});">See reviews</a>
+        <a class="see-reviews-btn" href="#bottomSection" onClick="showReviews(${rRestIndex});">See reviews</a>
       </p>
     </div>
   </div>`;
@@ -410,7 +411,7 @@ function restDtls(rName, isRestOpen, getRating, xxxxxStars, getRatingsTotal, rAd
       <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px;">${rAddress}</p>
       <p style="font-size: 18px; padding: 4px 0; margin: 0 0 4px; text-decoration: none;"> <a href="tel:${rTelephone}"><img src="images/telephone.png" style="width: 18px; height: 18px; padding-bottom: 3px;  margin-right: 3px;"/> ${rTelephone}</a> </p>
       <p id="bt-align-x" style="font-size: 18px; padding: 18px 0; margin: 0 0 4px;">
-        <a id="site-btn" class="btn-Opacity" href="${rWebsite}" target="_blank" style="text-decoration: none;">
+        <a id="site-btn" href="${rWebsite}" target="_blank" style="text-decoration: none;">
           <img src="images/www-icon.png" style="width: 22px; height: 22px; padding-bottom: 2px; margin-right: 3px;"/> visit restaurant site
         </a>
       </p>
@@ -437,12 +438,12 @@ function newRestReview(user, time, score, comment) {
 /** Place autocomplete feature
 *****************************************************/
 function geolocate() {
-  let userQuery = document.querySelector("input[name='find']");
+  let input = document.querySelector("input[name='find']");
   let options = {
     bounds: myMap.getBounds(),
     types: ["establishment"] /* overview @ https://developers.google.com/maps/documentation/javascript/places */
   };
-  let autocomplete = new google.maps.places.Autocomplete(userQuery, options);
+  let autocomplete = new google.maps.places.Autocomplete(input, options);
   google.maps.event.addListener(autocomplete, "place_changed", function() { 
     currentLocation = autocomplete.getPlace();
     console.log('NEW (Place Autocomplete) SEARCH:');
@@ -450,8 +451,8 @@ function geolocate() {
     if (!currentLocation.geometry) {
       // User entered the name of a Place that was not suggested and pressed the Enter key, or the Place Details request failed.
       let invalidQuery = `
-      <div class="invalidQuery userFeedback">
-        <div class="msgWrapper">
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Invalid query</h4>
           <h6 style="color: #B3B1AF;">No details available for query, "${currentLocation.name}"</h6>
         </div>
@@ -469,7 +470,7 @@ function geolocate() {
         lat: lat,
         lng: lng
       };   
-      const SearchBtn = document.querySelector("input[name='search']");
+      const SearchBtn = document.getElementById('ui-btn');
       SearchBtn.setAttribute('onClick', `codeAddress();`);
     }
   });
@@ -591,13 +592,13 @@ function createNewRestaurant(location) {
             let nr_restName = document.createElement('input');
             nr_restName.setAttribute('type', 'text');
             nr_restName.setAttribute('name', 'newRestName');
-            nr_restName.setAttribute('class', 'ui-newRest-name ui-newRest');
+            nr_restName.setAttribute('id', 'ui-newRest-name');
             nr_restName.setAttribute('placeholder', 'Restaurant name');
             nr_inner_div.appendChild(nr_restName);
             // select options list (Restaurant Address) 
             let select = document.createElement('select'); 
             select.setAttribute('name', 'ui-newRest-address');
-            select.setAttribute('class', 'ui-newRest-address ui-newRest');
+            select.setAttribute('id', 'ui-newRest-address');
             let options = [];
             for (let i = 0; i < results.length; i++) {
               let rest_address = results[i].formatted_address;
@@ -614,19 +615,19 @@ function createNewRestaurant(location) {
             let nr_restTel = document.createElement('input');
             nr_restTel.setAttribute('type', 'tel');
             nr_restTel.setAttribute('name', 'newRestTelephone');
-            nr_restTel.setAttribute('class', 'ui-newRest-telephone ui-newRest');
+            nr_restTel.setAttribute('id', 'ui-newRest-telephone');
             nr_restTel.setAttribute('placeholder', 'Restaurant telephone');
             nr_inner_div.appendChild(nr_restTel);
             // input (Restaurant Website)
             let nr_restSite = document.createElement('input');
             nr_restSite.setAttribute('type', 'url');
             nr_restSite.setAttribute('name', 'newRestWebsite');
-            nr_restSite.setAttribute('class', 'ui-newRest-website ui-newRest');
+            nr_restSite.setAttribute('id', 'ui-newRest-website');
             nr_restSite.setAttribute('placeholder', 'Restaurant website');
             nr_inner_div.appendChild(nr_restSite);
             // button (Add Restaurant)
             let nr_restBtn = document.createElement('button');
-            nr_restBtn.setAttribute('class', 'nr_btn btn-Opacity');
+            nr_restBtn.setAttribute('class', 'nr_btn');
             nr_restBtn.onclick = addNewRestaurant;
             nr_restBtn.textContent = 'Add Restaurant';
             nr_inner_div.appendChild(nr_restBtn);
@@ -643,12 +644,12 @@ function createNewRestaurant(location) {
             function addNewRestaurant() {
               // create new restaurant object based on user input
               let restName, selRestAddress, restTelephone, restWebsite, nrRating, nrTotalRatings, nrReviews, nrIcon, nrPhotos, nrPriceLevel, nrIndexPos, isRestOpen;
-              restName = document.getElementsByClassName('ui-newRest-name').value;
-              selRestAddress = document.getElementsByClassName('ui-newRest-address');
+              restName = document.getElementById('ui-newRest-name').value;
+              selRestAddress = document.getElementById('ui-newRest-address');
               let selRestAddressOption = selRestAddress.options[selRestAddress.selectedIndex].text; 
               console.log(selRestAddressOption);
-              restTelephone = document.getElementsByClassName('ui-newRest-telephone').value;
-              restWebsite = document.getElementsByClassName('ui-newRest-website').value;
+              restTelephone = document.getElementById('ui-newRest-telephone').value;
+              restWebsite = document.getElementById('ui-newRest-website').value;
               nrRating = 0;
               nrTotalRatings = 0;
               const nr_getRating = getNoRating(nrRating);
@@ -696,17 +697,15 @@ function createNewRestaurant(location) {
 *  INITIALISING GOOGLE MAPS
 ===========================================================================================================*/
 
-// Geolocation API
 function initMap() {
-  // if user's browser does not support Navigator.geolocation object
+  // Geolocation API - if user's browser does not support Navigator.geolocation object
   if (!navigator.geolocation) { 
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
-    document.querySelector('#rattings-column').style.display = 'none';
+    document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
-    document.querySelector('.footer').style.display = 'none';
-    document.getElementById('map').innerHTML = welcomeMsg;
+    document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, geoOptions);
   }
@@ -715,9 +714,8 @@ function initMap() {
 /** if user's browser supports Geolocation
 *****************************************************/
 let getUserLocation = function (position) {
-  document.querySelector('#rattings-column').style.display = 'block';
-  document.querySelector('#bottomSection').style.display = 'none'; // new searches
-  document.querySelector('.footer').style.display = 'block';
+  document.querySelector('#rattings-wrapper').style.display = 'block';
+  document.querySelector('#bottomSection').style.display = 'none';
   // user location coordinates - read-only properties (black box)
   let lat = position.coords.latitude; 
   let lng = position.coords.longitude;
@@ -783,8 +781,8 @@ function createMap(pos) {
   // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
   let loading =`
-  <div class="loadingStatus" style="background-color: #201D19;">
-    <div class="msgWrapper">
+  <div class="loading_status" style="background-color: #201D19;">
+    <div id="msg-wrapper">
       <div style="width: 220px; height: 70px; display: block;"> <img src="images/logo-01.png" style="width: 100%; height: 100%;"/> </div>
     </div>
   </div>`;
@@ -918,8 +916,8 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
 
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
     let noResultsts = `
-      <div class="noResultsts userFeedback">
-        <div class="msgWrapper">
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found</h4>
           <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place</h6>
         </div>
@@ -929,8 +927,8 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
   } 
   else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
     let overQueryLimit = `
-      <div class="overQueryLimit userFeedback">
-        <div class="msgWrapper">
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Quota exceeded</h4>
           <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place</h6>
         </div>
@@ -940,8 +938,8 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
   } 
   else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
     let requestDenied = `
-      <div class="requestDenied userFeedback">
-        <div class="msgWrapper">
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Request denied</h4>
           <h6 style="color: #B3B1AF;">Request query parameter(s) either invalid or missing</h6>
         </div>
@@ -950,25 +948,70 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     console.log('Request denied. Request query parameter(s) either invalid or missing.');
   } 
   else {
-    let unknownError = `
-      <div class="unknownError userFeedback">
-        <div class="msgWrapper">
+    let requestDenied = `
+      <div id="welcome-card">
+        <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Server-side error</h4>
           <h6 style="color: #B3B1AF;">Your request could not be processed due to a server error. The request may succeed if you try again.</h6>
         </div>
       </div>`;
-    document.getElementById('map').innerHTML = unknownError;
+    document.getElementById('map').innerHTML = requestDenied;
     console.log('Server-side error. Please try again.'); // UNKNOWN_ERROR
   }
 }
 
 function showRestaurantList() {
-  // document.getElementById('msg_display').style.display = 'none';
-  console.log("All restaurants have been processed. Dumping restaurantsList below:");
-  document.querySelector('.loadingStatus').style.display = 'none';
-  for (let i = 0; i < restaurantsList.length; i++) {
-    restaurantsList[i].list();
-  }
+   /** AJAX Request - Importing local data
+  *****************************************************/
+  let restaurants;
+  const xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200 || xhr.status === 201) {
+        restaurants = JSON.parse(xhr.responseText); 
+        console.log("Parsed JSON: ",   restaurants); 
+        for (let i = 0; i < restaurants.length; i++) {
+          //create restaurant object
+          let opening_hours, isOpeningDay, isRestOpen, loopCounter, icon, photos;
+          isRestOpen = true;
+          console.log('isRestOpen = ' + isRestOpen);
+          loopCounter = restaurantsList.length;
+          icon = 'images/restaurant.png';
+          photos = [
+            {
+              getUrl: function() {
+                return icon; // see getPopuPhoto(photos, icon)
+              }
+            } 
+          ];
+          const restaurant = restPlace(restaurants[i].name, restaurants[i].formatted_address, restaurants[i].formatted_phone_number, 
+            restaurants[i].website, restaurants[i].lat, restaurants[i].lng, restaurants[i].rating, 
+            restaurants[i].user_ratings_total, restaurants[i].reviews, icon, photos, restaurants[i].price_level, loopCounter, isRestOpen
+          );
+          restaurantsList.push(restaurant);
+          console.log('value of loopCounter = ' + loopCounter);
+          loopCounter++;
+        }
+        // document.getElementById('msg_display').style.display = 'none';
+        console.log("All restaurants have been processed. Dumping restaurantsList below:");
+        document.querySelector('.loading_status').style.display = 'none';
+        for (let i = 0; i < restaurantsList.length; i++) {
+          restaurantsList[i].list();
+        }
+      }
+      else if (xhr.status === 404) {
+        console.log('404: File not found');
+      } 
+      else if (xhr.status === 500) {
+        console.log('500: Server error. Please refresh the web page');
+      } 
+    }
+    else {
+      console.log(xhr.statusText); //OK
+    }
+  }; //end of onreadystatechange
+  xhr.open('GET', localJSON);
+  xhr.send();
 }
 
 /** getDetails Search
@@ -1033,17 +1076,6 @@ function mobileCarousel(mql) {
     for (let i = 0; i < liElms.length; i++) {
       liElms[i].className += ' carousel-cell';
     }
-    document.querySelector('.footer').style.display = 'none';
-    document.querySelector('.restaurants-list-wrapper').style.marginBottom = '30px';
-    //create footer
-    const node = document.querySelector('.no-gutters-midSec');
-    const footer = document.createElement('div');
-    footer.className += 'footer col-xs-12 col-md-12';
-    const footerContent = `
-      <h6 style="margin-left: 15px; margin-right: 15px;"><em>Designed by <a href="https://aformoso.dev">Alexandre Formoso</em></a></h6>
-    `;
-    $(footer).append(footerContent);
-    $(node).append(footer); 
   }
   //else
 }

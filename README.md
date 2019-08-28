@@ -6,13 +6,14 @@
 
 * A Google Maps map loaded with the Google Maps API 
 * The Google Maps map will focus immediately on the position of the user
-* Load POIs on the map, list corresponding restaurants on the side of the map
+* A list of restaurants is provided as JSON data in a separate file
+* A list of restaurants on the right side of the page that are within the area displayed on the map
 * When you click on a restaurant, the list of reviews should be shown
+* Also show the Google Street View photo via the corresponding API
 * A filter tool allows the display of restaurants that have between X and Y stars
-* Add a restaurant by right-clicking on a specific place on the map
+* Add a restaurant by [right-clicking] on a specific place on the map
 * Add a review about an existing restaurant
-* Implement the Google Place (Search) API to find restaurants in a particular display area
-* Add (Place) autocomplete feature
+* [Interate Google Paces] to display additional restaurants and reviews on your map
 
 ### Author
 
@@ -36,12 +37,10 @@ function initMap() {
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
-    document.querySelector('#rattings-column').style.display = 'none';
+    document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
-    document.querySelector('.footer').style.display = 'none';
-    document.getElementById('map').innerHTML = welcomeMsg;
+    document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, geoOptions);
   }
-}
-
+} 

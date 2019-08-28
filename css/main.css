@@ -10,23 +10,8 @@ html, body {
   overflow-x: hidden; /*eliminates white space issue on the right*/
   background-color: #F6F6F6;
 }
-p {
-   color: #666;
-   padding: 0;
-   margin: 0 0 0 14px;
-}
-select {
-  width: 150px;
-  height: 30px;
-  margin-left: 10px;
-  color: #868686;
-  background-color: #fff;
-  border: 1px solid #d3d3d3;
-  font-size: 14px;
-}
-
-/*USER FEEDBACK MESSAGES*/
-.userFeedback, .loadingStatus {
+/*WELCOME CARD*/
+#error-card, #welcome-card, .loading_status {
   top: 0;
   left: 0;
   position: absolute;
@@ -41,31 +26,44 @@ select {
   align-items: center;
   justify-content: center;
 }
-.userFeedback h6 {
-  letter-spacing: 1px;
-  word-spacing: 1px;
-  color: #454545;
-  margin: 0 0 15px;
-}
-.msgWrapper {
+#msg-wrapper, #welcome-msg-wrapper {
   display: flex; 
   flex-direction: column; 
   align-items: center;
   padding: 30px;
 }
-.msgWrapper h4 { 
+#msg-wrapper h4 { 
   font-weight: 600;
   margin: 30px 0 15px 0;
+  /*color: #337AB7;*/
 }
-
+#error-card h6, #welcome-card h6 {
+  letter-spacing: 1px;
+  word-spacing: 1px;
+  color: #454545;
+  margin: 0 0 15px;
+}
+#lct_btn {
+  font-weight: 600;
+  border: 3px solid #337AB7;
+  border-radius: 4px;
+  padding: 12px;
+  background-color: transparent;
+}
+#lct_btn:hover {
+  background-color: #337AB7;
+  color: #fff;
+}
 /*HEADER*/
-.header {
-  background-color: #201D19; /*container-fluid*/
+header.container-fluid {
+  background-color: #201D19;
+}
+header {
   display: flex;
   align-items: center;
   margin: 0 auto;
 }
-.logoColumn {
+#logo_column {
   width: 220px;
   height: 70px;
   padding: 0;
@@ -73,38 +71,50 @@ select {
   vertical-align: center;
   text-align: center;
 }
-.logoColumn__img {
-  width: 100%; height: 100%;
+p {
+   color: #666;
+   padding: 0;
+   margin: 0 0 0 14px;
 }
-.uiColumn {
+div.geoL-wrapper {
+  display: flex;
+  justify-content: center; /*X axis*/
+  align-items: center; /*Y axis*/
+  padding: 0px;
+  margin-left: 6px;
+  border: none;
+  border-radius: 2px;
+  width: 40px;
+  height: 40px;
+  background-color: #337ab7;
+
+}
+i.lct-icon {
+  margin: 0; /* t, r, b, l*/
+  width: 18px;
+  height: 18px;
+  color: #DDD;
+} 
+div.ui-column {
   display: flex;
   justify-content: center; 
   align-items: center; 
   margin: 0 auto;
   padding: 0;
 }
-/*.no-gutters>[class*=col-] {
-  padding-right: 0;
-  padding-left: 0; 
-  padding: 0 0 0 100px;
-}*/
-.uiSrcWrapper {
+.no-gutters>[class*=col-] {
+  /*padding-right: 0;*/
+  /*padding-left: 0; */
+  /*padding: 0 0 0 100px;*/
+}
+div.ui-src-wrapper {
   display: flex;
   align-items: center; /*Y axis*/
   margin: 0 2px;
   padding: 0 2px;
   position: relative;
 }
-.uiSrcWrapper__label {
-  position: absolute;
-}
-.srcIcon {
-  margin: 3px 0 3px 14px; 
-  width: 18px;
-  height: 18px;
-  color: #636363;
-}
-.uiQuery {
+input#ui-query {
   padding: 2px 2px 2px 38px;
   margin: 2px 0px 2px 4px;
   width: 100%;
@@ -114,12 +124,21 @@ select {
   /*background: url(../images/search-icon.png) no-repeat;*/
   background-color: #fff;
 }
-.uiBtnWrapper {
+div.ui-src-wrapper label {
+  position: absolute;
+}
+div.ui-src-wrapper i.src-icon {
+  margin: 3px 0 3px 14px; 
+  width: 18px;
+  height: 18px;
+  color: #636363;
+}
+div.ui-btn-wrapper {
   width: 100px;
   height: 40px;
   margin: 4px 6px 4px 4px;
 }
-.uiBtn {
+input#ui-btn {
   width: 100%;
   height: 100%;
   border: none;
@@ -127,63 +146,77 @@ select {
   letter-spacing: 2px;
   color: #2E2A24;
   background-color: #F9D094;
+  opacity: 0.8;
+}
+i.lct-icon:hover, input#ui-btn:hover {
+  opacity: 1;
 }
 
 /*BODY*/
-.main-content {
-  height: calc(100vh - 30px - 70px - 75px);
-  padding: 0;
-}
-.midSection {
+#main-content {
+  /*margin: 0 0 30px;*/
   margin: 0;
-  height: 100%;
+  padding: 0;
+}
+section#midSection {
+  margin: 0;
+  height: auto;
   background-color: #F6F6F6;
   padding: 0;
 }
-.no-gutters-midSec {
-  height: 100%;
+.mid-content {
+  margin-bottom: 30px;
 }
-.map-wrapper {
-  height: 100%;
+div#map-wrapper {
+  height: 500px;
   background-color: #F6F6F6;
-  padding: 0 15px;
+  padding: 0;
 }
-.myMap {
+div#map {
   height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-}
-.rattings-wrapper__label {
-  margin-bottom: 0;
 }
 /*info window content*/
 .see-reviews-btn {
   background-color: #D9FEA2;
   padding: 8px 14px;
   color: #E7711B;
+  opacity: 0.8;
 }
 .see-reviews-btn:hover {
   text-decoration: none;
   color: #D26719;
+  opacity: 1;
 }
 /*New restaurant styles*/
-.ui-newRest, button {
+#ui-newRest-name, #ui-newRest-address, #ui-newRest-website, #ui-newRest-telephone, button {
   width: 95%;
-  padding: 5.5px;
-  margin: 5px 0;
+  padding: 4px;
+  margin: 4px;
   color: #524A65;
-  border: 1px solid #A9A9A9;
-  font-size: 13px;
 }
-.restaurants-list-wrapper {
+#rattings-wrapper label {
+  margin-bottom: 0;
+}
+select {
+  width: 150px;
+  height: 30px;
+  margin-left: 10px;
+  color: #868686;
+  background-color: #fff;
+  border: 1px solid #d3d3d3;
+  font-size: 14px;
+}
+div.restaurants-list-wrapper {
   display: flex;
-  margin: 0 0 30px 15px;
+  margin: 0 auto;
 }
 .restaurant-list li:last-child {
   margin-bottom: 0px;
 }
-.restaurant-list li:hover  {
+ul.restaurant-list li:hover  {
   background-color: #D9FEA2;
 }
 .selected {
@@ -192,23 +225,24 @@ select {
 .restaurant-list li a {
   text-decoration: none;
 }
-.restaurant-pic-wrapper img {
+div.restaurant-pic-wrapper img {
   width: 100%;
   height: 100%;
 }
-.restaurant-brief-wrapper {
+div.restaurant-brief-wrapper {
   padding: 6px 10px;
   letter-spacing: 0.5px;
 }
-.restaurant-brief-wrapper h5 {
+div.restaurant-brief-wrapper h5 {
   margin: 0 0 5px 0;
   font-weight: 600; 
   color: #91CA00; 
   display: block;
 }
-.restaurant-brief-wrapper p {
+div.restaurant-brief-wrapper p {
   margin: 0;
 }
+
 /*Star rating*/
 .star-wrapper {
   width: 50px;
@@ -237,8 +271,9 @@ select {
   top: 10px;
 }
 
+
 /*BOTTOM SECTION*/
-.botSection {
+#bottomSection {
   padding: 30px;
   background-color: #201D19;
   border-top: 5px solid #F9D094;
@@ -252,15 +287,15 @@ select {
   margin: 0;
   width: 100%;
 }
-#rest-brief-wrapper, 
-#street-view-wrapper {
+#rest-brief-wrapper, #street-view-wrapper {
   padding: 20px 20px 0;
 }
+
 #rest-reviews-wrapper {
   background-color: #F6F6F6;
   padding: 20px 30px 0;
 }
-.open-button {
+button.open-button {
   width: 100%;
   height: 100%;
   padding: 2px 10px;
@@ -291,7 +326,7 @@ select {
   justify-content: center;
   align-items: center;
 }
-.form {
+form {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -300,20 +335,24 @@ select {
   box-shadow: 0px 0px 5px 3px rgba(0, 0, 0, 0.1);
 
 }
-.form__fullName, .form__label, .form__scoreSelect, 
-.form__textarea, .form__addReview-Btn, .form__closeReview-Btn {
+form #full-name, form label, select#score, form textarea, #add-review-btn, #close-review-btn {
   padding: 8px;
   margin: 0 16px 16px;
+  /*border-radius: 2px;*/
   color: #666;
 }
-.form__addReview-Btn {
-  padding: 8px 16px;
-  height: 42px;
-  border: none;
-  color: #444;
-  background-color: #D9FEA2;
+form #full-name, form textarea {
+  width: 100%;
+  border: 1px solid #d3d3d3;
 }
-.form__closeReview-Btn {
+form label {
+  margin-right: 3px;
+  color: #636363;
+}
+select#score {
+  height: 42px;
+}
+form input#close-review-btn {
   border: none;
   height: 42px;
   padding: 8px 16px;
@@ -322,22 +361,18 @@ select {
   background-color: #FACACA;
   float: right;
 }
-.btn-Opacity {
+form input#add-review-btn {
+  padding: 8px 16px;
+  height: 42px;
+  border: none;
+  color: #444;
+  background-color: #D9FEA2;
+}
+form input#close-review-btn, form input#add-review-btn {
   opacity: 0.8;
 }
-.btn-Opacity:hover {
+form input#close-review-btn:hover, form input#add-review-btn:hover {
   opacity: 1;
-}
-.form__fullName, .form__textarea {
-  width: 100%;
-  border: 1px solid #d3d3d3;
-}
-.form__label {
-  margin-right: 3px;
-  color: #636363;
-}
-.form__scoreSelect {
-  height: 42px;
 }
 #rest-reviews {
   background-color: #F6F6F6;
@@ -375,7 +410,7 @@ select {
 
 /*FOOTER*/
 .footer {
-  margin-top: 30px;
+  /*margin-top: 30px;*/
   width: 100%;
   display: flex;
   justify-content: left; /*x*/
@@ -392,7 +427,7 @@ select {
   margin: 0;
   text-align: center;
 }
-.footer a {
+.footer a, .footer a:visited {
   color: #2E2A24;
   font-weight: 600;
 }
@@ -405,6 +440,10 @@ select {
   padding: 10px 15px;
   border: none;
   color: #444;
+  opacity: 0.8;
+}
+#site-btn:hover {
+  opacity: 1;
 }
 .bt-align-x {
   text-align: left;
@@ -423,7 +462,7 @@ select {
   .restaurant-brief-wrapper h5 {
     font-size: 1rem; 
   }
-  .uiColumn {
+  .ui-column {
     padding: 0;
   }
 }
@@ -431,7 +470,7 @@ select {
   #rest-reviews-wrapper {
     padding: 20px 10px 0;
   }
-  .msgWrapper {
+  #msg-wrapper {
     padding: 0;
   }
 }
@@ -447,23 +486,25 @@ select {
 }
 /* Small devices (landscape phones, 576px and below)*/
 @media (max-width: 576px) { 
-  .restaurants-wrapper {
+  #restaurants-wrapper {
     margin: 0;
     padding: 0;
   }
 }
 
 @media (max-width: 767px) { 
-  .header {
+  header {
     padding: 0 0 15px;
   }
-  .noBorderRadius {
-    border-radius: 0; /*.uiQuery, .uiBtn, .form__fullName, .form__scoreSelect, .form__textarea, .form__closeReview-Btn, .form__addReview-Btn,*/ 
+  input#ui-query, input#ui-btn, 
+  input#full-name, select#score, textarea#user-review, 
+  input#close-review-btn, input#add-review-btn {
+    border-radius: 0;
   }
-  .map-wrapper {
-    /*padding: 15px;*/
+  #map-wrapper {
+    padding: 15px;
   }
-  .rattings-wrapper {
+  div#rattings-wrapper {
     display: block;
     background-color: #D9D8D7;
     margin: 0 0 30px;
@@ -476,7 +517,7 @@ select {
     display: flex;
     flex-direction: column;
   }
-  .restaurants-wrapper {
+  #restaurants-wrapper {
     margin: 0;
     padding: 0;
   }
@@ -530,10 +571,10 @@ select {
     border: none;
     border-bottom: 3px solid #91CA00;
   }
-  .botSection {
+  #bottomSection {
     padding: 30px 0px;
   }
-  .restaurants-list-wrapper {
+  div.restaurants-list-wrapper {
     padding: 0 15px;
   }
   .restaurant-list li:last-child {
@@ -546,26 +587,26 @@ select {
 }
 
 @media (min-width: 768px) { 
-  .header {
+  header {
     display: flex;
     justify-content: center;
     padding: 0;
   }
-  .rattings-wrapper {
+  div#rattings-wrapper {
     display: block;
     background-color: #D9D8D7;
-    margin: 0 0 30px 15px;
+    margin: 0 0 30px;
     text-align: center;
     padding: 10px 0;
     color: #636363;
     letter-spacing: 1px;
   }
-  .restaurants-wrapper { 
+  div#restaurants-wrapper { 
     text-align: left;
     padding: 0 0 0 15px;;
     background-color: #F6F6F6;
   }
-  div.uiSrcWrapper {
+  div.ui-src-wrapper {
     width: 300px;
   }
   .mb-display {
@@ -573,7 +614,7 @@ select {
     width: 100%;
     margin: 0 auto;
   }
-   .logoColumn {
+   #logo_column {
     display: inline-block;
     margin: 0 0 0 50px;
   }
@@ -594,7 +635,7 @@ select {
     width: 100%;
     padding: 0;
     margin: 0 auto;
-    height: calc(100vh - 70px - 30px - 75px - 50px - 30px);
+    height: 420px;
     overflow: auto; 
     margin-bottom: 0px;
   }
@@ -656,6 +697,15 @@ h5.nr_heading {
   font-weight: 600; 
   color: #91CA00;
 }
+#ui-newRest-name, #ui-newRest-address, #ui-newRest-telephone, #ui-newRest-website {
+  width: 95%;
+  padding: 5.5px;
+  margin: 5px 0;
+  color: #524A65;
+  border: 1px solid #A9A9A9;
+  font-size: 13px;
+  /*border-radius: 0px;*/
+}
 .nr_btn {
   font-size: 15px; 
   padding: 5.5px;
@@ -665,6 +715,10 @@ h5.nr_heading {
   /*border-radius: 0px; */
   color: #444; 
   background-color: #D9FEA2;
+  opacity: 0.8;
+}
+.nr_btn:hover {
+  opacity: 1;
 }
 /* The Modal (background) */
 .modalWrapper {  
@@ -718,19 +772,23 @@ h5.nr_heading {
 .modal-content {
   border-radius: 0px;
 }
+
 #iconIMGL {
   padding: 6px 0;
 }
+
 /*Progress Bar*/
 #myProgress {
   width: 100%;
   background-color: grey;
 }
+
 #myBar {
   width: 1%;
   height: 30px;
   background-color: green;
 }
+
 /*Content for the users to see how to turn Geolocation ON on their devices*/
 /* Style the tab */
 .tab {

@@ -1,0 +1,41 @@
+[
+   {
+      "name": "Alexandre's Pizza",
+      "formatted_address": "23 Market Pl, Norwich NR2 1ND",
+      "formatted_phone_number": "01603620661", 
+      "website": "https://aformoso.com/",
+      "lat": 52.641850,
+      "lng": 1.315970,
+      "ratings": 1,
+      "user_ratings_total": 1,
+      "reviews": [
+         {
+            "author_name": "Amalia Rodrigues", 
+            "rating": 1,
+            "relative_time_description": "a month ago", 
+            "text": "2 hora a espera do takeaway pra comer!! Inademicivel. Para alem de me terem feito esperar ainda me cobraram pelo delivery! Nao recomendo a ninguem."
+         }
+      ],
+      "price_level": 3
+   },
+   {
+      "name": "Alexandre's Fine Burguer",
+      "formatted_address": "1 Market Pl, Norwich NR2 1ND",
+      "formatted_phone_number": "01603667661", 
+      "website": "https://aformoso.dev/",
+      "lat": 52.63085,
+      "lng": 1.29106,
+      "ratings": 4,
+      "user_ratings_total": 1,
+      "reviews": [
+         {
+            "author_name": "Amalia Rodrigues", 
+            "rating": 4,
+            "relative_time_description": "a month ago", 
+            "text": "Muito boa gente. Tive o prazer de passar a tarde neste restaurante maravilhoso e so tinho coisas boas a dizer - desde o dono aos funcionarios, deu pra ver que todos se involvem em fazer o cliente sentir apreciado. Adorei."
+         }
+      ],
+      "price_level": 3
+   }
+]
+   
