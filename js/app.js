@@ -675,7 +675,12 @@ function createNewRestaurant(location) {
               restaurantsList.push(restaurant);
               iw_restDtls.close(myMap, restaurant.marker);
               showPopup(nrIndexPos);
-              showRestaurantList();
+              document.querySelector("ul.restaurant-list").innerHTML = ""; 
+              // showRestaurantList();
+              for (let i = 0; i < restaurantsList.length; i++) {
+                restaurantsList[i].list();
+              }
+              console.log("Total restaurants in memory: " + restaurantsList.length);
             } //.addNewRestaurant()
           } else {
             window.alert('No results found');  
@@ -912,7 +917,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found</h4>
-          <h6 style="color: #B3B1AF;">Areas with poor reception may affect your device's ability to retrieve information. 
+          <h6 style="color: #B3B1AF;">No restaurants found at this location. 
             Please use the search box to query a different place or restaurant</h6>
         </div>
       </div>`;
