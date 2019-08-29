@@ -132,7 +132,12 @@ let currentLocation = null;
 let showRated = [0, 1, 2, 3, 4, 5];
 let currentRestaurant = null;
 let loopCounter = 0;
-
+let loading =`
+<div class="loading_status" style="background-color: #201D19;">
+  <div id="msg-wrapper">
+    <div style="width: 220px; height: 70px; display: block;"> <img src="images/logo-01.png" style="width: 100%; height: 100%;"/> </div>
+  </div>
+</div>`;
 
 /*===========================================================================================================
 *  INFORMATION TO REACH API
@@ -465,13 +470,9 @@ function geolocate() {
       // If result comes back with property, "geometry"
       const lat = currentLocation.geometry.location.lat();
       const lng = currentLocation.geometry.location.lng();
-      console.log(lat + ', ' + lng);
-      pos = {
-        lat: lat,
-        lng: lng
-      };   
+      console.log(lat + ', ' + lng);  
       const SearchBtn = document.getElementById('ui-btn');
-      SearchBtn.setAttribute('onClick', `codeAddress();`);
+      SearchBtn.setAttribute('onClick', `codeAddress(${lat}, ${lng})`);
     }
   });
 
@@ -780,12 +781,6 @@ function createMap(pos) {
   };
   // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
-  let loading =`
-  <div class="loading_status" style="background-color: #201D19;">
-    <div id="msg-wrapper">
-      <div style="width: 220px; height: 70px; display: block;"> <img src="images/logo-01.png" style="width: 100%; height: 100%;"/> </div>
-    </div>
-  </div>`;
   document.getElementById('msg_display').innerHTML = loading;
   service.nearbySearch(request, getRestaurants);
   
@@ -849,6 +844,7 @@ function restPlace(name, address, telephone, website, lat, lng, rating, userRati
   return {
     // closure functions - public methods and properties
     list: function() {
+      $('.restaurant-list').innerHTML = ""; 
       $('.restaurant-list').append(rListItem);
       $('.restaurant-list li').click(function(e) {
         document.querySelector('#bottomSection').style.display = "none";
@@ -915,28 +911,31 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     getRestaurantsDetails(results); //getDetails
 
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+    document.getElementById('msg_display').innerHTML = ""; // $('.loading_status').hide();
     let noResultsts = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
-          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found</h4>
-          <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place</h6>
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">No results for your location</h4>
+          <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place or restaurant</h6>
         </div>
       </div>`;
     document.getElementById('map').innerHTML = noResultsts;
     console.log('No restaurants found at this location. Please search a different place.');
   } 
   else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+    document.getElementById('msg_display').innerHTML = "";
     let overQueryLimit = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
           <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">Quota exceeded</h4>
-          <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place</h6>
+          <h6 style="color: #B3B1AF;">The app's exceeded its request usage limits. Give it a minute or try within the next 24 hours</h6>
         </div>
       </div>`;
     document.getElementById('map').innerHTML = overQueryLimit;
     console.log('The app\'s exceeded its request usage limits. Give it a minute or try within the next 24 hours'); // error code 403 or 429
   } 
   else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
+    document.getElementById('msg_display').innerHTML = "";
     let requestDenied = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
@@ -948,6 +947,7 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     console.log('Request denied. Request query parameter(s) either invalid or missing.');
   } 
   else {
+    document.getElementById('msg_display').innerHTML = "";
     let requestDenied = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
@@ -994,10 +994,10 @@ function showRestaurantList() {
         }
         // document.getElementById('msg_display').style.display = 'none';
         console.log("All restaurants have been processed. Dumping restaurantsList below:");
-        document.querySelector('.loading_status').style.display = 'none';
         for (let i = 0; i < restaurantsList.length; i++) {
           restaurantsList[i].list();
         }
+        console.log("Total restaurants in memory: " + restaurantsList.length);
       }
       else if (xhr.status === 404) {
         console.log('404: File not found');
@@ -1166,13 +1166,8 @@ function submitReview(rest_index) {
 
 /** Find Place from Query
 *****************************************************/
-function codeAddress() { 
+function codeAddress(lat, lng) { 
   document.querySelector('#bottomSection').style.display = 'none';
-  myMap.setCenter({lat: pos.lat, lng: pos.lng});
-  userMarker.setPosition(new google.maps.LatLng(pos.lat,pos.lng));
-  setTimeout(function () {
-    userMarker.setAnimation(null)
-  }, 3000);
   // prepare global arrays for new values
   document.querySelector("ul.restaurant-list").innerHTML = ""; 
   restaurantsList = []; 
@@ -1183,24 +1178,12 @@ function codeAddress() {
   }
   markers.length = 0;
   loopCounter = 0;  
-  //prepare map
-  myMap.setCenter({lat: pos.lat, lng: pos.lng});
-  userMarker.setPosition(new google.maps.LatLng(pos.lat,pos.lng));
-  userMarker.setAnimation(google.maps.Animation.BOUNCE);
-  setTimeout(function () {
-    userMarker.setAnimation(null)
-  }, 3000);
-  //get nearby places
-  let request = {
-    fields: ['name', 'geometry', 'rating', 'user_ratings_total', 'photos', 'icon', 'place_id', 'opening_hours', 'permanently_closed'],
-    location: pos, //place searched
-    radius: '1500',
-    type: ['restaurant']
+  //create map and load results
+  const pos = { 
+    lat: lat, 
+    lng: lng 
   };
-  let service = new google.maps.places.PlacesService(myMap);
-  service.nearbySearch(request, getRestaurants);
-
-  console.log(restaurantsList);
+  createMap(pos);
 }
 
 // Information tabs
