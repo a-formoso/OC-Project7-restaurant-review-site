@@ -426,9 +426,10 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   padding: 0;
   margin: 0;
   text-align: center;
+  color: #201D19;
 }
 .footer a, .footer a:visited {
-  color: #2E2A24;
+  color: #201D19;
   font-weight: 600;
 }
 .footer a:hover {
@@ -496,9 +497,7 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   header {
     padding: 0 0 15px;
   }
-  input#ui-query, input#ui-btn, 
-  input#full-name, select#score, textarea#user-review, 
-  input#close-review-btn, input#add-review-btn {
+  input#ui-query, input#ui-btn {
     border-radius: 0;
   }
   #map-wrapper {

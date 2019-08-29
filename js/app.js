@@ -132,12 +132,6 @@ let currentLocation = null;
 let showRated = [0, 1, 2, 3, 4, 5];
 let currentRestaurant = null;
 let loopCounter = 0;
-let loading =`
-<div class="loading_status" style="background-color: #201D19;">
-  <div id="msg-wrapper">
-    <div style="width: 220px; height: 70px; display: block;"> <img src="images/logo-01.png" style="width: 100%; height: 100%;"/> </div>
-  </div>
-</div>`;
 
 /*===========================================================================================================
 *  INFORMATION TO REACH API
@@ -698,7 +692,7 @@ function createNewRestaurant(location) {
 *  INITIALISING GOOGLE MAPS
 ===========================================================================================================*/
 
-function initMap() {
+function initMap() { 
   // Geolocation API - if user's browser does not support Navigator.geolocation object
   if (!navigator.geolocation) { 
     console.log("Geolocation is not supported by your browser");
@@ -781,7 +775,8 @@ function createMap(pos) {
   };
   // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
-  document.getElementById('msg_display').innerHTML = loading;
+  document.getElementById('ui-query').disabled = true; // disable search box until request is complete  
+  document.getElementById('ui-query').style.backgroundColor = '#D9D8D7';
   service.nearbySearch(request, getRestaurants);
   
 }; //.createMap()
@@ -911,12 +906,14 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
     getRestaurantsDetails(results); //getDetails
 
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-    document.getElementById('msg_display').innerHTML = ""; // $('.loading_status').hide();
+    document.getElementById('msg_display').innerHTML = ""; 
+    document.getElementById('rattings-wrapper').style.display = 'none';
     let noResultsts = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
-          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">No results for your location</h4>
-          <h6 style="color: #B3B1AF;">No restaurants found at this location. Please search a different place or restaurant</h6>
+          <h4 style="color: #A09E9B; font-weight: 600; margin: 30px 0 15px 0;">No restaurants found</h4>
+          <h6 style="color: #B3B1AF;">Areas with poor reception may affect your device's ability to retrieve information. 
+            Please use the search box to query a different place or restaurant</h6>
         </div>
       </div>`;
     document.getElementById('map').innerHTML = noResultsts;
@@ -997,7 +994,10 @@ function showRestaurantList() {
         for (let i = 0; i < restaurantsList.length; i++) {
           restaurantsList[i].list();
         }
+        document.getElementById('ui-query').disabled = false; // disable search box until request is complete  
+        document.getElementById('ui-query').style.backgroundColor = '#fff';
         console.log("Total restaurants in memory: " + restaurantsList.length);
+        
       }
       else if (xhr.status === 404) {
         console.log('404: File not found');
@@ -1076,6 +1076,7 @@ function mobileCarousel(mql) {
     for (let i = 0; i < liElms.length; i++) {
       liElms[i].className += ' carousel-cell';
     }
+    document.querySelector('#restaurants-list-wrapper').style.borderTop = '30px';
   }
   //else
 }
