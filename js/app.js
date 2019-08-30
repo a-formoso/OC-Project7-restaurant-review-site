@@ -780,8 +780,6 @@ function createMap(pos) {
   };
   // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
-  document.getElementById('ui-query').disabled = true; // disable search box until request is complete  
-  document.getElementById('ui-query').style.backgroundColor = '#D9D8D7';
   service.nearbySearch(request, getRestaurants);
   
 }; //.createMap()
@@ -913,8 +911,6 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
   } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
     document.getElementById('msg_display').innerHTML = ""; 
     document.getElementById('rattings-wrapper').style.display = 'none';
-    document.getElementById('ui-query').disabled = false; 
-    document.getElementById('ui-query').style.backgroundColor = 'white';
     let noResultsts = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
@@ -928,8 +924,6 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
   } 
   else if (status == google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
     document.getElementById('msg_display').innerHTML = "";
-    document.getElementById('ui-query').disabled = false; 
-    document.getElementById('ui-query').style.backgroundColor = 'white';
     let overQueryLimit = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
@@ -942,8 +936,6 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
   } 
   else if (status == google.maps.places.PlacesServiceStatus.REQUEST_DENIED || status == google.maps.places.PlacesServiceStatus.INVALID_REQUEST) {
     document.getElementById('msg_display').innerHTML = "";
-    document.getElementById('ui-query').disabled = false; 
-    document.getElementById('ui-query').style.backgroundColor = 'white';
     let requestDenied = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
@@ -956,8 +948,6 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
   } 
   else {
     document.getElementById('msg_display').innerHTML = "";
-    document.getElementById('ui-query').disabled = false; 
-    document.getElementById('ui-query').style.backgroundColor = 'white';
     let requestDenied = `
       <div id="welcome-card">
         <div id="welcome-msg-wrapper">
@@ -1007,8 +997,6 @@ function showRestaurantList() {
         for (let i = 0; i < restaurantsList.length; i++) {
           restaurantsList[i].list();
         }
-        document.getElementById('ui-query').disabled = false; // disable search box until request is complete  
-        document.getElementById('ui-query').style.backgroundColor = '#fff';
         console.log("Total restaurants in memory: " + restaurantsList.length);
         
       }
