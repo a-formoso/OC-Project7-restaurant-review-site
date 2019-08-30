@@ -970,7 +970,7 @@ function showRestaurantList() {
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200 || xhr.status === 201) {
-        restaurants = JSON.parse(xhr.responseText); 
+        restaurants = JSON.parse(xhr.responseText);
         console.log("Parsed JSON: ",   restaurants); 
         for (let i = 0; i < restaurants.length; i++) {
           //create restaurant object
