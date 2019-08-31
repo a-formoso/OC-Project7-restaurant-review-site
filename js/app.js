@@ -195,6 +195,8 @@ let handleErrors = function (error) {
 
     </div>
   </div>`;
+  document.getElementById('ui-query').disabled = true;   
+  document.getElementById('ui-query').style.backgroundColor = '#ddd';
   console.log(`${error.code}: Unable to retrieve your location - ${error.message}.`);
   document.getElementById('map').innerHTML = locationError;
 };
@@ -700,6 +702,9 @@ function createNewRestaurant(location) {
 function initMap() { 
   // Geolocation API - if user's browser does not support Navigator.geolocation object
   if (!navigator.geolocation) { 
+    document.querySelector('#bottomSection').style.display = 'none';
+    document.querySelector('.footer').style.display = 'none';
+    document.querySelector('#rattings-wrapper').style.display = 'none';
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
@@ -780,6 +785,8 @@ function createMap(pos) {
   };
   // nearbySearch
   service = new google.maps.places.PlacesService(myMap);
+  document.getElementById('ui-query').disabled = true;   
+  document.getElementById('ui-query').style.backgroundColor = '#ddd';
   service.nearbySearch(request, getRestaurants);
   
 }; //.createMap()
@@ -919,6 +926,8 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
             Please use the search box to query a different place or restaurant</h6>
         </div>
       </div>`;
+    document.getElementById('ui-query').disabled = false;   
+    document.getElementById('ui-query').style.backgroundColor = 'white';
     document.getElementById('map').innerHTML = noResultsts;
     console.log('No restaurants found at this location. Please search a different place.');
   } 
@@ -931,6 +940,8 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
           <h6 style="color: #B3B1AF;">The app's exceeded its request usage limits. Give it a minute or try within the next 24 hours</h6>
         </div>
       </div>`;
+    document.getElementById('ui-query').disabled = false;   
+    document.getElementById('ui-query').style.backgroundColor = 'white';
     document.getElementById('map').innerHTML = overQueryLimit;
     console.log('The app\'s exceeded its request usage limits. Give it a minute or try within the next 24 hours'); // error code 403 or 429
   } 
@@ -943,6 +954,8 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
           <h6 style="color: #B3B1AF;">Request query parameter(s) either invalid or missing</h6>
         </div>
       </div>`;
+    document.getElementById('ui-query').disabled = false;   
+    document.getElementById('ui-query').style.backgroundColor = 'white';
     document.getElementById('map').innerHTML = requestDenied;
     console.log('Request denied. Request query parameter(s) either invalid or missing.');
   } 
@@ -955,6 +968,8 @@ function getRestaurants(results, status) { // (Array<PlaceResult>, PlacesService
           <h6 style="color: #B3B1AF;">Your request could not be processed due to a server error. The request may succeed if you try again.</h6>
         </div>
       </div>`;
+    document.getElementById('ui-query').disabled = false;   
+    document.getElementById('ui-query').style.backgroundColor = 'white';
     document.getElementById('map').innerHTML = requestDenied;
     console.log('Server-side error. Please try again.'); // UNKNOWN_ERROR
   }
@@ -997,6 +1012,8 @@ function showRestaurantList() {
         for (let i = 0; i < restaurantsList.length; i++) {
           restaurantsList[i].list();
         }
+        document.getElementById('ui-query').disabled = false;   
+        document.getElementById('ui-query').style.backgroundColor = 'white';
         console.log("Total restaurants in memory: " + restaurantsList.length);
         
       }
