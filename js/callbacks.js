@@ -377,6 +377,6 @@ function mobileCarousel(mql) {
   }
   //else
 }
-const mql = window.matchMedia('(max-width: 480px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
+const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
 mobileCarousel(mql);
 mql.addListener(mobileCarousel); // Attach listener function on state changes

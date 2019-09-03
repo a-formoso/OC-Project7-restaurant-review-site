@@ -88,11 +88,9 @@ function initMap() {
   if (!navigator.geolocation) { 
     document.querySelector('#bottomSection').style.display = 'none';
     document.querySelector('.footer').style.display = 'none';
-    document.querySelector('#rattings-wrapper').style.display = 'none';
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
-    document.querySelector('#rattings-wrapper').style.display = 'none';
     document.querySelector('#bottomSection').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
@@ -103,7 +101,6 @@ function initMap() {
 /** if user's browser supports Geolocation
 *****************************************************/
 let getUserLocation = function (position) {
-  document.querySelector('#rattings-wrapper').style.display = 'block';
   document.querySelector('#bottomSection').style.display = 'none';
   // user location coordinates - read-only properties (black box)
   let lat = position.coords.latitude; 
