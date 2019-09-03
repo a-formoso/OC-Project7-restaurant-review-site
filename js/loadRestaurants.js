@@ -43,10 +43,10 @@ function showRestaurantList() {
         for (let i = 0; i < restaurantsList.length; i++) {
           restaurantsList[i].list();
         }
-        document.getElementById('ui-query').disabled = false;   
+        document.getElementById('ui-query').disabled = false;
         document.getElementById('ui-query').style.backgroundColor = 'white';
+        document.getElementById('rattings-wrapper').style.display = 'block';   
         console.log("Total restaurants in memory: " + restaurantsList.length);
-        
       }
       else if (xhr.status === 404) {
         console.log('404: File not found');

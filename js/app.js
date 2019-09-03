@@ -92,6 +92,7 @@ function initMap() {
     alert('Geolocation is not supported by your browser');
   } else {
     document.querySelector('#bottomSection').style.display = 'none';
+    document.getElementById('rattings-wrapper').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
     navigator.geolocation.getCurrentPosition(getUserLocation, handleErrors, geoOptions);
