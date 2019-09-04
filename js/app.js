@@ -84,6 +84,7 @@ let handleErrors = function (error) {
 /**  Geolocation API
 *****************************************************/
 function initMap() { 
+  // location.reload(true);
   // if user's browser does not support Navigator.geolocation object
   if (!navigator.geolocation) { 
     document.querySelector('#bottomSection').style.display = 'none';

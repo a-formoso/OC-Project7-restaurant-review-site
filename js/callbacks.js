@@ -373,7 +373,8 @@ function mobileCarousel(mql) {
     for (let i = 0; i < liElms.length; i++) {
       liElms[i].className += ' carousel-cell';
     }
-    document.querySelector('#restaurants-list-wrapper').style.borderTop = '30px';
+    // document.querySelector('#restaurants-list-wrapper').style.borderTop = '30px';
+    // document.querySelector('.restaurants-list').style.borderTop = '30px';
   }
   //else
 }

@@ -506,7 +506,8 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   div#rattings-wrapper {
     display: block;
     background-color: #D9D8D7;
-    margin: 0 0 30px;
+    /*margin: 0 0 30px;*/
+    margin: 0;
     text-align: center;
     padding: 10px 0;
     color: #636363;
@@ -594,7 +595,8 @@ form input#close-review-btn:hover, form input#add-review-btn:hover {
   div#rattings-wrapper {
     display: block;
     background-color: #D9D8D7;
-    margin: 0 0 30px;
+    /*margin: 0 0 30px;*/
+    margin: 0px;
     text-align: center;
     padding: 10px 0;
     color: #636363;
