@@ -1,9 +1,9 @@
 /*===========================================================================================================
-*  THE FACTORY PATTERN 
+*  FACTORY PATTERN 
 ===========================================================================================================*/
 
 
-/** New restaurants blueprint
+/** (new) restaurant blueprint
 ************************************************************/
 function restPlace(name, address, telephone, website, lat, lng, rating, userRatingsTotal, reviews, icon, photos, priceLevel, restIndex, isOpen) {
   // private data variables
