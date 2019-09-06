@@ -21,12 +21,6 @@
     <![endif]-->
   </head>
   <body>
-    <script type="text/javascript">
-      
-
-    </script>
-
-
     <div id="msg_display"></div>
     <!-- HEADER -->
     <header id="header" class="container-fluid">
@@ -39,7 +33,7 @@
         <div class="ui-column">
           <div class="ui-src-wrapper" id="locationField">
             <label for="ui-query"><i class="fa fa-lg fa-search fa-1x src-icon"></i></label>
-            <input type="text" name="find" id="ui-query" placeholder="Search by restaurant name" onFocus="geolocate();"/>
+            <input type="text" name="find" id="ui-query" placeholder="City or restaurant name" onFocus="geolocate();"/>
           </div>
           <div class="ui-btn-wrapper">
             <input id="ui-btn" type="button" value="Search"/>
@@ -76,10 +70,10 @@
       <section id="bottomSection" class="container-fluid">
          <!-- Restaurant info and Street view -->
         <div class="row no-gutters rest-info-wrapper">
-          <div id="rest-brief-wrapper" class="col-xs-12 col-md-4 rest-info">
+          <div id="rest-brief-wrapper" class="col-xs-12 col-md-5 rest-info">
             <div id="rest-brief">Restaurant Details</div>
           </div>
-          <div id="street-view-wrapper" class="col-xs-12 col-md-8 rest-info">
+          <div id="street-view-wrapper" class="col-xs-12 col-md-7 rest-info">
             <div id="street-view">Google Street View</div>
           </div>
         </div>
@@ -108,11 +102,7 @@
         </div>
       </section>
     </main>
-    <!-- FOOTER -->
-    <div class="footer">
-      <h6><em>Designed by <a href="https://aformoso.dev">Alexandre Formoso</em></a></h6>     
-    </div>
-
+    
 
     <script>
       // Refresh the page

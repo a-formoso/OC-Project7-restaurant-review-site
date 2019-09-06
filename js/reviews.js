@@ -67,7 +67,7 @@ function showReviews(rest_index) {
   let li_elem_id = '#' + rest_index;
   $(this).click(function(e) {
     // remove all pre-existing active classes
-    elems = document.querySelectorAll('.selection.selected');
+    let elems = document.querySelectorAll('.selection.selected');
     for (let i = 0; i < elems.length; i++) { 
       elems[i].classList.remove('selected');
       elems[i].style.backgroundColor = '#fff'; // restore white background (#D9FEA2)

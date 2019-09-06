@@ -108,6 +108,7 @@ function getDistanceInMiles(point_a, point_b) {
 function showPopup(rest_index) {
   infowindows.forEach(infowindow => infowindow.close());
   google.maps.event.trigger(markers[rest_index], 'click');
+
   // target list element on the side of the page
   let li_elem_id = '#' + rest_index;
   $(this).click(function(e) {
@@ -362,6 +363,8 @@ function openDeviceTab(e, deviceName) {
   e.currentTarget.className += " active";
 }
 
+
+
 /** Mobile-only Carousel
 ************************************************************/
 function mobileCarousel(mql) {
@@ -376,7 +379,29 @@ function mobileCarousel(mql) {
     // document.querySelector('#restaurants-list-wrapper').style.borderTop = '30px';
     // document.querySelector('.restaurants-list').style.borderTop = '30px';
   }
-  //else
+  /*
+  else {
+    // For dynamic (CSS) style manipulation - when min-width = 768px
+  function getStylesheet(unique_title) {
+      // iterating through document.styleSheets
+      for (let i = 0; i < document.styleSheets.length; i++) {
+        const sheet = document.styleSheets[i];
+        console.log("STYLESHEET FOUND: " + sheet);
+        if (sheet.title == unique_title) {
+          return sheet;
+        }
+      }
+    }
+  
+    // stylesheet object
+    const mainCSS = getStylesheet('main');
+    mainCSS.insertRule("#main-content { height: calc(100vh - 30px - 70px - 70px); }", 0);
+    mainCSS.insertRule("#midSection { height: 100%; }", 0);
+    mainCSS.insertRule("mid-content { height: 100%; }", 0);
+    mainCSS.insertRule("#map-wrapper { height: 100%; }", 0);
+    
+  }
+*/
 }
 const mql = window.matchMedia('(max-width: 767px)'); // The Window interface's matchMedia() method returns a new MediaQueryList object 
 mobileCarousel(mql);
