@@ -4,7 +4,6 @@
 /*===========================================================================================================
 *  INFORMATION TO REACH API
 ===========================================================================================================*/
-
 const localJSON = 'js/restaurants.json';
 let geocoding_url = 'https://maps.googleapis.com/maps/api/geocode/json?';
 
@@ -84,15 +83,12 @@ let handleErrors = function (error) {
 /**  Geolocation API
 *****************************************************/
 function initMap() { 
-  // location.reload(true);
+  document.querySelector('#bottomSection').style.display = 'none';
   // if user's browser does not support Navigator.geolocation object
   if (!navigator.geolocation) { 
-    document.querySelector('#bottomSection').style.display = 'none';
-    document.querySelector('.footer').style.display = 'none';
     console.log("Geolocation is not supported by your browser");
     alert('Geolocation is not supported by your browser');
   } else {
-    document.querySelector('#bottomSection').style.display = 'none';
     document.getElementById('rattings-wrapper').style.display = 'none';
     document.getElementById('map').innerHTML = welcome_msg;
     // getCurrentPosition gets device's live location
@@ -111,11 +107,3 @@ let getUserLocation = function (position) {
   pos = { lat: lat, lng: lng };
   createMap(pos);
 }
-
-
-
-
-
-
-
-
