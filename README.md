@@ -20,7 +20,7 @@
 #### By [*Alexandre Formoso*](https://aformoso.dev) - August 2019
 
 ### See full application 
-#### :point_right: [https://aformoso.github.io/OC-Project7-restaurant-review-site/](https://aformoso.github.io/OC-Project7-restaurant-review-site/)
+#### :point_right: [https://a-formoso.github.io/OC-Project7-restaurant-review-site/](https://a-formoso.github.io/OC-Project7-restaurant-review-site/)
 
 ![game printscreen](/images/app-preview.png)
 
